@@ -1,0 +1,24 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '## docs/tasks.md'; grep -E '^[|] (ID|T-[0-9]+) [|]' docs/tasks.md; echo; echo '## docs/progress.md 最新エントリ'; awk '/^---$/{n++;next} n==1' docs/progress.md"
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo 'コンテキスト圧縮前: docs/progress.mdに現在の作業状況(実施内容・結果・次回開始位置)を記録し、docs/tasks.mdの状態を更新してから圧縮してください。'"
+          }
+        ]
+      }
+    ]
+  }
+}
