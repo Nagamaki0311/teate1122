@@ -1,0 +1,41 @@
+---
+import { socialLinks } from "../data/social";
+
+interface Props {
+  variant?: "simple" | "featured";
+  class?: string;
+}
+
+const { variant = "simple", class: className = "" } = Astro.props;
+---
+
+{
+  variant === "featured" ? (
+    <div class:list={["flex flex-wrap justify-center gap-6", className]}>
+      {socialLinks.map((link) => (
+        <a
+          href={link.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="flex flex-col items-center gap-2 border border-[var(--color-border)] bg-white px-8 py-6 text-center transition-colors hover:border-[var(--color-text)]"
+        >
+          <span class="text-sm">{link.label}</span>
+          <span class="text-xs text-[var(--color-text-muted)]">{link.handle}</span>
+        </a>
+      ))}
+    </div>
+  ) : (
+    <div class:list={["flex gap-4", className]}>
+      {socialLinks.map((link) => (
+        <a
+          href={link.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="text-sm text-[var(--color-text-muted)] transition-colors hover:text-[var(--color-text)]"
+        >
+          {link.label}
+        </a>
+      ))}
+    </div>
+  )
+}

@@ -1,0 +1,19 @@
+---
+import PlaceholderImage from "./PlaceholderImage.astro";
+
+interface Props {
+  images?: { label: string }[];
+}
+
+const { images = Array.from({ length: 9 }, () => ({ label: "作品画像準備中" })) } = Astro.props;
+---
+
+<div class="grid grid-cols-2 gap-4 md:grid-cols-3">
+  {
+    images.map((image, i) => (
+      <div class="fade-up" data-delay={(i % 3) * 80}>
+        <PlaceholderImage label={image.label} ratio="aspect-square" />
+      </div>
+    ))
+  }
+</div>

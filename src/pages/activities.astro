@@ -1,0 +1,150 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import PlaceholderImage from "../components/PlaceholderImage.astro";
+import GalleryGrid from "../components/GalleryGrid.astro";
+import EventCard from "../components/EventCard.astro";
+import { getCollection } from "astro:content";
+
+const now = new Date();
+
+const allEvents = await getCollection("events");
+
+const events = allEvents
+  .filter((event) => event.data.type === "event")
+  .sort((a, b) => a.data.date.getTime() - b.data.date.getTime());
+const upcomingEvents = events.filter((event) => event.data.date.getTime() >= now.getTime());
+const pastEvents = events
+  .filter((event) => event.data.date.getTime() < now.getTime())
+  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+
+const workshops = allEvents
+  .filter((event) => event.data.type === "workshop")
+  .sort((a, b) => a.data.date.getTime() - b.data.date.getTime());
+const upcomingWorkshops = workshops.filter((event) => event.data.date.getTime() >= now.getTime());
+const pastWorkshops = workshops
+  .filter((event) => event.data.date.getTime() < now.getTime())
+  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+---
+
+<BaseLayout title="活動">
+  <section class="mx-auto max-w-5xl px-4 py-20 md:py-40">
+    <h1 class="fade-up text-center">活動</h1>
+    <p class="fade-up prose-body mx-auto mt-6 text-center text-[var(--color-text-muted)]" data-delay="80">
+      準備中のダミーテキストです。キャンドル制作・イベント出店・ワークショップを中心に活動しています。
+    </p>
+  </section>
+
+  <section id="candle-making" class="border-t border-[var(--color-border)] bg-[var(--color-surface)]">
+    <div class="mx-auto max-w-5xl px-4 py-20 md:py-40">
+      <div class="flex flex-col items-center gap-8 md:flex-row md:gap-16">
+        <div class="fade-up flex-1">
+          <h2>キャンドル制作</h2>
+          <p class="prose-body mt-6 text-[var(--color-text-muted)]">
+            準備中のダミーテキストです。すべて手作業で仕上げるキャンドルを、一つひとつ丁寧に制作しています。素材選びから香りのブレンドまで、こだわりを込めています。
+          </p>
+        </div>
+        <div class="fade-up w-full flex-1" data-delay="120">
+          <PlaceholderImage label="キャンドル制作 画像準備中" ratio="aspect-square" />
+        </div>
+      </div>
+
+      <div id="gallery" class="mt-16">
+        <GalleryGrid />
+      </div>
+    </div>
+  </section>
+
+  <section id="events" class="border-t border-[var(--color-border)]">
+    <div class="mx-auto max-w-5xl px-4 py-20 md:py-40">
+      <div class="flex flex-col items-center gap-8 md:flex-row-reverse md:gap-16">
+        <div class="fade-up flex-1">
+          <h2>イベント出店</h2>
+          <p class="prose-body mt-6 text-[var(--color-text-muted)]">
+            準備中のダミーテキストです。マルシェや手作り市などのイベントに出店しています。
+          </p>
+        </div>
+        <div class="fade-up w-full flex-1" data-delay="120">
+          <PlaceholderImage label="イベント出店 画像準備中" ratio="aspect-square" />
+        </div>
+      </div>
+
+      <div class="mt-16">
+        <h3 class="fade-up">開催予定</h3>
+        <div class="mt-8 grid gap-8 md:grid-cols-2">
+          {upcomingEvents.map((event, i) => (
+            <EventCard
+              title={event.data.title}
+              date={event.data.date}
+              location={event.data.location}
+              description={event.data.description}
+              delay={i * 80}
+            />
+          ))}
+        </div>
+      </div>
+
+      <div class="mt-16">
+        <h3 class="fade-up">過去のイベント</h3>
+        <div class="mt-8 grid gap-8 md:grid-cols-2">
+          {pastEvents.map((event, i) => (
+            <EventCard
+              title={event.data.title}
+              date={event.data.date}
+              location={event.data.location}
+              description={event.data.description}
+              isPast
+              delay={i * 80}
+            />
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="workshop" class="border-t border-[var(--color-border)] bg-[var(--color-surface)]">
+    <div class="mx-auto max-w-5xl px-4 py-20 md:py-40">
+      <div class="flex flex-col items-center gap-8 md:flex-row md:gap-16">
+        <div class="fade-up flex-1">
+          <h2>ワークショップ</h2>
+          <p class="prose-body mt-6 text-[var(--color-text-muted)]">
+            準備中のダミーテキストです。自分だけの香りを見つけられる、体験型のワークショップを開催しています。
+          </p>
+        </div>
+        <div class="fade-up w-full flex-1" data-delay="120">
+          <PlaceholderImage label="ワークショップ 画像準備中" ratio="aspect-square" />
+        </div>
+      </div>
+
+      <div class="mt-16">
+        <h3 class="fade-up">開催予定</h3>
+        <div class="mt-8 grid gap-8 md:grid-cols-2">
+          {upcomingWorkshops.map((event, i) => (
+            <EventCard
+              title={event.data.title}
+              date={event.data.date}
+              location={event.data.location}
+              description={event.data.description}
+              delay={i * 80}
+            />
+          ))}
+        </div>
+      </div>
+
+      <div class="mt-16">
+        <h3 class="fade-up">過去のワークショップ</h3>
+        <div class="mt-8 grid gap-8 md:grid-cols-2">
+          {pastWorkshops.map((event, i) => (
+            <EventCard
+              title={event.data.title}
+              date={event.data.date}
+              location={event.data.location}
+              description={event.data.description}
+              isPast
+              delay={i * 80}
+            />
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

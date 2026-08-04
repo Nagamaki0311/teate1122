@@ -19,6 +19,29 @@
 
 ---
 
+## 2026-08-04 T-009: ホームページ構成・ナビゲーション改善（D-009対応）
+
+### 実施内容
+- サイトマップを5ページ構成に再編。`/candles`・`/gallery`・`/events`・`CandleCard.astro`・`candles`コレクション（`src/content/candles/`含む）を削除し、新規`/activities`ページを追加（キャンドル制作/イベント出店/ワークショップを縦積み交互レイアウトで統合）。
+- `src/content.config.ts`から`candles`コレクションを削除し、`events`コレクションに`type: z.enum(["event","workshop"]).default("event")`を追加。`isPast`フィールドを廃止し、`date`と現在時刻の比較で開催予定/過去を導出するロジックに変更（`/activities`内で実装）。既存の`src/content/events/*.md`3件のfrontmatterに`type`を付与。
+- `src/data/social.ts`を新規作成（Instagramのみ、`{id,label,url,handle}`形式）し、`src/components/SocialLinks.astro`（`variant="simple"|"featured"`）を新設。`Footer.astro`・`contact.astro`のSNSハードコードを置き換え、`/`ページに中段SNSセクション（活動〜お問い合わせ間）を追加。
+- `Header.astro`のモバイルメニューを`<header>`外に移動し、`<dialog>` + `showModal()`/`close()`で再実装。閉じるボタン（44px以上）・`aria-current="page"`・SNSリンク（ドロワー最下部）を追加。`global.css`に`body.is-menu-open { overflow: hidden }`と`[id] { scroll-margin-top }`を追加。
+- ヒーロー領域にCSSのみのパーティクル（`hero-particle`、16個、`translate3d`/`opacity`のみアニメート、768px未満は9個目以降を間引き）とゆらぐグロウ（`hero-glow`、radial-gradient、5秒周期）を追加。`prefers-reduced-motion`ブロックに`animation: none`を追加。
+- `astro.config.mjs`の`site`を`https://teate1122.netlify.app`に修正。`netlify.toml`に`/candles`→`/activities#candle-making`、`/events`→`/activities#events`、`/gallery`→`/activities#gallery`のリダイレクトを追加。
+- `src/components/GalleryGrid.astro`を新規作成し、`/activities`のキャンドル制作セクション内`#gallery`から画像グリッドとして利用。
+
+### 結果
+- `npx astro build`成功（5ページ生成: `/`, `/about`, `/activities`, `/contact`, `/privacy`）、エラーなし。
+- ビルド後dist内のHTMLでダイアログmarkup・各アンカーID（`#candle-making`, `#gallery`, `#events`, `#workshop`）の存在を確認済み。
+- Reviewerによるレビュー・Manager側での実ブラウザ動作確認（ハンバーガーメニューの開閉・アニメーション表示）は未実施。
+
+### 次回開始位置
+- ReviewerによるD-009仕様適合・アクセシビリティ・Ponytail原則のレビューを実施する。
+- Manager側でNetlifyデプロイ後、モバイル実機/ブラウザでハンバーガーメニューの開閉、アンカー遷移時のスクロール位置、パーティクルアニメーションを目視確認する。
+- 実素材（写真・プロフィール文等）差し替えは引き続きバックログ扱い。
+
+---
+
 ## 2026-08-04 T-008: キャンドルブランド個人ホームページの実装
 
 ### 実施内容

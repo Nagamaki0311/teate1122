@@ -1,10 +1,6 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
-
-const socialLinks = [
-  { label: "Instagram", href: "https://instagram.com/" }, // TODO: 実際のSNSアカウントURLに差し替える
-  { label: "X (Twitter)", href: "https://x.com/" }, // TODO: 実際のSNSアカウントURLに差し替える
-];
+import SocialLinks from "../components/SocialLinks.astro";
 ---
 
 <BaseLayout title="お問い合わせ">
@@ -85,19 +81,8 @@ const socialLinks = [
 
     <div class="fade-up mt-20 border-t border-[var(--color-border)] pt-12 text-center" data-delay="240">
       <h2>SNS</h2>
-      <div class="mt-6 flex justify-center gap-6">
-        {
-          socialLinks.map((link) => (
-            <a
-              href={link.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              class="text-sm text-[var(--color-text-muted)] transition-colors hover:text-[var(--color-text)]"
-            >
-              {link.label}
-            </a>
-          ))
-        }
+      <div class="mt-6">
+        <SocialLinks variant="simple" class="justify-center" />
       </div>
     </div>
   </section>
