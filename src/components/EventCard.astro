@@ -1,0 +1,35 @@
+---
+interface Props {
+  title: string;
+  date: Date;
+  location: string;
+  description: string;
+  isPast?: boolean;
+  delay?: number;
+}
+
+const { title, date, location, description, isPast = false, delay = 0 } = Astro.props;
+
+const formattedDate = new Intl.DateTimeFormat("ja-JP", {
+  year: "numeric",
+  month: "long",
+  day: "numeric",
+}).format(date);
+---
+
+<article
+  class:list={["fade-up border border-[var(--color-border)] bg-white p-6", isPast && "opacity-70"]}
+  data-delay={delay}
+>
+  <div class="flex items-center gap-3">
+    <span class="text-xs text-[var(--color-text-muted)]">{formattedDate}</span>
+    {isPast && (
+      <span class="border border-[var(--color-border)] px-2 py-0.5 text-xs text-[var(--color-text-muted)]">
+        終了
+      </span>
+    )}
+  </div>
+  <h3 class="mt-2">{title}</h3>
+  <p class="mt-1 text-sm text-[var(--color-accent-beige)]">{location}</p>
+  <p class="mt-2 text-sm text-[var(--color-text-muted)]">{description}</p>
+</article>

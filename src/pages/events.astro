@@ -1,0 +1,50 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import EventCard from "../components/EventCard.astro";
+import { getCollection } from "astro:content";
+
+const allEvents = await getCollection("events");
+const upcoming = allEvents
+  .filter((event) => !event.data.isPast)
+  .sort((a, b) => a.data.date.getTime() - b.data.date.getTime());
+const past = allEvents
+  .filter((event) => event.data.isPast)
+  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+---
+
+<BaseLayout title="イベント">
+  <section class="mx-auto max-w-5xl px-4 py-20 md:py-40">
+    <h1 class="fade-up text-center">イベント出店・ワークショップ</h1>
+
+    <div class="mt-16">
+      <h2 class="fade-up">開催予定</h2>
+      <div class="mt-8 grid gap-8 md:grid-cols-2">
+        {upcoming.map((event, i) => (
+          <EventCard
+            title={event.data.title}
+            date={event.data.date}
+            location={event.data.location}
+            description={event.data.description}
+            delay={i * 80}
+          />
+        ))}
+      </div>
+    </div>
+
+    <div class="mt-20">
+      <h2 class="fade-up">過去のイベント</h2>
+      <div class="mt-8 grid gap-8 md:grid-cols-2">
+        {past.map((event, i) => (
+          <EventCard
+            title={event.data.title}
+            date={event.data.date}
+            location={event.data.location}
+            description={event.data.description}
+            isPast
+            delay={i * 80}
+          />
+        ))}
+      </div>
+    </div>
+  </section>
+</BaseLayout>

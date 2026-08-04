@@ -1,0 +1,28 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import CandleCard from "../components/CandleCard.astro";
+import { getCollection } from "astro:content";
+
+const candles = (await getCollection("candles")).sort((a, b) => a.data.order - b.data.order);
+---
+
+<BaseLayout title="キャンドル">
+  <section class="mx-auto max-w-5xl px-4 py-20 md:py-40">
+    <h1 class="fade-up text-center">キャンドル</h1>
+    <p class="fade-up prose-body mx-auto mt-6 text-center text-[var(--color-text-muted)]" data-delay="80">
+      準備中のダミーテキストです。すべて手作業で仕上げるキャンドルたちをご紹介します。
+    </p>
+
+    <div class="mt-16 grid gap-8 sm:grid-cols-2 md:grid-cols-3">
+      {candles.map((candle, i) => (
+        <CandleCard
+          name={candle.data.name}
+          scent={candle.data.scent}
+          description={candle.data.description}
+          price={candle.data.price}
+          delay={i * 80}
+        />
+      ))}
+    </div>
+  </section>
+</BaseLayout>

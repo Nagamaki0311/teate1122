@@ -1,0 +1,23 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import PlaceholderImage from "../components/PlaceholderImage.astro";
+
+const galleryCount = 9;
+---
+
+<BaseLayout title="ギャラリー">
+  <section class="mx-auto max-w-5xl px-4 py-20 md:py-40">
+    <h1 class="fade-up text-center">ギャラリー</h1>
+    <p class="fade-up prose-body mx-auto mt-6 text-center text-[var(--color-text-muted)]" data-delay="80">
+      準備中のダミーテキストです。これまでに制作した作品をご紹介します。
+    </p>
+
+    <div class="mt-16 grid grid-cols-2 gap-4 md:grid-cols-3">
+      {Array.from({ length: galleryCount }).map((_, i) => (
+        <div class="fade-up" data-delay={(i % 3) * 80}>
+          <PlaceholderImage label="作品画像準備中" ratio="aspect-square" />
+        </div>
+      ))}
+    </div>
+  </section>
+</BaseLayout>
