@@ -21,6 +21,7 @@
 | T-005 | SessionStart/PreCompact Hookの導入 | 中 | 完了 | claude | .claude/settings.jsonを新設。tasks.md/progress.mdの自動表示と圧縮前リマインダーを1行shellコマンドで実装（D-005参照） |
 | T-006 | AI開発OS全体レビュー（重複排除・Hook環境検証） | 高 | 完了 | claude | CLAUDE.mdのAgent説明重複を除去、Manager-Hook接続を明文化、Hook環境依存性を文書化（D-006参照） |
 | T-007 | Agent別モデル最適化（Model Routing）の導入 | 中 | 完了 | claude | Planner=opus/Developer・Reviewer=sonnetに固定。軽量レビューはAgent呼び出し時のmodelパラメータ上書きで対応（D-007参照） |
+| T-008 | キャンドルブランド個人ホームページの実装 | 高 | 実装中 | developer | Astro 5 + Tailwind CSS v4 + Netlify Forms構成で承認済み（Planner提案・User承認済み）。GitHub経由でブランチにpush。D-008参照 |
 
 ## バックログ（未着手・優先度未確定）
 
