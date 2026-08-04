@@ -1,0 +1,44 @@
+---
+const socialLinks = [
+  { label: "Instagram", href: "https://instagram.com/" }, // TODO: 実際のSNSアカウントURLに差し替える
+  { label: "X (Twitter)", href: "https://x.com/" }, // TODO: 実際のSNSアカウントURLに差し替える
+];
+---
+
+<footer class="border-t border-[var(--color-border)] bg-[var(--color-surface)]">
+  <div class="mx-auto max-w-5xl px-4 py-12 md:px-8">
+    <div class="flex flex-col items-center gap-6 text-center md:flex-row md:items-start md:justify-between md:text-left">
+      <div>
+        <p class="font-[family-name:var(--font-heading)] text-lg">[ブランド名]</p>
+        <p class="mt-2 max-w-xs text-sm text-[var(--color-text-muted)]">
+          準備中のダミーテキストです。手作りキャンドルのある暮らしをお届けします。
+        </p>
+      </div>
+
+      <div class="flex flex-col items-center gap-4 md:items-end">
+        <div class="flex gap-4">
+          {
+            socialLinks.map((link) => (
+              <a
+                href={link.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="text-sm text-[var(--color-text-muted)] transition-colors hover:text-[var(--color-text)]"
+              >
+                {link.label}
+              </a>
+            ))
+          }
+        </div>
+        <nav class="flex gap-4 text-sm text-[var(--color-text-muted)]">
+          <a href="/privacy" class="hover:text-[var(--color-text)]">プライバシーポリシー</a>
+          <a href="/contact" class="hover:text-[var(--color-text)]">お問い合わせ</a>
+        </nav>
+      </div>
+    </div>
+
+    <p class="mt-10 text-center text-xs text-[var(--color-text-muted)]">
+      &copy; {new Date().getFullYear()} [ブランド名]. All rights reserved.
+    </p>
+  </div>
+</footer>

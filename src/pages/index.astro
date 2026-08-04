@@ -1,0 +1,116 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import PlaceholderImage from "../components/PlaceholderImage.astro";
+import CandleCard from "../components/CandleCard.astro";
+import EventCard from "../components/EventCard.astro";
+import { getCollection } from "astro:content";
+
+const candles = (await getCollection("candles"))
+  .sort((a, b) => a.data.order - b.data.order)
+  .slice(0, 3);
+
+const events = (await getCollection("events"))
+  .filter((event) => !event.data.isPast)
+  .sort((a, b) => a.data.date.getTime() - b.data.date.getTime())
+  .slice(0, 2);
+---
+
+<BaseLayout title="トップ">
+  <section class="mx-auto flex max-w-5xl flex-col items-center gap-8 px-4 py-20 text-center md:flex-row md:gap-16 md:py-40 md:text-left">
+    <div class="fade-up flex-1">
+      <h1>心をほどく、灯りのある暮らし</h1>
+      <p class="prose-body mt-6 text-[var(--color-text-muted)] mx-auto md:mx-0">
+        準備中のダミーテキストです。[ブランド名]は、日々の暮らしに寄り添う手作りキャンドルをお届けしています。
+      </p>
+      <a
+        href="/candles"
+        class="mt-8 inline-block border border-[var(--color-text)] px-8 py-3 text-sm transition-colors hover:bg-[var(--color-text)] hover:text-[var(--color-bg)]"
+      >
+        キャンドルを見る
+      </a>
+    </div>
+    <div class="fade-up w-full flex-1" data-delay="120">
+      <PlaceholderImage label="ヒーロー画像準備中" ratio="aspect-square" />
+    </div>
+  </section>
+
+  <section class="border-t border-[var(--color-border)] bg-[var(--color-surface)]">
+    <div class="mx-auto max-w-3xl px-4 py-20 text-center md:py-40">
+      <h2 class="fade-up">理念</h2>
+      <p class="fade-up prose-body mx-auto mt-6 text-[var(--color-text-muted)]" data-delay="80">
+        準備中のダミーテキストです。ひとつひとつ手作りするキャンドルを通じて、忙しい毎日の中にほっと一息つける時間をお届けしたいと考えています。
+      </p>
+      <a href="/about" class="fade-up mt-6 inline-block text-sm underline underline-offset-4" data-delay="160">
+        プロフィールを見る
+      </a>
+    </div>
+  </section>
+
+  <section class="mx-auto max-w-5xl px-4 py-20 md:py-40">
+    <h2 class="fade-up text-center">キャンドル</h2>
+    <div class="mt-12 grid gap-8 sm:grid-cols-2 md:grid-cols-3">
+      {candles.map((candle, i) => (
+        <CandleCard
+          name={candle.data.name}
+          scent={candle.data.scent}
+          description={candle.data.description}
+          price={candle.data.price}
+          delay={i * 80}
+        />
+      ))}
+    </div>
+    <div class="mt-12 text-center">
+      <a href="/candles" class="text-sm underline underline-offset-4">すべてのキャンドルを見る</a>
+    </div>
+  </section>
+
+  <section class="border-t border-[var(--color-border)] bg-[var(--color-surface)]">
+    <div class="mx-auto max-w-5xl px-4 py-20 md:py-40">
+      <h2 class="fade-up text-center">直近のイベント</h2>
+      <div class="mt-12 grid gap-8 md:grid-cols-2">
+        {events.map((event, i) => (
+          <EventCard
+            title={event.data.title}
+            date={event.data.date}
+            location={event.data.location}
+            description={event.data.description}
+            delay={i * 80}
+          />
+        ))}
+      </div>
+      <div class="mt-12 text-center">
+        <a href="/events" class="text-sm underline underline-offset-4">すべてのイベントを見る</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="mx-auto max-w-5xl px-4 py-20 md:py-40">
+    <h2 class="fade-up text-center">ギャラリー</h2>
+    <div class="mt-12 grid grid-cols-2 gap-4 md:grid-cols-4">
+      {Array.from({ length: 4 }).map((_, i) => (
+        <div class="fade-up" data-delay={i * 80}>
+          <PlaceholderImage label="作品画像準備中" ratio="aspect-square" />
+        </div>
+      ))}
+    </div>
+    <div class="mt-12 text-center">
+      <a href="/gallery" class="text-sm underline underline-offset-4">ギャラリーを見る</a>
+    </div>
+  </section>
+
+  <section class="border-t border-[var(--color-border)] bg-[var(--color-surface)]">
+    <div class="mx-auto max-w-3xl px-4 py-20 text-center md:py-40">
+      <h2 class="fade-up">お問い合わせ</h2>
+      <p class="fade-up prose-body mx-auto mt-6 text-[var(--color-text-muted)]" data-delay="80">
+        準備中のダミーテキストです。ご質問やオーダーメイドのご相談など、お気軽にお問い合わせください。
+      </p>
+      <a
+        href="/contact"
+        class="fade-up mt-8 inline-block border border-[var(--color-text)] px-8 py-3 text-sm transition-colors hover:bg-[var(--color-text)] hover:text-[var(--color-bg)]"
+        data-delay="160"
+      >
+        お問い合わせフォームへ
+      </a>
+    </div>
+  </section>
+</BaseLayout>

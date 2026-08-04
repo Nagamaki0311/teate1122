@@ -21,11 +21,13 @@
 | T-005 | SessionStart/PreCompact Hookの導入 | 中 | 完了 | claude | .claude/settings.jsonを新設。tasks.md/progress.mdの自動表示と圧縮前リマインダーを1行shellコマンドで実装（D-005参照） |
 | T-006 | AI開発OS全体レビュー（重複排除・Hook環境検証） | 高 | 完了 | claude | CLAUDE.mdのAgent説明重複を除去、Manager-Hook接続を明文化、Hook環境依存性を文書化（D-006参照） |
 | T-007 | Agent別モデル最適化（Model Routing）の導入 | 中 | 完了 | claude | Planner=opus/Developer・Reviewer=sonnetに固定。軽量レビューはAgent呼び出し時のmodelパラメータ上書きで対応（D-007参照） |
+| T-008 | キャンドルブランド個人ホームページの実装 | 高 | 完了 | developer/reviewer | Astro 5 + Tailwind CSS v4 + Netlify Forms構成で実装（コミット38e4919）。ビルド確認・全ページ200確認・Reviewer承認済み。プレースホルダー差し替え等の残タスクはバックログ参照。D-008参照 |
 
 ## バックログ（未着手・優先度未確定）
 
-- （ここに新しいタスク候補を追記する）
 - progress.mdが将来肥大化した場合、docs/progress-archive.md等への分割を検討する（D-006時点では未実施・優先度未確定）
+- T-008のプレースホルダー差し替え（ブランド名・ロゴ・プロフィール文・写真素材・SNSリンクURL・お問い合わせフォーム送信先メール・astro.config.mjsのsite URL）: 実素材確定後に対応
+- Reviewer指摘の推奨事項（Header.astroのモバイルメニュー閉じるボタン・フォーカストラップ）: 優先度低、必要に応じて対応
 
 ## メモ
 
