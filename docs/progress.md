@@ -31,13 +31,13 @@
 - `src/components/GalleryGrid.astro`を新規作成し、`/activities`のキャンドル制作セクション内`#gallery`から画像グリッドとして利用。
 
 ### 結果
-- `npx astro build`成功（5ページ生成: `/`, `/about`, `/activities`, `/contact`, `/privacy`）、エラーなし。
+- `npx astro build`成功（5ページ生成: `/`, `/about`, `/activities`, `/contact`, `/privacy`）、エラーなし。削除対象（`/candles`, `/gallery`, `/events`）は404を確認。
 - ビルド後dist内のHTMLでダイアログmarkup・各アンカーID（`#candle-making`, `#gallery`, `#events`, `#workshop`）の存在を確認済み。
-- Reviewerによるレビュー・Manager側での実ブラウザ動作確認（ハンバーガーメニューの開閉・アニメーション表示）は未実施。
+- Reviewerがコード差分（`b6dc089..ceec0b7`）をレビューし承認（必須修正なし）。dialog化によるbackdrop-filter包含ブロック問題の解消、リダイレクト整合性、内部リンク残存なし、アクセシビリティ・Ponytail原則を確認済み。
+- Manager側でPlaywrightによりモバイル（iPhone 13相当）・デスクトップ（1440px）のスクリーンショットを取得し目視確認。ハンバーガーメニューはdialog化により文字重なりなく正常に開閉し、独立した閉じるボタンも機能。トップページのSNSセクションが「活動」〜「お問い合わせ」間（中段）に正しく配置されていることを確認。`/activities`のキャンドル制作（ギャラリー9枚）・イベント出店（開催予定/過去）・ワークショップ（開催予定/過去）が全て正しく表示されることを確認（`prefers-reduced-motion`有効化でfade-upアニメーション待ちなしに検証）。
 
 ### 次回開始位置
-- ReviewerによるD-009仕様適合・アクセシビリティ・Ponytail原則のレビューを実施する。
-- Manager側でNetlifyデプロイ後、モバイル実機/ブラウザでハンバーガーメニューの開閉、アンカー遷移時のスクロール位置、パーティクルアニメーションを目視確認する。
+- Netlifyへのpush後、本番環境（https://teate1122.netlify.app ）での最終表示確認を行う。
 - 実素材（写真・プロフィール文等）差し替えは引き続きバックログ扱い。
 
 ---
