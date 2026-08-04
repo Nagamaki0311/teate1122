@@ -19,6 +19,24 @@
 
 ---
 
+## 2026-08-04 T-008: キャンドルブランド個人ホームページの実装
+
+### 実施内容
+- D-002（テンプレート専用方針）をD-008で更新し、teate1122リポジトリ自体にアプリ実装を行う方針をUser承認のもと確定。
+- PlannerがIssue要件からサイトマップ・ワイヤーフレーム・デザインコンセプト・技術構成を提案し、User承認を取得（Astro 5 + Tailwind CSS v4 + Content Collections + Netlify Forms/Hosting）。
+- DeveloperがAstroプロジェクト一式（`astro.config.mjs`, `netlify.toml`, レイアウト/コンポーネント、`src/styles/global.css`のデザイントークン、`src/scripts/fade-up.js`のfade-upアニメーション、Content Collections（candles/events各ダミー3件）、7ページ（`/`, `/about`, `/candles`, `/events`, `/gallery`, `/contact`, `/privacy`））を実装（コミット`38e4919`、29ファイル追加）。ブランド名・写真・プロフィール文・SNSリンク・フォーム送信先メール等は全てプレースホルダー＋TODOコメントで実装。
+- ReviewerがビルドとD-008承認仕様との整合、Ponytail原則、アクセシビリティ、セキュリティ（Netlify Formsのhoneypot等）を確認し、承認（必須修正なし、推奨事項のみ）。
+- Manager側で`astro preview`を起動し、`/`, `/about`, `/candles`, `/contact`の主要ページが200 OKで表示されることを確認。
+
+### 結果
+- `npx astro build`成功、全7ページ生成エラーなし。動作確認（preview起動＋主要ページの200確認）済み。Reviewer承認済み。完了条件（要件達成・エラーなし・動作確認済み・コードレビュー済み）を満たしたためT-008を完了とした。
+
+### 次回開始位置
+- 実素材（ブランド名・ロゴ・プロフィール文・写真・SNSリンク・フォーム送信先メール・サイトURL）が確定次第、該当プレースホルダーを差し替える（docs/tasks.mdバックログ参照）。
+- Reviewerの推奨事項（Header.astroのモバイルメニューの閉じるボタン・フォーカストラップ）は優先度低として保留。
+
+---
+
 ## 2026-08-03 T-007: Agent別モデル最適化（Model Routing）の導入
 
 ### 実施内容
