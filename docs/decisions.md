@@ -259,3 +259,32 @@
 ### 追記（2026-08-04）: GitHub Pages自動ビルド失敗への対応
 - PR #1マージ後、リポジトリのGitHub Pages機能（Settings > Pages、Jekyllによる自動ビルド）がAstroの`.astro`ファイルのfrontmatter（`---`区切り）をYAML front matterと誤認識し、ビルド失敗（赤いX）が発生した。
 - ホスティングはNetlify（本D-008で決定済み）を使用する方針のため、GitHub Pagesは不要と判断。User承認のもとGitHub Pages機能自体を無効化する方針とした（Settings > PagesのSourceを「None」に変更。利用可能なGitHub MCPツールにリポジトリ設定変更手段がなかったため、User本人による手動操作が必要）。
+
+---
+
+## D-009: サイト構成をプロフィール/理念/活動/SNS/お問い合わせの5構成へ再編し、商品紹介を将来の作品紹介向けに再設計する
+
+- 日付: 2026-08-04
+- 状態: 採用
+
+### 背景
+- 公開後、情報設計・ナビゲーションの改善を求めるIssueが来た。現状7ページ（`/`, `/about`, `/candles`, `/events`, `/gallery`, `/contact`, `/privacy`）は活動内容（キャンドル制作・イベント出店・ワークショップ）を横断的に紹介する構造になっておらず、SNSリンクもFooter/contact.astroに二重定義されていた。
+- ハンバーガーメニューに文字重なり等の表示崩れがあり、Reviewer（T-008時点）からも指摘済みだった。原因は`Header.astro`でモバイルメニューが`<header>`の子要素になっており、親の`backdrop-filter`が`fixed`要素の包含ブロックを狭めていたこと。
+
+### 決定
+- サイトを5ページ構成（`/`, `/about`（プロフィール+理念）, `/activities`（活動：キャンドル制作/イベント出店/ワークショップ）, `/contact`（フォーム+SNS）, `/privacy`）に再編する。
+- `/gallery`は独立ページを廃止し、`/activities`内の「キャンドル制作」セクションに統合する。
+- `/candles`（商品紹介）と`candles`コレクションは削除する。将来「作品紹介」を追加する際に流用できるよう、`works`コレクション（`src/content/works/`, `/works`）の命名・想定スキーマ（price等の販売属性を持たない`{title, description, order, image?, year?, tags?}`）だけを設計として確定し、今回は実装しない（YAGNI）。
+- SNSは`src/data/social.ts`に一元化し、Footer・SNSセクション・モバイルドロワーが同じデータソースを参照する構造にする。ヘッダーナビ項目には出さず、トップページの「活動」〜「お問い合わせ」間（中段）セクションとドロワー下部にのみ配置する。Instagram（https://www.instagram.com/teate1122）のみを掲載し、将来のSNS追加は配列への追記のみで対応できるようにする。
+- ハンバーガーメニューは`<header>`要素の外に移し、`<dialog>` + `showModal()`で実装し直す（ブラウザ標準のフォーカストラップ・Escape対応を活用し、自前実装を避ける）。
+- ヒーロー領域にCSSのみのパーティクル（灯りの粒）とゆらぐグロウのアニメーションを追加する。JS/canvasライブラリは使わず、`prefers-reduced-motion`で無効化する。
+
+### 理由（検討した代替案）
+- `/gallery`独立維持案も検討したが、Issueの5構成方針とUser承認により統合を採用。将来的に作品紹介が独立ページに育つ場合は`/works`として切り出せるため、情報の二重化を避けられる。
+- SNSをヘッダーナビ項目にする案も検討したが、SNSは外部リンク集でありページではないため、中段セクション＋フッターで十分と判断（User承認）。
+- パーティクルをtsParticles等のライブラリで実装する案は、バンドルサイズ増とCPU負荷が見た目の効果に見合わないため不採用。CSS `transform`/`opacity`のみのアニメーションで軽量に実現する。
+
+### 影響
+- `/candles`, `/events`, `/gallery`への既存リンク・ブックマークは`netlify.toml`のリダイレクト設定で`/activities`の該当セクションへ転送する。
+- Content Collectionsは`events`のみとなり、`type: "event" | "workshop"`で種別を区別する（`isPast`は`date`比較による導出に置き換え、手動更新の運用負債を解消）。
+- 本リポジトリを雛形として再利用する場合、`src/data/social.ts`のようなデータ駆動パターンは他プロジェクトにも応用可能な設計として参考にできる。
