@@ -1,0 +1,119 @@
+{
+  "id": "home",
+  "slug": "/",
+  "title": "トップ",
+  "sections": [
+    {
+      "id": "s1",
+      "type": "hero",
+      "visible": true,
+      "props": {
+        "heading": "心をほどく、灯りのある暮らし",
+        "body": "準備中のダミーテキストです。[ブランド名]は、日々の暮らしに寄り添う手作りキャンドルをお届けしています。",
+        "image": {
+          "assetId": "a1",
+          "focal": [
+            0.5,
+            0.4
+          ],
+          "zoom": 1,
+          "alt": "ヒーロー画像準備中"
+        },
+        "cta": {
+          "label": "活動を見る",
+          "href": "/activities"
+        }
+      },
+      "style": {
+        "paddingY": "xl",
+        "align": "center",
+        "bg": {
+          "type": "token",
+          "value": "bg"
+        }
+      },
+      "animation": {
+        "preset": "inherit",
+        "delay": 0
+      }
+    },
+    {
+      "id": "s2",
+      "type": "text",
+      "visible": true,
+      "props": {
+        "heading": "理念",
+        "body": "準備中のダミーテキストです。ひとつひとつ手作りするキャンドルを通じて、忙しい毎日の中にほっと一息つける時間をお届けしたいと考えています。"
+      },
+      "style": {
+        "paddingY": "lg",
+        "align": "center",
+        "bg": {
+          "type": "token",
+          "value": "surface"
+        }
+      },
+      "animation": {
+        "preset": "inherit",
+        "delay": 0
+      }
+    },
+    {
+      "id": "s3",
+      "type": "activity-cards",
+      "visible": true,
+      "props": {
+        "heading": "活動",
+        "items": [
+          {
+            "title": "キャンドル制作",
+            "description": "準備中のダミーテキストです。すべて手作業で仕上げるキャンドルを制作しています。"
+          },
+          {
+            "title": "イベント出店",
+            "description": "準備中のダミーテキストです。マルシェや手作り市などのイベントに出店しています。"
+          },
+          {
+            "title": "ワークショップ",
+            "description": "準備中のダミーテキストです。自分だけの香りを見つけられる体験型ワークショップです。"
+          }
+        ]
+      },
+      "style": {
+        "paddingY": "lg",
+        "align": "center",
+        "bg": {
+          "type": "token",
+          "value": "bg"
+        }
+      },
+      "animation": {
+        "preset": "inherit",
+        "delay": 0
+      }
+    },
+    {
+      "id": "s4",
+      "type": "contact-social",
+      "visible": true,
+      "props": {
+        "heading": "SNS・お問い合わせ",
+        "body": "準備中のダミーテキストです。日々の制作の様子はSNSで発信しています。 準備中のダミーテキストです。ご質問やオーダーメイドのご相談など、お気軽にお問い合わせください。",
+        "showEmail": false,
+        "showSocial": true
+      },
+      "style": {
+        "paddingY": "lg",
+        "align": "center",
+        "bg": {
+          "type": "token",
+          "value": "surface"
+        }
+      },
+      "animation": {
+        "preset": "inherit",
+        "delay": 0
+      }
+    }
+  ]
+}

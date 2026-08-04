@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="1440" viewBox="0 0 1440 1440">
+  <rect width="1440" height="1440" fill="#d9bfa7"/>
+  <circle cx="720" cy="620" r="260" fill="#fcfbf9" opacity="0.5"/>
+  <text x="720" y="1300" text-anchor="middle" font-family="serif" font-size="48" fill="#2e2a26">hero image placeholder</text>
+</svg>

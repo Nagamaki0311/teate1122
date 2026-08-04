@@ -19,6 +19,29 @@
 
 ---
 
+## 2026-08-04 T-009: ホームページ構成・ナビゲーション改善（D-009対応）
+
+### 実施内容
+- サイトマップを5ページ構成に再編。`/candles`・`/gallery`・`/events`・`CandleCard.astro`・`candles`コレクション（`src/content/candles/`含む）を削除し、新規`/activities`ページを追加（キャンドル制作/イベント出店/ワークショップを縦積み交互レイアウトで統合）。
+- `src/content.config.ts`から`candles`コレクションを削除し、`events`コレクションに`type: z.enum(["event","workshop"]).default("event")`を追加。`isPast`フィールドを廃止し、`date`と現在時刻の比較で開催予定/過去を導出するロジックに変更（`/activities`内で実装）。既存の`src/content/events/*.md`3件のfrontmatterに`type`を付与。
+- `src/data/social.ts`を新規作成（Instagramのみ、`{id,label,url,handle}`形式）し、`src/components/SocialLinks.astro`（`variant="simple"|"featured"`）を新設。`Footer.astro`・`contact.astro`のSNSハードコードを置き換え、`/`ページに中段SNSセクション（活動〜お問い合わせ間）を追加。
+- `Header.astro`のモバイルメニューを`<header>`外に移動し、`<dialog>` + `showModal()`/`close()`で再実装。閉じるボタン（44px以上）・`aria-current="page"`・SNSリンク（ドロワー最下部）を追加。`global.css`に`body.is-menu-open { overflow: hidden }`と`[id] { scroll-margin-top }`を追加。
+- ヒーロー領域にCSSのみのパーティクル（`hero-particle`、16個、`translate3d`/`opacity`のみアニメート、768px未満は9個目以降を間引き）とゆらぐグロウ（`hero-glow`、radial-gradient、5秒周期）を追加。`prefers-reduced-motion`ブロックに`animation: none`を追加。
+- `astro.config.mjs`の`site`を`https://teate1122.netlify.app`に修正。`netlify.toml`に`/candles`→`/activities#candle-making`、`/events`→`/activities#events`、`/gallery`→`/activities#gallery`のリダイレクトを追加。
+- `src/components/GalleryGrid.astro`を新規作成し、`/activities`のキャンドル制作セクション内`#gallery`から画像グリッドとして利用。
+
+### 結果
+- `npx astro build`成功（5ページ生成: `/`, `/about`, `/activities`, `/contact`, `/privacy`）、エラーなし。削除対象（`/candles`, `/gallery`, `/events`）は404を確認。
+- ビルド後dist内のHTMLでダイアログmarkup・各アンカーID（`#candle-making`, `#gallery`, `#events`, `#workshop`）の存在を確認済み。
+- Reviewerがコード差分（`b6dc089..ceec0b7`）をレビューし承認（必須修正なし）。dialog化によるbackdrop-filter包含ブロック問題の解消、リダイレクト整合性、内部リンク残存なし、アクセシビリティ・Ponytail原則を確認済み。
+- Manager側でPlaywrightによりモバイル（iPhone 13相当）・デスクトップ（1440px）のスクリーンショットを取得し目視確認。ハンバーガーメニューはdialog化により文字重なりなく正常に開閉し、独立した閉じるボタンも機能。トップページのSNSセクションが「活動」〜「お問い合わせ」間（中段）に正しく配置されていることを確認。`/activities`のキャンドル制作（ギャラリー9枚）・イベント出店（開催予定/過去）・ワークショップ（開催予定/過去）が全て正しく表示されることを確認（`prefers-reduced-motion`有効化でfade-upアニメーション待ちなしに検証）。
+
+### 次回開始位置
+- Netlifyへのpush後、本番環境（https://teate1122.netlify.app ）での最終表示確認を行う。
+- 実素材（写真・プロフィール文等）差し替えは引き続きバックログ扱い。
+
+---
+
 ## 2026-08-04 T-008: キャンドルブランド個人ホームページの実装
 
 ### 実施内容

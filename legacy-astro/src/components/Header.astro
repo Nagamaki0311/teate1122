@@ -1,0 +1,117 @@
+---
+import SocialLinks from "./SocialLinks.astro";
+
+const navItems = [
+  { href: "/about", label: "プロフィール" },
+  { href: "/about#philosophy", label: "理念" },
+  { href: "/activities", label: "活動" },
+  { href: "/contact", label: "お問い合わせ" },
+];
+
+const currentPath = Astro.url.pathname;
+
+function isCurrent(href: string) {
+  const path = href.split("#")[0];
+  if (path === "") return false;
+  return currentPath === path || currentPath === `${path}/`;
+}
+---
+
+<header class="sticky top-0 z-50 border-b border-[var(--color-border)] bg-[var(--color-bg)]/95 backdrop-blur">
+  <div class="mx-auto flex max-w-5xl items-center justify-between px-4 py-4 md:px-8">
+    <a href="/" class="font-[family-name:var(--font-heading)] text-lg tracking-wide">
+      [ブランド名]
+    </a>
+
+    <nav class="hidden gap-8 md:flex">
+      {
+        navItems.map((item) => (
+          <a
+            href={item.href}
+            aria-current={isCurrent(item.href) ? "page" : undefined}
+            class="text-sm text-[var(--color-text-muted)] transition-colors hover:text-[var(--color-text)] aria-[current=page]:text-[var(--color-text)]"
+          >
+            {item.label}
+          </a>
+        ))
+      }
+    </nav>
+
+    <button
+      id="menu-toggle"
+      type="button"
+      aria-label="メニューを開く"
+      aria-expanded="false"
+      aria-controls="mobile-menu"
+      class="flex h-10 w-10 flex-col items-center justify-center gap-1.5 md:hidden"
+    >
+      <span class="h-px w-6 bg-[var(--color-text)]" data-menu-line="1"></span>
+      <span class="h-px w-6 bg-[var(--color-text)]" data-menu-line="2"></span>
+      <span class="h-px w-6 bg-[var(--color-text)]" data-menu-line="3"></span>
+    </button>
+  </div>
+</header>
+
+<dialog
+  id="mobile-menu"
+  class="m-0 h-dvh max-h-none w-full max-w-none border-none bg-[var(--color-bg)] p-0 backdrop:bg-[var(--color-text)]/40"
+>
+  <div class="relative flex h-full flex-col items-center justify-center gap-8 px-4 py-20">
+    <button
+      id="menu-close"
+      type="button"
+      aria-label="メニューを閉じる"
+      class="absolute right-4 top-4 flex h-11 w-11 items-center justify-center text-2xl"
+    >
+      &times;
+    </button>
+
+    <nav class="flex flex-col items-center gap-8">
+      {
+        navItems.map((item) => (
+          <a
+            href={item.href}
+            aria-current={isCurrent(item.href) ? "page" : undefined}
+            class="font-[family-name:var(--font-heading)] text-2xl text-[var(--color-text)] aria-[current=page]:underline aria-[current=page]:underline-offset-4"
+          >
+            {item.label}
+          </a>
+        ))
+      }
+    </nav>
+
+    <SocialLinks variant="simple" />
+  </div>
+</dialog>
+
+<script>
+  const toggle = document.getElementById("menu-toggle");
+  const close = document.getElementById("menu-close");
+  const menu = document.getElementById("mobile-menu") as HTMLDialogElement | null;
+
+  const openMenu = () => {
+    menu?.showModal();
+    document.body.classList.add("is-menu-open");
+    toggle?.setAttribute("aria-expanded", "true");
+  };
+
+  const closeMenu = () => {
+    menu?.close();
+  };
+
+  toggle?.addEventListener("click", openMenu);
+  close?.addEventListener("click", closeMenu);
+
+  menu?.addEventListener("close", () => {
+    document.body.classList.remove("is-menu-open");
+    toggle?.setAttribute("aria-expanded", "false");
+  });
+
+  menu?.addEventListener("click", (event) => {
+    if (event.target === menu) closeMenu();
+  });
+
+  menu?.querySelectorAll("a").forEach((link) => {
+    link.addEventListener("click", closeMenu);
+  });
+</script>

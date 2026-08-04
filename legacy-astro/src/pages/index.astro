@@ -1,0 +1,112 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import PlaceholderImage from "../components/PlaceholderImage.astro";
+import SocialLinks from "../components/SocialLinks.astro";
+
+const particles = Array.from({ length: 16 }, () => ({
+  x: Math.round(Math.random() * 100),
+  size: Math.round(3 + Math.random() * 5),
+  delay: (Math.random() * 6).toFixed(2),
+  duration: (6 + Math.random() * 6).toFixed(2),
+}));
+
+const activityItems = [
+  {
+    title: "キャンドル制作",
+    description: "準備中のダミーテキストです。すべて手作業で仕上げるキャンドルを制作しています。",
+  },
+  {
+    title: "イベント出店",
+    description: "準備中のダミーテキストです。マルシェや手作り市などのイベントに出店しています。",
+  },
+  {
+    title: "ワークショップ",
+    description: "準備中のダミーテキストです。自分だけの香りを見つけられる体験型ワークショップです。",
+  },
+];
+---
+
+<BaseLayout title="トップ">
+  <section class="relative mx-auto flex max-w-5xl flex-col items-center gap-8 overflow-hidden px-4 py-20 text-center md:flex-row md:gap-16 md:py-40 md:text-left">
+    <div class="hero-glow" aria-hidden="true"></div>
+    <div class="hero-particles" aria-hidden="true">
+      {
+        particles.map((p) => (
+          <span
+            class="hero-particle"
+            style={`--x: ${p.x}%; --size: ${p.size}px; --delay: ${p.delay}s; --duration: ${p.duration}s;`}
+          />
+        ))
+      }
+    </div>
+
+    <div class="fade-up relative flex-1">
+      <h1>心をほどく、灯りのある暮らし</h1>
+      <p class="prose-body mt-6 text-[var(--color-text-muted)] mx-auto md:mx-0">
+        準備中のダミーテキストです。[ブランド名]は、日々の暮らしに寄り添う手作りキャンドルをお届けしています。
+      </p>
+      <a
+        href="/activities"
+        class="mt-8 inline-block border border-[var(--color-text)] px-8 py-3 text-sm transition-colors hover:bg-[var(--color-text)] hover:text-[var(--color-bg)]"
+      >
+        活動を見る
+      </a>
+    </div>
+    <div class="fade-up relative w-full flex-1" data-delay="120">
+      <PlaceholderImage label="ヒーロー画像準備中" ratio="aspect-square" />
+    </div>
+  </section>
+
+  <section class="border-t border-[var(--color-border)] bg-[var(--color-surface)]">
+    <div class="mx-auto max-w-3xl px-4 py-20 text-center md:py-40">
+      <h2 class="fade-up">理念</h2>
+      <p class="fade-up prose-body mx-auto mt-6 text-[var(--color-text-muted)]" data-delay="80">
+        準備中のダミーテキストです。ひとつひとつ手作りするキャンドルを通じて、忙しい毎日の中にほっと一息つける時間をお届けしたいと考えています。
+      </p>
+      <a href="/about#philosophy" class="fade-up mt-6 inline-block text-sm underline underline-offset-4" data-delay="160">
+        理念をもっと見る
+      </a>
+    </div>
+  </section>
+
+  <section class="mx-auto max-w-5xl px-4 py-20 md:py-40">
+    <h2 class="fade-up text-center">活動</h2>
+    <div class="mt-12 grid gap-8 md:grid-cols-3">
+      {activityItems.map((item, i) => (
+        <div class="fade-up border border-[var(--color-border)] bg-white p-6 text-center" data-delay={i * 80}>
+          <h3>{item.title}</h3>
+          <p class="mt-2 text-sm text-[var(--color-text-muted)]">{item.description}</p>
+        </div>
+      ))}
+    </div>
+    <div class="mt-12 text-center">
+      <a href="/activities" class="text-sm underline underline-offset-4">活動をもっと見る</a>
+    </div>
+  </section>
+
+  <section class="border-t border-[var(--color-border)] bg-[var(--color-surface)]">
+    <div class="mx-auto max-w-3xl px-4 py-20 text-center md:py-40">
+      <h2 class="fade-up">SNS</h2>
+      <p class="fade-up prose-body mx-auto mt-6 text-[var(--color-text-muted)]" data-delay="80">
+        準備中のダミーテキストです。日々の制作の様子はSNSで発信しています。
+      </p>
+      <div class="fade-up mt-10" data-delay="160">
+        <SocialLinks variant="featured" />
+      </div>
+    </div>
+  </section>
+
+  <section class="mx-auto max-w-3xl px-4 py-20 text-center md:py-40">
+    <h2 class="fade-up">お問い合わせ</h2>
+    <p class="fade-up prose-body mx-auto mt-6 text-[var(--color-text-muted)]" data-delay="80">
+      準備中のダミーテキストです。ご質問やオーダーメイドのご相談など、お気軽にお問い合わせください。
+    </p>
+    <a
+      href="/contact"
+      class="fade-up mt-8 inline-block border border-[var(--color-text)] px-8 py-3 text-sm transition-colors hover:bg-[var(--color-text)] hover:text-[var(--color-bg)]"
+      data-delay="160"
+    >
+      お問い合わせフォームへ
+    </a>
+  </section>
+</BaseLayout>
