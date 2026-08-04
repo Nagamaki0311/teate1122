@@ -1,0 +1,112 @@
+{
+  "id": "privacy",
+  "slug": "/privacy",
+  "title": "プライバシーポリシー",
+  "sections": [
+    {
+      "id": "s1",
+      "type": "text",
+      "visible": true,
+      "props": {
+        "heading": "プライバシーポリシー",
+        "body": "準備中のダミーテキストです。[ブランド名]（以下「当方」といいます）は、お問い合わせフォームを通じてお預かりする個人情報の取り扱いについて、以下のとおりプライバシーポリシーを定めます。"
+      },
+      "style": {
+        "paddingY": "xl",
+        "align": "center",
+        "bg": {
+          "type": "token",
+          "value": "bg"
+        }
+      },
+      "animation": {
+        "preset": "inherit",
+        "delay": 0
+      }
+    },
+    {
+      "id": "s2",
+      "type": "text",
+      "visible": true,
+      "props": {
+        "heading": "1. 収集する情報",
+        "body": "準備中のダミーテキストです。お問い合わせフォームでは、お名前・メールアドレス・お問い合わせ内容をお預かりします。"
+      },
+      "style": {
+        "paddingY": "sm",
+        "align": "left",
+        "bg": {
+          "type": "token",
+          "value": "surface"
+        }
+      },
+      "animation": {
+        "preset": "inherit",
+        "delay": 0
+      }
+    },
+    {
+      "id": "s3",
+      "type": "text",
+      "visible": true,
+      "props": {
+        "heading": "2. 利用目的",
+        "body": "準備中のダミーテキストです。お預かりした情報は、お問い合わせへの回答のみに利用し、それ以外の目的では利用しません。"
+      },
+      "style": {
+        "paddingY": "sm",
+        "align": "left",
+        "bg": {
+          "type": "token",
+          "value": "bg"
+        }
+      },
+      "animation": {
+        "preset": "inherit",
+        "delay": 0
+      }
+    },
+    {
+      "id": "s4",
+      "type": "text",
+      "visible": true,
+      "props": {
+        "heading": "3. 第三者提供",
+        "body": "準備中のダミーテキストです。法令に基づく場合を除き、ご本人の同意なく第三者に個人情報を提供することはありません。"
+      },
+      "style": {
+        "paddingY": "sm",
+        "align": "left",
+        "bg": {
+          "type": "token",
+          "value": "surface"
+        }
+      },
+      "animation": {
+        "preset": "inherit",
+        "delay": 0
+      }
+    },
+    {
+      "id": "s5",
+      "type": "text",
+      "visible": true,
+      "props": {
+        "heading": "4. お問い合わせ窓口",
+        "body": "準備中のダミーテキストです。本ポリシーに関するお問い合わせは、お問い合わせフォームよりご連絡ください。"
+      },
+      "style": {
+        "paddingY": "sm",
+        "align": "left",
+        "bg": {
+          "type": "token",
+          "value": "bg"
+        }
+      },
+      "animation": {
+        "preset": "inherit",
+        "delay": 0
+      }
+    }
+  ]
+}
