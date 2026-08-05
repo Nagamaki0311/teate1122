@@ -2,16 +2,31 @@
   publish = "."
 
 [[redirects]]
+  from = "/about"
+  to = "/#profile"
+  status = 301
+
+[[redirects]]
+  from = "/activities"
+  to = "/#activities"
+  status = 301
+
+[[redirects]]
+  from = "/contact"
+  to = "/#contact"
+  status = 301
+
+[[redirects]]
   from = "/candles"
-  to = "/activities#candle-making"
+  to = "/#candle-making"
   status = 301
 
 [[redirects]]
   from = "/events"
-  to = "/activities#events"
+  to = "/#events"
   status = 301
 
 [[redirects]]
   from = "/gallery"
-  to = "/activities#gallery"
+  to = "/#activities"
   status = 301

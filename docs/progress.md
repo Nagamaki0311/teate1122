@@ -19,6 +19,28 @@
 
 ---
 
+## 2026-08-05 T-020: トップページ集約（1ページサイト化）（D-020対応）
+
+### 実施内容
+- `site-data/pages/home.json`をhero/profile/philosophy/activities/candle-making/events/events-upcoming/events-past/workshop/workshop-upcoming/workshop-past/contactの12セクション構成に再編。about.json（プロフィール・理念）、activities.json（活動系6セクション）、contact.json（お問い合わせ本文）の詳細版をそのまま統合し、旧home.jsonの概要カード（activity-cards 3件要約）は削除。`workshop-past`はitems:[]のため`visible: false`に設定。heroのCTA・`href`をアンカー（`#activities`）に変更。
+- `index.html`を上記home.jsonの内容に合わせて手動で書き換え。各`<section>`に`id`と`data-section-id`を同じ値で付与（例: `id="profile" data-section-id="profile"`）。`workshop-past`セクションはvisible:falseのためHTMLに含めていない。`about.html`/`activities.html`/`contact.html`の該当ブロックのマークアップ・クラス名をそのまま流用。フォーム（`name="contact"`、`id="contact-name"`等）は1つのみ残しid重複を回避。`<title>`/`og:title`を`site-data/site.json`の`site.meta.title`（"teate1122 | 心をほどく、灯りのある暮らし"）に統一。
+- `site-data/site.json`の`nav.items`を`pageId`方式から`href`方式（`/#profile`, `/#activities`, `/#contact`）に変更し、`pages`配列を`["home", "privacy"]`に縮小。
+- `index.html`・`privacy.html`のヘッダーナビリンクを`/about`等から`/#profile`等のアンカーに変更（`aria-current="page"`は削除）。
+- `about.html`/`activities.html`/`contact.html`と対応する`site-data/pages/{about,activities,contact}.json`を削除。
+- `netlify.toml`のリダイレクトを`/about`→`/#profile`、`/activities`→`/#activities`、`/contact`→`/#contact`、`/candles`→`/#candle-making`、`/events`→`/#events`、`/gallery`→`/#activities`（すべて301）に置き換え。
+
+### 結果
+- `python3 -c "json.load(...)"`でhome.json・site.jsonのJSON構文を確認済み（エラーなし）。
+- `python3 -m http.server`でindex.htmlを配信し、`/about.html`・`/activities.html`・`/contact.html`が404になること、`/`が200で返ることを確認。
+- 配信したHTMLから`id="..."`を抽出し、hero/profile/philosophy/activities/candle-making/events/events-upcoming/events-past/workshop/workshop-upcoming/contactの11個のセクションIDが存在し、`workshop-past`は含まれないことを確認（意図通り非表示）。
+- ヘッダーナビ・ヒーローCTAのリンクが`/#profile`・`/#activities`・`/#contact`になっていること、`id="contact-name"`が1件のみ（フォーム重複なし）であることを確認。
+- `<title>`・`og:title`が"teate1122 | 心をほどく、灯りのある暮らし"に統一されていることを確認。
+
+### 次回開始位置
+- Reviewerによるコードレビュー待ち（docs/tasks.md T-020を「レビュー中」に更新済み）。承認後、Managerがpushを実施する。
+
+---
+
 ## 2026-08-04 T-009: ホームページ構成・ナビゲーション改善（D-009対応）
 
 ### 実施内容
