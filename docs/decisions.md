@@ -288,3 +288,30 @@
 - `/candles`, `/events`, `/gallery`への既存リンク・ブックマークは`netlify.toml`のリダイレクト設定で`/activities`の該当セクションへ転送する。
 - Content Collectionsは`events`のみとなり、`type: "event" | "workshop"`で種別を区別する（`isPast`は`date`比較による導出に置き換え、手動更新の運用負債を解消）。
 - 本リポジトリを雛形として再利用する場合、`src/data/social.ts`のようなデータ駆動パターンは他プロジェクトにも応用可能な設計として参考にできる。
+
+---
+
+## D-020: トップページ集約（1ページサイト化）
+
+- 日付: 2026-08-05
+- 状態: 採用
+
+### 背景
+- T-009で5ページ構成（`/`, `/about`, `/activities`, `/contact`, `/privacy`）に再編したが、コンテンツ量が少なく複数ページに分割する必要性が薄いというIssueが来た。`/about`・`/activities`・`/contact`の内容を`/`に統合し、アンカーリンクで遷移する1ページサイト（`/privacy`のみ別ページとして残す）へ再編するようUser承認済み。
+
+### 決定
+- `site-data/pages/home.json`を12セクション構成（`hero`, `profile`, `philosophy`, `activities`, `candle-making`, `events`, `events-upcoming`, `events-past`, `workshop`, `workshop-upcoming`, `workshop-past`, `contact`）に再編し、about/activities/contactページの詳細版セクションをそのまま統合する。トップページ旧来の概要カード（`activity-cards`による3件要約）は削除する。
+- `workshop-past`（過去のワークショップ、`items: []`）は`visible: false`とし、HTML側でも該当`<section>`を出力しない（空見出しを表示しない）。
+- `about.html`/`activities.html`/`contact.html`とそれぞれ対応する`site-data/pages/*.json`を削除する。フォーム（`name="contact"`、`id="contact-name"`等）は`index.html`側の1つのみ残し、id重複を避ける。
+- `site-data/site.json`の`nav.items`を`pageId`方式から`href`方式（`/#profile`, `/#activities`, `/#contact`）に変更し、`pages`配列を`["home", "privacy"]`に縮小する。
+- `netlify.toml`のリダイレクトを`/about`→`/#profile`、`/activities`→`/#activities`、`/contact`→`/#contact`、`/candles`→`/#candle-making`、`/events`→`/#events`、`/gallery`→`/#activities`（301）に統一する。`/gallery`は独立セクションを持たないため活動セクション全体へ誘導する。
+- ページタイトル（`<title>`/`og:title`）は`site-data/site.json`の`site.meta.title`（"teate1122 | 心をほどく、灯りのある暮らし"）に統一する（旧来のページ別タイトルを廃止）。
+
+### 理由
+- コンテンツ量に対してページ遷移を挟む構成は情報の分断を招くため、1ページ内でスムーズスクロール（既存の`html { scroll-behavior: smooth }`）により全体を把握できる構成の方が閲覧体験に適する。
+- `workshop-past`を`visible: false`にする方式は、将来過去実績が増えた際に`true`へ戻すだけで再表示できるため、セクション自体の削除より運用しやすい。
+
+### 影響
+- HTML生成スクリプトが存在せず`index.html`はJSONの内容を手動反映した静的ファイルであるため、今後`home.json`を更新する際は`index.html`も手動で追従させる必要がある（既存の運用パターンを踏襲）。
+- 外部からの`/about`・`/activities`・`/contact`への既存リンク・ブックマークはNetlifyリダイレクトでアンカー付き`/`へ転送されるため、リンク切れは発生しない。
+- ヘッダーナビ（`index.html`・`privacy.html`）のリンク先が`/about`等のパスから`/#profile`等のアンカーに変わるため、`privacy.html`からトップページ内アンカーへ遷移する際は一度`/`への遷移を挟む。

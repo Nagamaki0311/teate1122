@@ -45,17 +45,17 @@
     "auto": true,
     "items": [
       {
-        "pageId": "about",
+        "href": "/#profile",
         "label": "プロフィール",
         "visible": true
       },
       {
-        "pageId": "activities",
+        "href": "/#activities",
         "label": "活動",
         "visible": true
       },
       {
-        "pageId": "contact",
+        "href": "/#contact",
         "label": "お問い合わせ",
         "visible": true
       }
@@ -73,9 +73,6 @@
   },
   "pages": [
     "home",
-    "about",
-    "activities",
-    "contact",
     "privacy"
   ],
   "assets": [
