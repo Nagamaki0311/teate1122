@@ -35,9 +35,11 @@
 - 配信したHTMLから`id="..."`を抽出し、hero/profile/philosophy/activities/candle-making/events/events-upcoming/events-past/workshop/workshop-upcoming/contactの11個のセクションIDが存在し、`workshop-past`は含まれないことを確認（意図通り非表示）。
 - ヘッダーナビ・ヒーローCTAのリンクが`/#profile`・`/#activities`・`/#contact`になっていること、`id="contact-name"`が1件のみ（フォーム重複なし）であることを確認。
 - `<title>`・`og:title`が"teate1122 | 心をほどく、灯りのある暮らし"に統一されていることを確認。
+- PR #5（`claude/teate1122-homepage-9jsx1l` → `main`）を作成・マージ（マージコミット`8fa9d0c`）。Netlify Deploy Previewは成功（`https://deploy-preview-5--teate1122.netlify.app`）。User確認により本番環境（`https://teate1122.netlify.app`）への反映も確認済み。
 
 ### 次回開始位置
-- Reviewerによるコードレビュー待ち（docs/tasks.md T-020を「レビュー中」に更新済み）。承認後、Managerがpushを実施する。
+- 完了。Reviewer承認済み、PR #5マージ済み、本番環境（https://teate1122.netlify.app ）への反映をUser確認済み。docs/tasks.md T-020を「完了」に更新済み。
+- リポジトリのGitHub Pages機能（Settings > Pages）が依然有効なままJekyllビルド失敗を起こしている（D-008追記の既知問題）。User側での無効化対応が未実施のため、必要であれば別タスクとして対応する。
 
 ---
 
