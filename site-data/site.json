@@ -1,0 +1,97 @@
+{
+  "schemaVersion": 1,
+  "site": {
+    "id": "teate1122",
+    "name": "teate1122",
+    "locale": "ja",
+    "baseUrl": "https://teate1122.netlify.app",
+    "meta": {
+      "title": "teate1122 | 心をほどく、灯りのある暮らし",
+      "description": "teate1122は、日々の暮らしに寄り添う手作りキャンドルをお届けしています。",
+      "ogImage": "a1"
+    }
+  },
+  "theme": {
+    "preset": "quiet-mincho",
+    "tokens": {
+      "color": {
+        "bg": "#fcfbf9",
+        "surface": "#f4f1eb",
+        "text": "#2e2a26",
+        "textMuted": "#6e675e",
+        "accent": "#a8b5a2",
+        "border": "#e6e0d7"
+      },
+      "font": {
+        "heading": "zen-old-mincho",
+        "body": "noto-sans-jp",
+        "scale": 1
+      },
+      "space": {
+        "sectionY": "lg",
+        "gap": "md"
+      },
+      "button": {
+        "shape": "square",
+        "fill": "outline"
+      },
+      "animation": {
+        "preset": "fade-up",
+        "duration": 600
+      }
+    }
+  },
+  "nav": {
+    "auto": true,
+    "items": [
+      {
+        "pageId": "about",
+        "label": "プロフィール",
+        "visible": true
+      },
+      {
+        "pageId": "activities",
+        "label": "活動",
+        "visible": true
+      },
+      {
+        "pageId": "contact",
+        "label": "お問い合わせ",
+        "visible": true
+      }
+    ]
+  },
+  "social": [
+    {
+      "platform": "instagram",
+      "url": "https://www.instagram.com/teate1122",
+      "handle": "@teate1122"
+    }
+  ],
+  "contact": {
+    "formProvider": "netlify"
+  },
+  "pages": [
+    "home",
+    "about",
+    "activities",
+    "contact",
+    "privacy"
+  ],
+  "assets": [
+    {
+      "id": "a1",
+      "file": "hero.svg",
+      "w": 1440,
+      "h": 1440,
+      "alt": "ヒーロー画像準備中"
+    },
+    {
+      "id": "a2",
+      "file": "hero.svg",
+      "w": 1440,
+      "h": 1440,
+      "alt": "プロフィール写真準備中"
+    }
+  ]
+}

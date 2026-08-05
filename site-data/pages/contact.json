@@ -1,0 +1,51 @@
+{
+  "id": "contact",
+  "slug": "/contact",
+  "title": "お問い合わせ",
+  "sections": [
+    {
+      "id": "s1",
+      "type": "text",
+      "visible": true,
+      "props": {
+        "heading": "お問い合わせ",
+        "body": "準備中のダミーテキストです。ご質問やオーダーメイドのご相談など、お気軽にお問い合わせください。 お問い合わせフォーム（お名前・メールアドレス・お問い合わせ内容）よりご連絡ください。"
+      },
+      "style": {
+        "paddingY": "xl",
+        "align": "center",
+        "bg": {
+          "type": "token",
+          "value": "bg"
+        }
+      },
+      "animation": {
+        "preset": "inherit",
+        "delay": 0
+      }
+    },
+    {
+      "id": "s2",
+      "type": "contact-social",
+      "visible": true,
+      "props": {
+        "heading": "SNS",
+        "body": "",
+        "showEmail": false,
+        "showSocial": true
+      },
+      "style": {
+        "paddingY": "lg",
+        "align": "center",
+        "bg": {
+          "type": "token",
+          "value": "surface"
+        }
+      },
+      "animation": {
+        "preset": "inherit",
+        "delay": 0
+      }
+    }
+  ]
+}
