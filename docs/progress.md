@@ -28,10 +28,13 @@
 - `docs/tasks.md`のT-021を`T-021a`（Phase 0-2、完了）と`T-021b`（Phase 3、未着手）に分割し、Reviewerの推奨事項6点と実素材差し替えをバックログに追記した。
 
 ### 結果
-- Reviewer承認済み。ブランチ`claude/t-021-design-handoff-phase-0-2`を作成しpush、draft PRを作成した（https://github.com/Nagamaki0311/teate1122/pull/6 ）。マージはUser判断待ち。
+- Reviewer承認済み。ブランチ`claude/t-021-design-handoff-phase-0-2`を作成しpush、draft PRを作成した（https://github.com/Nagamaki0311/teate1122/pull/6 ）。
+- UserがPRをready for reviewに変更後、直ちにマージ（マージコミット`5c8a324`）。GitHub側のCI（Redirect rules/Header rules/Pages changed、Netlify deploy-preview）はすべて成功。
+- 本番デプロイを確認。Netlify上で一時「Branch Deploy」表示のみで「Production」表示が遅れて見えたためManagerが本番ブランチ設定の誤りを疑い、Userに`Project configuration > Deploys`のスクリーンショットを依頼したが、**Production branch: main**で正しく設定されていることを確認。その後`Production: main@5c8a324 Published`（Today at 11:00 AM）が確認でき、本番反映を確認した。8/5付「Production: claude/teate1122-homepage-9jsx1l [Skipped due to account credit usage exceeded]」は過去の履歴であり、現在の設定には影響なし。
+- T-021a（Eleventy移行・新デザイン反映）は本番デプロイまで完了。
 
 ### 次回開始位置
-- PR #6のマージ確認後、T-021b（編集アプリ/editor土台、Phase 3）に着手。着手前にGitHub OAuth App登録・Netlify環境変数設定（Client ID/Secret）をUserに依頼する必要がある（D-021参照）。
+- T-021b（編集アプリ/editor土台、Phase 3）に着手。着手前にGitHub OAuth App登録・Netlify環境変数設定（Client ID/Secret）・（希望あればCloudflare DNS切替）をUserに依頼する必要がある（D-021参照）。
 
 ---
 
