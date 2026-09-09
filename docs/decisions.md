@@ -420,6 +420,35 @@
 
 ---
 
+## D-025: バグ修正 — 編集アプリでdraft更新がstale closureにより一部消える問題（T-021d）
+
+- 日付: 2026-09-09
+- 状態: 採用
+
+### 背景
+- Userから「編集アプリで写真をアップロードしても、『未公開の写真』バッジは増えるのに、プレビューにも実データにも反映されない」との報告があった。ManagerがPlaywrightヘッドレスブラウザで実際にファイル選択→アップロードを行い再現・特定した。
+
+### 根本原因
+- `editor/src/App.jsx`の`updateDraft(partial)`が`patch({ draft: { ...state.draft, ...partial } })`という実装になっていた。`patch`自体は`setState`の関数形（`setState((s) => ({...s, ...partial}))`）を使っているが、`updateDraft`に渡す`partial`（`{draft: {...}}`という値）は、`updateDraft`が呼ばれた瞬間に、その関数が閉じ込めているレンダー時点の`state.draft`（stale closure）を基に**既に確定した値**として組み立てられてしまっていた。
+- `editor/src/ui/SectionSheet.jsx`の複数のハンドラ（`handleUpload`: `onHomeChange`→`onSiteChange`→`onCandlesChange`、`handleFocalZoom`: `onHomeChange`→`onCandlesChange`、`handleAlt`: `onHomeChange`→`onSiteChange`）は、1回のユーザー操作に対して`updateDraft`相当の呼び出しを同一の同期処理内で複数回連続して行う。これらはいずれも同じ古い`state.draft`を基準に新しいdraft全体を組み立てて`patch`に渡すため、Reactが順番にそれらを適用しても、後から適用される呼び出しほど、それより前の呼び出しによる変更を（同じ古いdraftをベースにしているため）打ち消してしまう。結果として、最後に呼ばれたハンドラの変更だけが残り、それより前の呼び出しの変更は消えていた。
+- 画像アップロードの場合は`onHomeChange`（画像参照更新）と`onSiteChange`（`assets[]`更新）が`onCandlesChange`（多くの場合実質的な変更なし）に上書きされて消えるため、「バッジは増えるがプレビュー・実データには反映されない」という症状として現れていた。
+
+### 決定
+- `updateDraft`を`setState`の関数形に変更し、常に直前の（in-flightの）draftを基準に合成するようにした: `setState((s) => ({ ...s, draft: composeDraft(s.draft, partial) }))`。これにより、呼び出し元がどんな順序・タイミングで連続呼び出しをしても、Reactが各更新を正しく順番に合成できる。1箇所の修正で、画像アップロード・フォーカル/ズームドラッグ・代替テキスト編集の全ての連続呼び出しパターンが同時に直る。
+- 合成ロジック自体（`{ ...prevDraft, ...partial }`の1行）を`editor/src/lib/draft.js`という素の`.js`モジュールに`composeDraft`として切り出した。理由: `App.jsx`はJSXファイルであり、このリポジトリの`node --test`ベースのテストインフラ（トランスパイル未設定）から直接importできない（`Unknown file extension ".jsx"`）。既存の`editor/lib/*.js`と同じ構成に合わせ、新規テストフレームワーク（React Testing Library等）を導入せずに回帰テストを追加するため、ロジック部分だけを素のJSへ切り出した。
+- 回帰テストは`editor/test/draft.test.js`に追加した（既存の`node --test`インフラのみを使用、新規依存なし）。`composeDraft`は1行の純粋関数のため、それ単体のテストではReactの`setState`関数形という性質そのものは検証できない。そのため、(1) 単発の合成が正しいこと、(2) 複数のpartialを直前の結果へ順に折り畳んだ場合に全フィールドが保持されること（修正後の`updateDraft`が実際に行う処理と同型）、(3) 逆に全てのpartialを同一の古いdraftに対して合成した場合に最後の呼び出し以外が消えること（修正前の`updateDraft`が実際に起こしていたバグの再現）、の3点を検証している。
+- 実機確認: `npm run dev --workspace editor`でdevサーバーを起動し、Playwrightで`/editor/`のhero画像アップロードを実施。修正前（`editor/src/App.jsx`のみ一時的に`git stash`で退避）は「未公開の写真 1件」のバッジは表示されるが、ImageFieldプレビュー・メインプレビューiframeとも`<img src>`が`assets/hero.svg`のまま10秒待っても変化せずタイムアウト（バグ再現）。修正後（`git stash pop`で復元）は両方の`<img src>`が新しいアップロード画像のblob URL（同一URL）に変化することを確認した。
+
+### 影響
+- `editor/src/App.jsx`の`updateDraft`のみ変更（呼び出し元のシグネチャ・インターフェースは変更なし）。
+- `editor/src/lib/draft.js`（新規、`composeDraft`のみ）・`editor/test/draft.test.js`（新規、3件）を追加。
+- `editor/src/ui/SectionSheet.jsx`・`EditTab.jsx`他は変更していない。呼び出し元パターン自体（複数フィールドを連続して更新すること）は変更せず、共有関数（`updateDraft`）側を一度だけ直す方針とした（Ponytail: バグ修正は根本原因に対して、同じ関数の全呼び出し元を確認した上で共有関数側を一度だけ直す）。
+
+### 教訓（同種のバグを防ぐための一般的な注意）
+- Reactで複数の`setState`相当の更新を同一の同期ハンドラ内で連続して呼び出す場合、更新関数が「呼び出し時点でクロージャに閉じ込めたstateの値」から新しい値を組み立てて渡すパターン（`fn(partial)` → `partial`が呼び出し時点で確定済みの値）は、たとえ内部で`setState`の関数形を使っていても、外側の`partial`自体が古いstateを基に組み立てられていればstale closure問題を再現する。安全にするには、更新関数自身が`setState`の関数形の**内側**で最新state（コールバック引数）を基準に合成を行う必要がある（`patch(partial)`のような汎用マージ関数に頼らず、`updateDraft`のように専用の関数形を書く）。
+
+---
+
 ## D-024: 編集アプリ（/editor）への画像差し替え機能＋ライブプレビュー精度向上の実装方針
 
 - 日付: 2026-09-09

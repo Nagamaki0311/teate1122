@@ -19,6 +19,33 @@
 
 ---
 
+## 2026-09-09 T-021d: バグ修正 — 編集アプリで画像アップロードが下書きに反映されない
+
+### 実施内容
+- 背景: User実機報告（写真アップロード→「未公開の写真」バッジは増えるがプレビュー・実データに反映されない）をManagerがPlaywrightで再現・原因特定済み（詳細はD-025参照）。以下、Developerが対応。
+- **原因**: `editor/src/App.jsx`の`updateDraft(partial)`が`patch({ draft: { ...state.draft, ...partial } })`という実装で、`state.draft`をレンダー時点のクロージャから直接参照していた。`editor/src/ui/SectionSheet.jsx`の`handleUpload`（`onHomeChange`→`onSiteChange`→`onCandlesChange`を同一同期処理内で連続呼び出し）等が、いずれも同じ古い`state.draft`を基準にdraft全体を組み立てて渡すため、後の呼び出しが前の呼び出しの変更を上書きして消していた（stale closure）。同じパターンは`handleFocalZoom`（フォーカル/ズームドラッグ）・`handleAlt`（代替テキスト編集）にもあった。
+- **修正**: `updateDraft`を`setState`の関数形に変更し、`setState((s) => ({ ...s, draft: composeDraft(s.draft, partial) }))`とした（直前のin-flight stateを基準に合成）。1箇所の修正で3パターン全てが同時に直る。
+- 合成ロジック（`{ ...prevDraft, ...partial }`）を`editor/src/lib/draft.js`（新規）の`composeDraft`として純粋関数に切り出した。`App.jsx`はJSXファイルで`node --test`から直接importできないため（`Unknown file extension ".jsx"`を実機確認済み）、テスト対象部分だけを素の`.js`へ分離した。新規テストフレームワーク（React Testing Library等）は導入していない。
+- 他に同様のstale closureパターンがないか`editor/src/`配下（App.jsx全体・EditTab.jsx・ImageField.jsx・DatesTab.jsx・PublishTab.jsx・Preview.jsx・Callback.jsx・Login.jsx・TabBar.jsx）を確認したが、`state`を直接参照した上で同一ハンドラ内で複数回連続呼び出しされる箇所は`App.jsx`の`updateDraft`のみだった。他のonChange系ハンドラは1回のイベントにつき1回しか呼ばれないか、`setState`の関数形（`setForm((f) => ...)`等）を使っており該当しない。
+- 回帰テスト`editor/test/draft.test.js`（新規、3件）を追加: (1)単発の合成、(2)複数partialを直前結果へ順に折り畳んだ場合に全フィールドが保持されること（修正後の挙動と同型）、(3)全partialを同一の古いdraftに対して合成した場合に最後以外が消えること（修正前バグの再現）。
+- `docs/decisions.md`にD-025として根本原因・修正方針・教訓を記録。
+
+### 結果
+- `npm test`（node --test、editor/test/*.test.js）: 91件全通過（既存88件＋新規3件）。
+- `npm run build`: 成功（Vite build → Eleventy build）。
+- **実機確認（Playwright、修正後）**: `npm run dev --workspace editor`でdevサーバー起動→ヘッドレスChromium（`executablePath: /opt/pw-browsers/chromium`, `--ignore-certificate-errors`）で`/editor/`を開き、heroセクションの編集シートで800×800pxのテスト画像を`<input type="file">`に`setInputFiles`。
+  - アップロード前: ImageFieldプレビュー`<img src>` = `/assets/hero.svg`、メインプレビューiframe内`<img class="hero-section__img">` = `assets/hero.svg`。
+  - バッジ「未公開の写真 1件」表示を確認。
+  - アップロード後: 両方の`<img src>`が同一のblob URL（例: `blob:http://127.0.0.1:5177/b51bfd9e-d6a1-4d37-9457-863f32193b0a`）に変化したことを確認（ImageFieldプレビュー・メインプレビューiframeの両方）。
+- **実機確認（Playwright、修正前との対比）**: `editor/src/App.jsx`のみ`git stash`で一時的に修正前の状態へ戻し、同じ手順を再実行。バッジ「未公開の写真 1件」は表示されるが、ImageFieldプレビューの`<img src>`は`/assets/hero.svg`のまま10秒待っても変化せずタイムアウト（Manager報告・再現内容と一致することを確認）。`git stash pop`で修正を復元後、再度上記の「アップロード後」の結果を確認した。
+- 検証用の一時ファイル（テスト画像PNG生成スクリプト・Playwrightスクリプト・スクリーンショット）は`/opt/node22/lib/node_modules/`・スクラッチパッドから削除済み。devサーバーは検証後に停止済み（`pkill`で確認、`ps aux`にvite残存なし）。
+
+### 次回開始位置
+- `docs/tasks.md`のT-021dを「レビュー中」に更新済み。Reviewerによるコードレビュー待ち。
+- コミット・pushは行っていない（Managerがレビュー後に実施する運用のため、作業指示に従いワーキングツリーに変更を残したまま）。
+
+---
+
 ## 2026-09-09 T-021c: 編集アプリ（/editor）画像差し替え機能＋ライブプレビュー精度向上
 
 ### 実施内容
