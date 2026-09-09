@@ -26,7 +26,7 @@
 | T-020 | トップページ集約（1ページサイト化） | 高 | 完了 | planner/developer/reviewer | /about・/activities・/contactの内容を/（トップページ）に統合し、アンカーで遷移する1ページ構成に再編。Reviewer承認済み（必須修正なし、推奨2点は今後のデプロイ後確認事項としてバックログへ）。詳細はD-020参照 |
 | T-021a | Claude Designハンドオフ: Phase 0-2（Eleventy移行・新デザイン反映） | 高 | 完了 | planner/developer/reviewer | Reviewer承認済み（必須修正2点＝ワークショップバッジのコントラスト・nav loop.lastの脆弱性は対応・再レビューで解消確認済み）。PR作成・Manager push待ち。推奨事項6点はバックログへ。D-021参照 |
 | T-021b | Claude Designハンドオフ: Phase 3（編集アプリ/editor土台） | 高 | 完了 | planner/developer/reviewer | Reviewer承認（必須修正なし）。PR #8をD-022に従いCIグリーン確認後Managerが自動マージ（マージコミット27606f1）。ドメイン切替・OAuth App登録・Netlify環境変数設定（U1〜U4）完了、User実機でログイン確認済み。D-023参照。 |
-| T-021c | 編集アプリ Phase 4a: 画像の差し替え機能＋プレビュー精度向上 | 高 | 計画中 | planner | User依頼。(1)ホームページ内画像のアップロード・ブラウザ内圧縮（WebP化）・トリミング機能、(2)編集アプリのライブプレビューを実サイトにより近い見た目にする改善。User希望「できる限り介入不要で」に従い、確認は最小限に進める。 |
+| T-021c | 編集アプリ Phase 4a: 画像の差し替え機能＋プレビュー精度向上 | 高 | 実装中 | developer | Planner計画完了。画像=フォーカルポイント+ズーム方式（矩形クロップなし）、`src/assets/photos/`格納、書き込み許可をファイル名正規表現で限定、site.json/candles.jsonは構造ガード付きで許可対象に追加。プレビューは実`.njk`+実CSS/JSをブラウザ内nunjucksでsrcDoc iframe描画する方式（React再現の拡張ではなくテンプレート単一情報源を維持）。写真運用規模はPlanner判断で「数十枚規模」前提、確認省略。 |
 
 ## バックログ（未着手・優先度未確定）
 
