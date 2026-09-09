@@ -28,10 +28,10 @@
 - `docs/tasks.md`のT-021を`T-021a`（Phase 0-2、完了）と`T-021b`（Phase 3、未着手）に分割し、Reviewerの推奨事項6点と実素材差し替えをバックログに追記した。
 
 ### 結果
-- Reviewer承認済み。ブランチを切ってpush・draft PR作成へ進む。
+- Reviewer承認済み。ブランチ`claude/t-021-design-handoff-phase-0-2`を作成しpush、draft PRを作成した（https://github.com/Nagamaki0311/teate1122/pull/6 ）。マージはUser判断待ち。
 
 ### 次回開始位置
-- T-021b（編集アプリ/editor土台、Phase 3）。着手前にGitHub OAuth App登録・Netlify環境変数設定（Client ID/Secret）をUserに依頼する必要がある（D-021参照）。
+- PR #6のマージ確認後、T-021b（編集アプリ/editor土台、Phase 3）に着手。着手前にGitHub OAuth App登録・Netlify環境変数設定（Client ID/Secret）をUserに依頼する必要がある（D-021参照）。
 
 ---
 
