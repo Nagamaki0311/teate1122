@@ -24,6 +24,8 @@
 | T-008 | キャンドルブランド個人ホームページの実装 | 高 | 完了 | developer/reviewer | Astro 5 + Tailwind CSS v4 + Netlify Forms構成で実装（コミット38e4919）。Netlifyへデプロイ済み（https://teate1122.netlify.app ）、表示確認済み。プレースホルダー差し替え等の残タスクはバックログ参照。D-008参照 |
 | T-009 | ホームページ構成・ナビゲーション改善（SNS中段移動/ハンバーガーメニュー修正/商品紹介削除・作品紹介への拡張性/情報設計整理/アニメーション追加） | 高 | 完了 | developer/reviewer | 5構成（/about, /activities, /contact, /privacy, /）へ再編。Reviewer承認済み。Manager側でモバイル/デスクトップのスクリーンショット確認（ハンバーガーメニュー正常動作、SNS中段配置、活動セクション全項目表示）済み。D-009参照 |
 | T-020 | トップページ集約（1ページサイト化） | 高 | 完了 | planner/developer/reviewer | /about・/activities・/contactの内容を/（トップページ）に統合し、アンカーで遷移する1ページ構成に再編。Reviewer承認済み（必須修正なし、推奨2点は今後のデプロイ後確認事項としてバックログへ）。詳細はD-020参照 |
+| T-021a | Claude Designハンドオフ: Phase 0-2（Eleventy移行・新デザイン反映） | 高 | 完了 | planner/developer/reviewer | Reviewer承認済み（必須修正2点＝ワークショップバッジのコントラスト・nav loop.lastの脆弱性は対応・再レビューで解消確認済み）。PR作成・Manager push待ち。推奨事項6点はバックログへ。D-021参照 |
+| T-021b | Claude Designハンドオフ: Phase 3（編集アプリ/editor土台） | 高 | 未着手 | - | React+Vite、GitHub OAuth（Netlify Functions）、Git Data APIによるコミット、編集/日程タブ。OAuth Appの登録・Netlify環境変数設定等User側作業が前提（D-021参照）。T-021aのpush後に着手。 |
 
 ## バックログ（未着手・優先度未確定）
 
@@ -32,6 +34,8 @@
 - Reviewer指摘の推奨事項（Header.astroのモバイルメニュー閉じるボタン・フォーカストラップ）: 優先度低、必要に応じて対応
 - T-020 Reviewer推奨事項: netlify.tomlのフラグメント付きリダイレクト（`/about`等→`/#profile`等）の実機（Netlifyデプロイ後）動作確認: 優先度低
 - T-020 Reviewer推奨事項: home.jsonのcontact-socialセクション本文がスコープ外の文言変更を含む点の是非確認: 優先度低
+- T-021a Reviewer推奨事項（優先度低、マージ非ブロック）: (1) ヒーローの`ttdrift`ゆらぎアニメーション未実装、(2) プロフィール画像等の角丸がHomepage.dc.htmlと2〜4pxずれ、(3) ギャラリータブのARIA構造が不完全（`role=tablist`だが`role=tab`未使用）、(4) `.gitignore`の`.astro/`エントリが不要、(5) イベントのUPCOMING/ARCHIVE振り分けがビルド時刻固定でNetlifyの定期リビルドが別途必要、(6) `a:hover`の`ember`色がAAコントラスト未達（3.3:1、hover状態のため許容範囲内と判断したが記録として残す）
+- 実素材（実文章・実写真・香りのラインナップ）差し替え: T-021aでは［仮文］のまま実装。実素材確定後に対応（T-008バックログと同様の扱い）
 
 ## メモ
 

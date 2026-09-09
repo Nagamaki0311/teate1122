@@ -1,0 +1,13 @@
+<section class="section"{% if showId %} id="{{ section.id }}"{% endif %} data-type="text" data-section-id="{{ section.id }}" data-padding-y="{{ section.style.paddingY }}" data-align="{{ section.style.align }}" data-bg-type="{{ section.style.bg.type }}" data-bg-value="{{ section.style.bg.value }}">
+  <div class="section__inner">
+    <div class="text-block" data-reveal>
+    {% if section.props.kicker %}<p class="kicker">{{ section.props.kicker }}</p>{% endif %}
+    <h2>{% for line in section.props.heading | lines %}{{ line }}{% if not loop.last %}<br>{% endif %}{% endfor %}</h2>
+    <div class="text-block__paragraphs">
+      {% set paragraphs = section.props.paragraphs or [section.props.body] %}
+      {% for p in paragraphs %}<p class="text-block__body">{{ p }}</p>
+      {% if not loop.last %}<span class="text-block__divider" aria-hidden="true"></span>
+      {% endif %}{% endfor %}</div>
+  </div>
+  </div>
+</section>
