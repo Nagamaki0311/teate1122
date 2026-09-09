@@ -25,7 +25,7 @@
 | T-009 | ホームページ構成・ナビゲーション改善（SNS中段移動/ハンバーガーメニュー修正/商品紹介削除・作品紹介への拡張性/情報設計整理/アニメーション追加） | 高 | 完了 | developer/reviewer | 5構成（/about, /activities, /contact, /privacy, /）へ再編。Reviewer承認済み。Manager側でモバイル/デスクトップのスクリーンショット確認（ハンバーガーメニュー正常動作、SNS中段配置、活動セクション全項目表示）済み。D-009参照 |
 | T-020 | トップページ集約（1ページサイト化） | 高 | 完了 | planner/developer/reviewer | /about・/activities・/contactの内容を/（トップページ）に統合し、アンカーで遷移する1ページ構成に再編。Reviewer承認済み（必須修正なし、推奨2点は今後のデプロイ後確認事項としてバックログへ）。詳細はD-020参照 |
 | T-021a | Claude Designハンドオフ: Phase 0-2（Eleventy移行・新デザイン反映） | 高 | 完了 | planner/developer/reviewer | Reviewer承認済み（必須修正2点＝ワークショップバッジのコントラスト・nav loop.lastの脆弱性は対応・再レビューで解消確認済み）。PR作成・Manager push待ち。推奨事項6点はバックログへ。D-021参照 |
-| T-021b | Claude Designハンドオフ: Phase 3（編集アプリ/editor土台） | 高 | レビュー中 | developer | npm workspaces＋Vite、Netlify Function（`github-oauth.mjs`、トークン交換＋許可アカウント検証）、GitHub Data API（HEAD sha1本での競合検知、書き込みパス許可リスト`ALLOWED_PATHS`）、編集/日程/公開の3タブ、簡易ライブプレビュー、下書きのlocalStorage自動保存、`node --test`によるユニットテスト（lib配下53件、全件パス）で実装。許可アカウントはNagamaki0311、main直pushで進める（Planner判断、D-023参照）。`npm ci && npm run build`成功、Step1直後の`_site/`と最終ビルドの差分が`editor/`・`robots.txt`追加のみであることを確認済み。CI（`.github/workflows/ci.yml`）を新規追加。マージはD-022に従いReviewer承認＋CIグリーンでManagerが自動実施。実際に機能させるにはOAuth App登録・Netlify環境変数設定等User側作業が別途必要（バックログのU1〜U4参照、完了後にまとめて依頼）。 |
+| T-021b | Claude Designハンドオフ: Phase 3（編集アプリ/editor土台） | 高 | 完了（コード） | planner/developer/reviewer | Reviewer承認（必須修正なし）。PR #8をD-022に従いCIグリーン確認後Managerが自動マージ（マージコミット27606f1）。実際に機能させるにはUser側作業（U1〜U4）が必要なため、それが完了するまでは「実装完了・利用開始待ち」の状態。D-023参照。 |
 
 ## バックログ（未着手・優先度未確定）
 
