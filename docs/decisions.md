@@ -374,3 +374,46 @@
 ### 影響
 - 以降のPRは、Reviewer承認後Managerが即座にマージし、Userへは完了報告のみ行う。
 - Userが望めば、この方針はいつでも見直せる（decisions.mdへの追記で対応）。
+
+---
+
+## D-023: 編集アプリ（/editor）土台の実装方針
+
+- 日付: 2026-09-09
+- 状態: 採用
+
+### 背景
+- T-021b（D-021の7番）として、`/editor`にReact + Vite + GitHub OAuth + Git Data APIによる編集アプリの土台を実装するにあたり、Plannerが確認不要と判断した実装方針を確定した上でDeveloperが実装した。
+
+### 決定
+1. **依存管理はnpm workspaces**: root `package.json`に`"workspaces": ["editor"]`を追加し、`npm run build`は`npm run build --workspace=editor && eleventy`の1本にまとめた（Netlifyの`build.command`を変更せずに済む）。`editor/`はreact/react-dom/vite/@vitejs/plugin-reactのみを依存に持つ独立ワークスペースとする。
+2. **言語はプレーンJS+JSX**: TypeScriptは導入しない（YAGNI、既存リポジトリもプレーンJS）。
+3. **ルーティングはライブラリなし**: `location.pathname.endsWith('/callback')`の1分岐のみで`/editor/callback`とそれ以外を区別する。
+4. **状態管理はAppに`useState`1つ**: propsのバケツリレーのみで配下に渡す。Context/Reduxは導入しない。
+5. **sha管理はHEADコミットのsha1本のみ**: 各ファイルのshaを個別に保持する（Contents API方式）のではなく、Git Data APIの`base_tree`パラメータにHEADコミットのshaをそのまま渡す（GitHub側がコミットshaをtreeへ解決する挙動を利用）。追跡対象のshaが常に1つで済み、実装・競合検知の両方が単純になる。
+6. **読み込みは`Accept: application/vnd.github.raw`でraw取得**: `GET /repos/{o}/{r}/contents/{path}?ref={headSha}`にこのヘッダーを付け、base64デコードなしで生テキストを取得する。
+7. **書き込みは`encoding:"utf-8"`でblob作成**: base64エンコードを介さずJSON文字列をそのまま渡す。
+8. **OAuthスコープは`public_repo`**: 対象リポジトリがpublicであることを確認済みのため、`repo`より狭い最小権限を採用。
+9. **許可アカウント検証は多層防御**: Netlify Function（`netlify/functions/github-oauth.mjs`）がトークン交換後に`GET /user`を呼び、`EDITOR_ALLOWED_LOGIN`環境変数（デフォルト`Nagamaki0311`）と不一致なら403でトークン自体を返さない。クライアント側（`editor/src/lib/auth.js`の`isAllowedLogin`/`exchangeCode`）でも同じ値で再確認する。**ただし実効的なセキュリティ境界はリポジトリへのpush権限であり、この判定はあくまで多層防御である**旨をコード内コメントと本項目に明記する。
+10. **Client IDの配布はFunctionのGETレスポンス経由**: `VITE_`環境変数によるビルド時焼き込みは行わない。焼き込み方式だとNetlifyで環境変数を設定した後にサイトの再デプロイが必要になり、User作業が余計に増えるため、実行時にFunctionから取得する方式を採用した。
+11. **ライブプレビューはReactによる簡易再現**（`editor/src/ui/Preview.jsx`）: 実サイトのiframeは使わない。iframeは公開済みの内容を表示してしまい下書きの確認にならないため。表示/非表示・並び順・見出し・本文のみを反映する簡易表示とし、iPhone枠等の端末フレームは再現しない。「上半分プレビュー・下半分編集面」という比率のみ`editor/src/App.jsx`のレイアウトで踏襲する。
+12. **ローカル開発時のみ認証をスキップする分岐を`App.jsx`に置く**: `import.meta.env.DEV`が真の場合に限り、未ログインでも`loadSiteData`を無トークンで呼び出し読み取り専用モードで表示する（対象リポジトリがpublicなため無認証読み取りが可能）。書き込み（`commitChanges`）は常にトークン必須のままとし、この分岐の対象にしない。Viteの本番ビルドでは`import.meta.env.DEV`が静的に`false`へ置き換わり、esbuildのdead code eliminationにより分岐ごと本番バンドルから消えることを、ビルド後の`grep`で実際に確認した（本文言「開発モード・読み取り専用」が本番バンドルに含まれないことを確認済み）。
+13. **書き込み可能パスはハードコードされた許可リスト**: `editor/src/lib/github.js`の`ALLOWED_PATHS`定数（`site-data/pages/home.json`, `site-data/events.json`の2つのみ）に無いパスへの書き込みは、ネットワーク呼び出しを一切行わずに例外を投げて拒否する。`site-data/site.json`・`site-data/candles.json`（見た目/キャンドルタブ、Phase 4）は今回書き込み対象に含めない。
+14. **許可GitHubアカウントは`Nagamaki0311`をデフォルト値とする**: `EDITOR_ALLOWED_LOGIN`環境変数で後から変更可能。
+15. **mainへの直接pushを採用**: 仕様書通りPRを挟まない。コンフリクト検知（下記16）・公開前バリデーション・書き込みパス制限の3つで安全性を担保する。
+16. **競合検知は二重**: (a) `commitChanges`内でコミット直前に`GET .../git/ref/heads/main`を再取得し、`loadSiteData`時のHEAD shaと比較（不一致なら即座に`err.code = "conflict"`で中断し、blob作成前に止める）。(b) `PATCH .../git/refs/heads/main`は`force: false`で送信し、(a)からの間に競合した場合はGitHub自身に拒否させる。
+17. **トークンは`sessionStorage`のみに保存**: `localStorage`には保存しない。下書き自動保存関数（`App.jsx`の`saveDraft`/`loadSavedDraft`）は`{home, events}`のみを引数に取る構造にし、トークンを渡す経路自体を作らないことで、実装ミスによる混入を構造的に防ぐ。ビルド後の本番バンドルを`grep`し、`localStorage`呼び出しがトークンに触れていないこと、トークンのstorageキー文字列が`sessionStorage`呼び出し内にのみ現れることを確認済み。
+18. **CSRF対策**: `crypto.getRandomValues`で生成したstateを`sessionStorage`に保存し、認可URLの`state`パラメータへ付与。`/editor/callback`で照合し、一致・不一致・欠落いずれの場合も直後に削除する（ワンタイム）。不一致・欠落時はcodeをFunctionへ送信せずエラー表示のみ行う。
+19. **公開前バリデーション**（`editor/src/lib/validate.js`）: sections配列であること、id重複なし、type既知7種（hero/text/image-text/candle-grid/events/gallery/contact-social、`src/_includes/sections/*.njk`と1対1）のいずれか、visibleがboolean、見出し非空（hero/textは配列全体が空でないこと、他は文字列が空でないこと）。events側はid重複なし、kind∈{event,workshop}、date形式＋実在日（`Date.UTC`で正規化後に構成要素を突き合わせ、2月30日等を検出）、title非空。1件でも失敗した場合は`commitChanges`（コミットAPI呼び出し）を一切行わない構造とした（`PublishTab.jsx`の`canPublish`条件）。
+20. **heading型の揺れをそのまま維持**: `site-data/pages/home.json`の`heading`は現状hero/textのみ配列（複数行）、他の5タイプは文字列という型の混在を編集アプリ側でも踏襲する（`schema.js`の`MULTILINE_HEADING_TYPES`）。統一（全て配列化・全て文字列化）は行わない。既存テンプレート（`.njk`）側の`| lines`フィルタ・素の`{{ heading }}`出力を変更しない前提のため。
+
+### 理由（検討した代替案）
+- Contents APIで各ファイルのshaを個別管理する方式も検討したが、ファイルが増えるたびに管理対象のshaが増え、コンフリクト判定も複雑化する。Git Data APIでHEADコミットのsha1本に集約する方が、今回の対象ファイル数（2ファイル）に対してシンプルで、将来ファイルが増えても変わらない。
+- `VITE_GITHUB_CLIENT_ID`のようなビルド時環境変数での配布も検討したが、Client ID変更のたびに再デプロイが必要になりUser作業が増えるため、実行時配布（Function経由）を優先した。
+- 実サイトのiframeをライブプレビューにする案は、下書き（未コミット）の内容を確認する目的に合わないため不採用。
+
+### 影響
+- `editor/`ディレクトリ、`netlify/functions/github-oauth.mjs`が新規リポジトリ構成に加わる。`netlify.toml`に`[functions]`設定と`/editor/*`のSPAフォールバック（status 200、force未指定）を追加した。
+- `robots.txt`（`src/robots.txt`、passthrough copy）と`editor/index.html`の`<meta name="robots" content="noindex, nofollow">`により`/editor`を検索エンジンから除外する。
+- 実際に機能させるには、GitHub OAuth App登録・Netlify環境変数（`GITHUB_OAUTH_CLIENT_ID`, `GITHUB_OAUTH_CLIENT_SECRET`, 任意で`EDITOR_ALLOWED_LOGIN`）設定というUser側の手動作業が別途必要（`docs/tasks.md`のU1〜U4参照）。
+- 見た目タブ（`site-data/site.json`編集）・受信タブ・写真の圧縮/トリミング・PWA化・履歴からの復元・`site-data/candles.json`編集はPhase 4として今回のスコープから明示的に除外した。着手時はPlannerによる詳細計画が別途必要。

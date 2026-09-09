@@ -94,20 +94,110 @@
     "privacy"
   ],
   "assets": [
-    { "id": "hero1", "file": "hero.svg", "w": 1440, "h": 1440, "alt": "トップの写真準備中" },
-    { "id": "profile1", "file": "hero.svg", "w": 1440, "h": 1440, "alt": "プロフィール写真準備中" },
-    { "id": "candle1", "file": "hero.svg", "w": 1440, "h": 1440, "alt": "白木蓮 画像準備中" },
-    { "id": "candle2", "file": "hero.svg", "w": 1440, "h": 1440, "alt": "苔と雨 画像準備中" },
-    { "id": "candle3", "file": "hero.svg", "w": 1440, "h": 1440, "alt": "陽だまりの麻 画像準備中" },
-    { "id": "candle4", "file": "hero.svg", "w": 1440, "h": 1440, "alt": "夜の柑橘 画像準備中" },
-    { "id": "candle5", "file": "hero.svg", "w": 1440, "h": 1440, "alt": "灰と蜜 画像準備中" },
-    { "id": "gallery1", "file": "hero.svg", "w": 1440, "h": 1440, "alt": "制作風景 画像準備中" },
-    { "id": "gallery2", "file": "hero.svg", "w": 1440, "h": 1440, "alt": "制作風景 画像準備中" },
-    { "id": "gallery3", "file": "hero.svg", "w": 1440, "h": 1440, "alt": "イベント出店 画像準備中" },
-    { "id": "gallery4", "file": "hero.svg", "w": 1440, "h": 1440, "alt": "ワークショップ 画像準備中" },
-    { "id": "gallery5", "file": "hero.svg", "w": 1440, "h": 1440, "alt": "制作風景 画像準備中" },
-    { "id": "gallery6", "file": "hero.svg", "w": 1440, "h": 1440, "alt": "イベント出店 画像準備中" },
-    { "id": "gallery7", "file": "hero.svg", "w": 1440, "h": 1440, "alt": "ワークショップ 画像準備中" },
-    { "id": "gallery8", "file": "hero.svg", "w": 1440, "h": 1440, "alt": "イベント出店 画像準備中" }
+    {
+      "id": "hero1",
+      "file": "hero.svg",
+      "w": 1440,
+      "h": 1440,
+      "alt": "トップの写真準備中"
+    },
+    {
+      "id": "profile1",
+      "file": "hero.svg",
+      "w": 1440,
+      "h": 1440,
+      "alt": "プロフィール写真準備中"
+    },
+    {
+      "id": "candle1",
+      "file": "hero.svg",
+      "w": 1440,
+      "h": 1440,
+      "alt": "白木蓮 画像準備中"
+    },
+    {
+      "id": "candle2",
+      "file": "hero.svg",
+      "w": 1440,
+      "h": 1440,
+      "alt": "苔と雨 画像準備中"
+    },
+    {
+      "id": "candle3",
+      "file": "hero.svg",
+      "w": 1440,
+      "h": 1440,
+      "alt": "陽だまりの麻 画像準備中"
+    },
+    {
+      "id": "candle4",
+      "file": "hero.svg",
+      "w": 1440,
+      "h": 1440,
+      "alt": "夜の柑橘 画像準備中"
+    },
+    {
+      "id": "candle5",
+      "file": "hero.svg",
+      "w": 1440,
+      "h": 1440,
+      "alt": "灰と蜜 画像準備中"
+    },
+    {
+      "id": "gallery1",
+      "file": "hero.svg",
+      "w": 1440,
+      "h": 1440,
+      "alt": "制作風景 画像準備中"
+    },
+    {
+      "id": "gallery2",
+      "file": "hero.svg",
+      "w": 1440,
+      "h": 1440,
+      "alt": "制作風景 画像準備中"
+    },
+    {
+      "id": "gallery3",
+      "file": "hero.svg",
+      "w": 1440,
+      "h": 1440,
+      "alt": "イベント出店 画像準備中"
+    },
+    {
+      "id": "gallery4",
+      "file": "hero.svg",
+      "w": 1440,
+      "h": 1440,
+      "alt": "ワークショップ 画像準備中"
+    },
+    {
+      "id": "gallery5",
+      "file": "hero.svg",
+      "w": 1440,
+      "h": 1440,
+      "alt": "制作風景 画像準備中"
+    },
+    {
+      "id": "gallery6",
+      "file": "hero.svg",
+      "w": 1440,
+      "h": 1440,
+      "alt": "イベント出店 画像準備中"
+    },
+    {
+      "id": "gallery7",
+      "file": "hero.svg",
+      "w": 1440,
+      "h": 1440,
+      "alt": "ワークショップ 画像準備中"
+    },
+    {
+      "id": "gallery8",
+      "file": "hero.svg",
+      "w": 1440,
+      "h": 1440,
+      "alt": "イベント出店 画像準備中"
+    }
   ]
 }

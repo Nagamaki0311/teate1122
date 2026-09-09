@@ -5,6 +5,17 @@
 [build.environment]
   NODE_VERSION = "22"
 
+[functions]
+  directory = "netlify/functions"
+
+# SPA fallback for the editor app (/editor/callback etc). Static files under
+# /editor/ (index.html, assets/*) are served directly by Netlify before this
+# rule is considered, since `force` is not set.
+[[redirects]]
+  from = "/editor/*"
+  to = "/editor/index.html"
+  status = 200
+
 [[redirects]]
   from = "/about"
   to = "/#profile"

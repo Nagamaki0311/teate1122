@@ -3,6 +3,11 @@ export default function (eleventyConfig) {
   eleventyConfig.addPassthroughCopy("src/site.js");
   eleventyConfig.addPassthroughCopy("src/favicon.svg");
   eleventyConfig.addPassthroughCopy("src/assets");
+  eleventyConfig.addPassthroughCopy("src/robots.txt");
+  // editor/dist is built by `npm run build --workspace=editor` (see root
+  // package.json's build script) before eleventy runs, so this directory
+  // exists by the time this passthrough copy executes.
+  eleventyConfig.addPassthroughCopy({ "editor/dist": "editor" });
 
   // Look up an asset entry (site.json `assets[]`) by id.
   eleventyConfig.addFilter("findAsset", (assets, id) => (assets || []).find((a) => a.id === id));
