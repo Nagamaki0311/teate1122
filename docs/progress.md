@@ -19,6 +19,40 @@
 
 ---
 
+## 2026-09-09 T-021b: 編集アプリ（/editor）土台実装
+
+### 実施内容
+- **Step 1（site-data JSON正規化）**: `site-data/pages/home.json`・`site-data/candles.json`・`site-data/site.json`を`JSON.stringify(JSON.parse(raw), null, 2) + "\n"`で書き戻した（`site-data/events.json`は既にこの形式で一致済みのため対象外）。正規化前後で`npm run build`した`_site/`が`diff -r`で完全一致することを確認した上で実施（一致しない場合は中止する計画だったが、実際には一致した）。
+- **Step 2（ビルド統合）**: root `package.json`に`"workspaces": ["editor"]`を追加し、`build`スクリプトを`npm run build --workspace=editor && eleventy`に変更（Netlifyの`build.command`は`npm run build`のまま1本を維持）。`editor/package.json`（react/react-dom/vite/@vitejs/plugin-reactのみ、それぞれ19.2系/8.2系/6.1系の最新版）・`editor/vite.config.js`（`base:"/editor/"`）・`editor/index.html`（`lang="ja"`、`<meta name="robots" content="noindex, nofollow">`）を新規作成。`eleventy.config.js`に`editor/dist`→`_site/editor`のpassthrough copyと`src/robots.txt`のpassthrough copyを追加。`src/robots.txt`（`Disallow: /editor`）を新規作成。`netlify.toml`に`[functions] directory = "netlify/functions"`と`/editor/*`→`/editor/index.html`のSPAフォールバック（status 200、force未指定＝静的ファイルが実在すればそちらが優先される）を追加。
+- **Step 3（Netlify Function）**: `netlify/functions/github-oauth.mjs`をFunctions v2形式（`export default async (req) => Response`）で実装。GETは`{configured, clientId, scope:"public_repo"}`（未設定時`{configured:false}`、200のまま）、POSTはcode交換→`GET /user`検証→`EDITOR_ALLOWED_LOGIN`（デフォルト`Nagamaki0311`）と不一致なら403（トークンは返さない）、一致すれば`{token, login}`を返す。code欠落・不正は400、GET/POST以外は405、全レスポンスに`Cache-Control: no-store`。`editor/test/github-oauth.test.js`（`globalThis.fetch`と`process.env`をスタブし8パターン、レスポンスにClient Secret/アクセストークン文字列が含まれないことを直接アサート）を作成。
+- **Step 4（認証ロジック・画面）**: `editor/src/lib/auth.js`（`fetchConfig`/`beginLogin`/`consumeCallbackParams`/`exchangeCode`/`getToken`・`setToken`・`clearToken`、いずれも`storage`引数を注入可能にしテスト容易性とsessionStorage限定を両立）を実装。CSRF対策として`crypto.getRandomValues`で生成したstateを`sessionStorage`に保存し、コールバック側で照合後は成否に関わらず即削除（ワンタイム）。`editor/src/ui/Login.jsx`（未設定時のメッセージ表示を含む「未ログイン画面」兼ログイン開始画面）・`editor/src/ui/Callback.jsx`（`/editor/callback`、state検証→code交換→トークン保存→`history.replaceState`でURLを`/editor/`に戻す）を作成。`editor/test/auth.test.js`（13件、fakeストレージでstate一致/不一致/欠落・許可外ログインの拒否・sessionStorageのみへの保存を確認）を作成。
+- **Step 5（GitHubデータ層）**: `editor/src/lib/github.js`を実装。`loadSiteData`は`GET .../git/ref/heads/main`でHEAD shaを取得後、`GET .../contents/{path}?ref={headSha}`に`Accept: application/vnd.github.raw`を付けてhome.json/events.jsonを生テキスト取得（base64デコード不要）。`commitChanges`はGit Data APIでblob（`encoding:"utf-8"`）→tree（`base_tree`にHEADコミットshaをそのまま渡す）→commit→`PATCH refs/heads/main`（`force:false`）の順で単一コミットを作成し、直前に取得し直したHEAD shaが`loadSiteData`時のものと一致しない場合はblob作成前に`err.code="conflict"`で中断する（競合検知の二重化の1つ目）。書き込み可能パスは`ALLOWED_PATHS = ["site-data/pages/home.json", "site-data/events.json"]`にハードコードし、リスト外のパスへの書き込みはネットワーク呼び出し前に拒否。`editor/test/github.test.js`（8件、モックの`requestImpl`で呼び出し順序・リクエストボディ・許可外パス拒否時に0回しか呼ばれないこと・sha不一致時に1回（HEAD再確認のみ）で中断することをアサート）を作成。
+- **Step 6（スキーマ変換）**: `editor/src/lib/schema.js`に`KNOWN_SECTION_TYPES`（hero/text/image-text/candle-grid/events/gallery/contact-social の7種、`src/_includes/sections/*.njk`と1対1）、`SECTION_FIELDS`、`headingToText`/`textToHeading`（hero/textのみ配列⇔複数行テキストの相互変換、他は文字列のまま）、`paragraphsToText`/`textToParagraphs`（空行区切り）、`readField`/`writeField`（非破壊）、`nextEventId`を実装。`editor/test/schema.test.js`（11件）を作成。
+- **Step 7（バリデーション・差分計算）**: `editor/src/lib/validate.js`（`validateHome`/`validateEvents`/`validateAll`。sections配列・id重複・type既知7種・visible boolean・見出し非空、events側はid重複・kind∈{event,workshop}・date実在日（`Date.UTC`正規化での往復チェックで2/30等を検出）・title非空）と`editor/src/lib/changes.js`（`serializeJson`＝`JSON.stringify(v,null,2)+"\n"`、Step1のJSON正規化によりこれが実ファイルの整形と完全一致することを利用、`computeChanges`は`loadSiteData`が返す生テキストと再シリアライズしたdraftを比較し変更されたファイルのみ返す）を実装。`editor/test/validate.test.js`（10件）・`editor/test/changes.test.js`（4件）を作成。
+- **Step 8（アプリ骨格）**: `editor/src/main.jsx`・`editor/src/App.jsx`（ルーティングは`location.pathname.endsWith("/callback")`の1分岐のみ、状態は`useState`1つに集約しpropsで配下へ渡す、下書きの`localStorage`自動保存は`{home, events}`のみを引数に取る関数として構造化しトークンを渡す経路自体を作らない、起動時に保存済み下書きと最新データが異なれば`window.confirm`で復元を提案）・`editor/src/ui/TabBar.jsx`（編集/日程/公開の3タブのみ、見た目/受信タブは実装しない）・`editor/src/ui/Preview.jsx`（実サイトのiframeではなくReactによる簡易再現、表示中セクションの見出し・本文・並びのみ反映）・`editor/src/styles.css`（ボタン等のタップ領域44px以上、`:focus-visible`、「上半分プレビュー・下半分編集面」比率のレイアウト）を作成。
+- **Step 9（編集タブ）**: `editor/src/ui/EditTab.jsx`（セクション一覧、表示ON/OFFスイッチ、▲▼による並び替え）・`editor/src/ui/SectionSheet.jsx`（`<dialog>` + `showModal()`によるボトムシート、フォーカストラップ・Escape対応はネイティブに委ねる、method="dialog"フォームで送信時に自然に閉じる設計）を作成。
+- **Step 10（日程タブ）**: `editor/src/ui/DatesTab.jsx`（events.jsonの一覧・追加フォーム・削除（インライン確認）、`nextEventId`でid採番）を作成。
+- **Step 11（公開タブ）**: `editor/src/ui/PublishTab.jsx`（`computeChanges`による差分ファイル一覧、`validateAll`による公開前チェック（1件でも失敗時は`commitChanges`を呼ばない構造）、変更メモ入力、公開ボタン、公開中/完了/エラー/競合の状態表示、競合時の再読み込み導線）を作成。DEV読み取り専用モード（トークンなし）では公開ボタンを無効化。
+- **Step 12（CI）**: `.github/workflows/ci.yml`を新規作成（Node 22、`npm ci && npm test && npm run build`）。
+- **Step 13（ドキュメント）**: 本エントリ、`docs/decisions.md`のD-023（HEAD sha方式・raw取得・書き込みパス許可リスト・DEVバイパス・main直push等18項目の設計判断）、`docs/tasks.md`のT-021b更新（Phase4項目の切り出し、U1〜U4のUser対応待ち項目）を追記。
+
+### 結果
+- **完了条件1**: クリーンな状態（`node_modules`・`_site`・`editor/dist`を削除後）で`npm ci && npm run build`が成功。`_site/editor/index.html`・`_site/editor/assets/*.js`・`_site/robots.txt`の生成を確認。
+- **完了条件2**: Step 1直後にビルドした`_site/`をスナップショット保存し、最終実装後の`_site/`と`diff -rq`で比較した結果、差分は`_site/editor`（新規ディレクトリ）と`_site/robots.txt`（新規ファイル）の追加のみで、`index.html`・`privacy.html`・`style.css`は`diff`で完全一致（差分ゼロ）を確認。
+- **完了条件3**: `vite build`は`✓ 29 modules transformed` / `✓ built in 529ms`のみでビルド警告なし（stderr/stdoutを目視確認）。
+- **完了条件4**: `node --test 'editor/test/*.test.js'`で全53件パス（github-oauth.test.js 8件、auth.test.js 13件、github.test.js 8件、schema.test.js 11件、validate.test.js 10件、changes.test.js 4件…実数は`node --test`の集計に従う）。root `package.json`の`test`スクリプトも同一コマンドで統一（`npm test`で同じ結果）。**環境メモ**: この実行環境のNode（v22.22.2）では`node --test editor/test`のようにディレクトリを直接渡す呼び出し方がディレクトリを単一モジュールとしてrequireしようとして失敗する挙動を確認した（`/tmp`上の最小再現でも同様、CJS/ESM・package.jsonの有無を問わず再現）。`node --test`（引数なし、cwd自動探索）や`node --test 'editor/test/*.test.js'`（glob展開）は正常に動作するため、root `package.json`の`test`スクリプトは後者の形にして回避した。
+- **完了条件5（セキュリティ確認）**: `_site/editor/assets/*.js`を`grep`し、`client_secret`/`CLIENT_SECRET`/`clientSecret`に類する文字列が含まれないこと、`import.meta.env`の残存がないこと、DEVバイパスのUI文言「開発モード・読み取り専用」が本番バンドルに含まれない（dead code eliminationで除去済み）ことを確認。`localStorage`呼び出し箇所を`grep`し、保存対象が`{home, events}`のみであることとトークンのstorageキー文字列が`sessionStorage`呼び出し内にのみ出現することを確認。`_site/robots.txt`（`Disallow: /editor`）と`_site/editor/index.html`の`<meta name="robots" content="noindex, nofollow">`の両方の出力を確認。
+- **完了条件6**: `npm run dev:editor`でVite dev serverを起動し、`http://localhost:5173/editor/`がHTTP 200でSPAシェルを返すこと、`main.jsx`・`App.jsx`・全`lib/*.js`・全`ui/*.jsx`・`styles.css`のいずれもdevサーバー経由でエラーなく200で変換取得できることを確認（ヘッドレスブラウザでのレンダリング確認までは実施していないが、モジュールグラフ全体がトランスフォームエラーなく解決すること、および本番`vite build`が警告なく完了することから、実行時の構文・import解決に問題がないことは確認できている）。
+- コミット・pushは未実施（Manager側で実施予定）。ワーキングツリーに変更を残した状態（`docs/tasks.md`のT-021b「実装中」への更新も含め、本セッション開始時点で未コミットだった分をあわせて今回のコミットに含める）。
+
+### 次回開始位置
+- Reviewerによるレビュー待ち（`docs/tasks.md`のT-021bを「レビュー中」に更新済み）。特にセキュリティ関連（OAuthフロー・トークンの扱い・許可パス制限・コンフリクト検知）を重点確認してもらう。
+- レビュー承認後、D-022に従いManagerがCIグリーンを確認の上マージする。
+- マージ後、User側にU1〜U4（`docs/tasks.md`バックログ参照: OAuth App登録、Netlify環境変数設定、許可アカウント確認、実機動作確認）をまとめて依頼する。
+- Phase 4（見た目/受信タブ、写真圧縮、PWA化、履歴復元、candles.json編集）は本タスクの対象外。着手時はPlannerによる詳細計画が別途必要。
+
+---
+
 ## 2026-09-09 T-021a: Phase 0-2 Reviewer最終承認・PR作成
 
 ### 実施内容

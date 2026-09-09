@@ -2,9 +2,14 @@
   "name": "teate1122",
   "private": true,
   "type": "module",
+  "workspaces": [
+    "editor"
+  ],
   "scripts": {
-    "build": "eleventy",
-    "dev": "eleventy --serve"
+    "build": "npm run build --workspace=editor && eleventy",
+    "dev": "eleventy --serve",
+    "dev:editor": "npm run dev --workspace=editor",
+    "test": "node --test editor/test/*.test.js"
   },
   "devDependencies": {
     "@11ty/eleventy": "^3.0.0"

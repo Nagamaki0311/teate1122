@@ -1,0 +1,493 @@
+:root {
+  --color-bg: #f9f4ed;
+  --color-surface: #ffffff;
+  --color-text: #2e2b25;
+  --color-muted: #645c50;
+  --color-accent: #56633f;
+  --color-accent-pale: #f0fae1;
+  --color-line: rgba(46, 43, 37, 0.14);
+  --color-danger: #b3261e;
+  --radius: 14px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family:
+    "Noto Sans JP",
+    system-ui,
+    -apple-system,
+    "Hiragino Kaku Gothic ProN",
+    sans-serif;
+  line-height: 1.6;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0 0 0.5em;
+  font-weight: 600;
+}
+
+p {
+  margin: 0 0 0.75em;
+}
+
+a {
+  color: var(--color-accent);
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.muted {
+  color: var(--color-muted);
+}
+
+.error {
+  color: var(--color-danger);
+}
+
+.success {
+  color: var(--color-accent);
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.25em 0.75em;
+  border-radius: 999px;
+  background: var(--color-accent-pale);
+  color: var(--color-accent);
+  font-size: 0.8rem;
+}
+
+/* --- generic screens (Login / Callback / loading / error) --- */
+
+.screen {
+  min-height: 100%;
+  padding: 1.5rem;
+}
+
+.screen--centered {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.card {
+  width: min(420px, 100%);
+  padding: 2rem;
+  background: var(--color-surface);
+  border-radius: var(--radius);
+  border: 1px solid var(--color-line);
+}
+
+/* --- buttons / inputs (min 44px tap target) --- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 1.25em;
+  border: 1px solid var(--color-accent);
+  border-radius: 999px;
+  background: var(--color-accent);
+  color: #fff;
+  cursor: pointer;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn--ghost {
+  background: transparent;
+  color: var(--color-accent);
+}
+
+.btn--danger {
+  background: var(--color-danger);
+  border-color: var(--color-danger);
+}
+
+.btn--small {
+  min-height: 36px;
+  padding: 0 1em;
+  font-size: 0.9rem;
+}
+
+.icon-btn {
+  min-width: 44px;
+  min-height: 44px;
+  border: 1px solid var(--color-line);
+  border-radius: 10px;
+  background: var(--color-surface);
+  cursor: pointer;
+}
+
+.icon-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.field {
+  display: block;
+  margin: 0 0 1rem;
+}
+
+.field span {
+  display: block;
+  margin-bottom: 0.35em;
+  font-size: 0.9rem;
+  color: var(--color-muted);
+}
+
+.field input[type="text"],
+.field input[type="date"],
+.field select,
+.field textarea {
+  width: 100%;
+  min-height: 44px;
+  padding: 0.5em 0.75em;
+  border: 1px solid var(--color-line);
+  border-radius: 10px;
+  background: var(--color-surface);
+}
+
+.field textarea {
+  min-height: unset;
+  resize: vertical;
+}
+
+.switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  min-height: 44px;
+}
+
+.switch input {
+  width: 20px;
+  height: 20px;
+}
+
+/* --- app shell: preview (top half) / tab panel (bottom half) --- */
+
+.editor-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.editor-shell__topbar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid var(--color-line);
+  background: var(--color-surface);
+}
+
+.editor-shell__brand {
+  margin: 0;
+  font-weight: 600;
+  flex: 1;
+}
+
+.editor-shell__preview {
+  flex: 0 0 42%;
+  min-height: 200px;
+  overflow-y: auto;
+  background: var(--color-bg);
+  border-bottom: 1px solid var(--color-line);
+}
+
+.editor-shell__panel {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: 1rem;
+  padding-bottom: 5.5rem; /* keep content clear of the fixed tab bar */
+}
+
+/* --- preview (simplified re-creation, not the real site's iframe) --- */
+
+.preview {
+  padding: 1.25rem;
+}
+
+.preview__section {
+  padding: 1rem 0;
+  border-bottom: 1px dashed var(--color-line);
+}
+
+.preview__section:last-child {
+  border-bottom: none;
+}
+
+.preview__kicker {
+  margin: 0 0 0.25em;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  color: var(--color-muted);
+  text-transform: uppercase;
+}
+
+.preview__heading {
+  font-size: 1.25rem;
+}
+
+.preview__body {
+  color: var(--color-muted);
+}
+
+.preview__empty {
+  padding: 2rem;
+  text-align: center;
+  color: var(--color-muted);
+}
+
+/* --- tab bar --- */
+
+.tabbar {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  border-top: 1px solid var(--color-line);
+  background: var(--color-surface);
+}
+
+.tabbar__item {
+  flex: 1;
+  min-height: 52px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: var(--color-muted);
+}
+
+.tabbar__item--active {
+  color: var(--color-accent);
+  font-weight: 600;
+  box-shadow: inset 0 2px 0 var(--color-accent);
+}
+
+/* --- edit tab: section list --- */
+
+.section-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.section-list__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  margin-bottom: 0.5rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius);
+}
+
+.section-list__id {
+  margin: 0;
+  font-weight: 600;
+}
+
+.section-list__type {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--color-muted);
+}
+
+.section-list__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+/* --- dates tab --- */
+
+.event-list {
+  list-style: none;
+  margin: 0 0 1.5rem;
+  padding: 0;
+}
+
+.event-list__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  margin-bottom: 0.5rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius);
+}
+
+.event-list__meta {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--color-muted);
+}
+
+.event-list__title {
+  margin: 0;
+  font-weight: 600;
+}
+
+.event-list__place {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--color-muted);
+}
+
+.event-list__confirm {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.event-form {
+  padding: 1rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius);
+}
+
+/* --- publish tab --- */
+
+.diff-list {
+  margin: 0 0 1rem;
+  padding-left: 1.25rem;
+}
+
+.validation-errors {
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  background: #fdecea;
+  border: 1px solid var(--color-danger);
+  border-radius: var(--radius);
+}
+
+.validation-errors ul {
+  margin: 0.5em 0 0;
+  padding-left: 1.25rem;
+}
+
+/* --- section edit sheet (native <dialog>, bottom sheet) --- */
+
+.sheet {
+  position: fixed;
+  inset: auto 0 0 0;
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+  max-height: 88vh;
+  border: none;
+  border-radius: 16px 16px 0 0;
+  padding: 0;
+  background: var(--color-surface);
+}
+
+.sheet::backdrop {
+  background: rgba(46, 43, 37, 0.45);
+}
+
+.sheet__form {
+  display: flex;
+  flex-direction: column;
+  max-height: 88vh;
+}
+
+.sheet__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--color-line);
+}
+
+.sheet__header h2 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.sheet__close {
+  min-width: 44px;
+  min-height: 44px;
+  border: none;
+  background: none;
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.sheet__body {
+  padding: 1rem 1.25rem;
+  overflow-y: auto;
+}
+
+.sheet__footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  border-top: 1px solid var(--color-line);
+}
+
+@media (min-width: 720px) {
+  .editor-shell {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .editor-shell__topbar {
+    width: 100%;
+  }
+
+  .editor-shell__preview {
+    flex: 0 0 45%;
+    border-bottom: none;
+    border-right: 1px solid var(--color-line);
+  }
+
+  .editor-shell__panel {
+    flex: 1 1 55%;
+    padding-bottom: 1rem;
+  }
+
+  .tabbar {
+    flex: 0 0 45%;
+    order: 3;
+  }
+}
