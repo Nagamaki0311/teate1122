@@ -27,6 +27,7 @@
 | T-021a | Claude Designハンドオフ: Phase 0-2（Eleventy移行・新デザイン反映） | 高 | 完了 | planner/developer/reviewer | Reviewer承認済み（必須修正2点＝ワークショップバッジのコントラスト・nav loop.lastの脆弱性は対応・再レビューで解消確認済み）。PR作成・Manager push待ち。推奨事項6点はバックログへ。D-021参照 |
 | T-021b | Claude Designハンドオフ: Phase 3（編集アプリ/editor土台） | 高 | 完了 | planner/developer/reviewer | Reviewer承認（必須修正なし）。PR #8をD-022に従いCIグリーン確認後Managerが自動マージ（マージコミット27606f1）。ドメイン切替・OAuth App登録・Netlify環境変数設定（U1〜U4）完了、User実機でログイン確認済み。D-023参照。 |
 | T-021c | 編集アプリ Phase 4a: 画像の差し替え機能＋プレビュー精度向上 | 高 | 完了 | planner/developer/reviewer | Reviewer承認（必須修正なし）。書き込みパス制限・構造ガード・バイナリコミット・nunjucks autoescape（XSS対策）・プレビュー忠実性（Eleventy出力とbyte-identical）をReviewerが実機検証済み。D-024参照。マージ待ち。 |
+| T-021d | バグ修正: 画像アップロード後、下書きに反映されない（updateDraftの状態更新バグ） | 高 | レビュー中 | developer | User実機報告（写真アップロード→「未公開の写真」バッジは増えるがプレビュー・実データに反映されない）。ManagerがPlaywrightで再現し原因を特定、Developerが修正: `editor/src/App.jsx`の`updateDraft`を`setState`の関数形に変更（`composeDraft`を`editor/src/lib/draft.js`へ切り出し）。回帰テスト`editor/test/draft.test.js`追加。`npm test`91件全通過・`npm run build`成功。Playwright実機確認で修正前後の挙動差（badge表示のみ→img srcも変化）を確認済み。D-025参照。 |
 
 ## バックログ（未着手・優先度未確定）
 

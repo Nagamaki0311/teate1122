@@ -8,6 +8,7 @@ import DatesTab from "./ui/DatesTab.jsx";
 import PublishTab from "./ui/PublishTab.jsx";
 import { getToken, getLogin, clearToken } from "./lib/auth.js";
 import { loadSiteData } from "./lib/github.js";
+import { composeDraft } from "./lib/draft.js";
 
 const DRAFT_KEY = "teate1122-editor:draft";
 
@@ -165,8 +166,16 @@ export default function App() {
     }
   }
 
+  // Must use setState's functional form (not `patch`, which merges an
+  // already-computed `partial` closed over the render-time `state`): several
+  // callers (see SectionSheet.jsx's handleUpload/handleFocalZoom/handleAlt)
+  // invoke onHomeChange/onSiteChange/onCandlesChange back-to-back within the
+  // same synchronous handler, each producing its `partial` from the *same*
+  // stale `state.draft`. Composing against `s.draft` here — the value from
+  // the in-flight update, not the closure — lets each call build on the one
+  // before it instead of clobbering it (D-025).
   function updateDraft(partial) {
-    patch({ draft: { ...state.draft, ...partial } });
+    setState((s) => ({ ...s, draft: composeDraft(s.draft, partial) }));
   }
 
   function handleImageStaged(path, entry) {
