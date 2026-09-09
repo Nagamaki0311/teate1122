@@ -11,9 +11,29 @@ const TYPE_LABELS = {
   "contact-social": "お問い合わせ",
 };
 
-export default function EditTab({ home, onChange }) {
+export default function EditTab({
+  home,
+  site,
+  candles,
+  pendingImages,
+  onChange,
+  onSiteChange,
+  onCandlesChange,
+  onImageStaged,
+  onSectionOpen,
+}) {
   const [editingId, setEditingId] = useState(null);
   const sections = home?.sections || [];
+
+  function openSection(id) {
+    setEditingId(id);
+    onSectionOpen?.(id);
+  }
+
+  function closeSection() {
+    setEditingId(null);
+    onSectionOpen?.(null);
+  }
 
   function updateSections(next) {
     onChange({ ...home, sections: next });
@@ -70,7 +90,7 @@ export default function EditTab({ home, onChange }) {
                 <input type="checkbox" checked={section.visible} onChange={() => toggleVisible(section.id)} />
                 <span>表示</span>
               </label>
-              <button type="button" className="btn btn--small" onClick={() => setEditingId(section.id)}>
+              <button type="button" className="btn btn--small" onClick={() => openSection(section.id)}>
                 編集
               </button>
             </div>
@@ -79,7 +99,19 @@ export default function EditTab({ home, onChange }) {
         {sections.length === 0 && <p className="muted">セクションがありません。</p>}
       </ul>
       {editingSection && (
-        <SectionSheet section={editingSection} onSave={handleSectionSave} onClose={() => setEditingId(null)} />
+        <SectionSheet
+          section={editingSection}
+          home={home}
+          site={site}
+          candles={candles}
+          pendingImages={pendingImages}
+          onSave={handleSectionSave}
+          onHomeChange={onChange}
+          onSiteChange={onSiteChange}
+          onCandlesChange={onCandlesChange}
+          onImageStaged={onImageStaged}
+          onClose={closeSection}
+        />
       )}
     </div>
   );

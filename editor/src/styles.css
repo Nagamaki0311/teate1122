@@ -233,41 +233,20 @@ textarea {
   padding-bottom: 5.5rem; /* keep content clear of the fixed tab bar */
 }
 
-/* --- preview (simplified re-creation, not the real site's iframe) --- */
+/* --- preview: the real site rendered into a srcDoc iframe --- */
 
-.preview {
-  padding: 1.25rem;
+.preview-frame {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 200px;
+  border: none;
+  background: var(--color-bg);
 }
 
-.preview__section {
-  padding: 1rem 0;
-  border-bottom: 1px dashed var(--color-line);
-}
-
-.preview__section:last-child {
-  border-bottom: none;
-}
-
-.preview__kicker {
-  margin: 0 0 0.25em;
-  font-size: 0.75rem;
-  letter-spacing: 0.08em;
-  color: var(--color-muted);
-  text-transform: uppercase;
-}
-
-.preview__heading {
-  font-size: 1.25rem;
-}
-
-.preview__body {
-  color: var(--color-muted);
-}
-
-.preview__empty {
-  padding: 2rem;
-  text-align: center;
-  color: var(--color-muted);
+.editor-shell--fullscreen-preview .editor-shell__preview {
+  flex: 1 1 auto;
+  border: none;
 }
 
 /* --- tab bar --- */
@@ -463,6 +442,78 @@ textarea {
   gap: 0.75rem;
   padding: 1rem 1.25rem;
   border-top: 1px solid var(--color-line);
+}
+
+/* --- image field (photo replacement: focal point + zoom) --- */
+
+.image-field {
+  margin: 0 0 1.5rem;
+  padding: 1rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius);
+}
+
+.image-field__label {
+  margin: 0 0 0.5em;
+  font-weight: 600;
+}
+
+.image-field__frame {
+  position: relative;
+  width: 100%;
+  max-width: 320px;
+  overflow: hidden;
+  border-radius: 10px;
+  background: var(--color-bg);
+  cursor: crosshair;
+  touch-action: none;
+}
+
+.image-field__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: var(--focal-x, 50%) var(--focal-y, 50%);
+  transform: scale(var(--zoom, 1));
+  pointer-events: none;
+}
+
+.image-field__focal-dot {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  margin: -7px 0 0 -7px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid var(--color-accent);
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.25);
+  pointer-events: none;
+}
+
+.image-field__busy {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  background: rgba(255, 255, 255, 0.7);
+  color: var(--color-text);
+}
+
+.image-field__frame--drag {
+  outline: 3px dashed var(--color-accent);
+  outline-offset: -3px;
+}
+
+.image-field__controls {
+  margin: 0.75rem 0;
+}
+
+.field--range input[type="range"] {
+  width: 100%;
+  min-height: 44px;
 }
 
 @media (min-width: 720px) {

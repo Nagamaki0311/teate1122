@@ -11,12 +11,21 @@ import { loadSiteData } from "./lib/github.js";
 
 const DRAFT_KEY = "teate1122-editor:draft";
 
-// Draft persistence deliberately takes only { home, events } — never a
-// token — so that a session token can never end up in localStorage, even by
-// mistake. See docs/decisions.md D-023.
+// Draft persistence deliberately takes only the JSON trees ({home, events,
+// site, candles}) — never a token, and never a pending photo's binary data
+// (see docs/decisions.md D-024 §2-9: a Blob can't be serialized, and
+// base64-in-localStorage risks a quota error on a normal-sized photo). A
+// draft restored after an upload was staged but not published will
+// therefore reference a photo that no longer exists locally — the
+// pre-publish "reference check" in lib/validate.js is what catches that
+// case and blocks publishing until the photo is re-uploaded, rather than
+// silently committing a broken path.
 function saveDraft(draft) {
   try {
-    localStorage.setItem(DRAFT_KEY, JSON.stringify({ home: draft.home, events: draft.events }));
+    localStorage.setItem(
+      DRAFT_KEY,
+      JSON.stringify({ home: draft.home, events: draft.events, site: draft.site, candles: draft.candles }),
+    );
   } catch {
     // best-effort only (private browsing / storage quota / disabled storage)
   }
@@ -39,6 +48,15 @@ function clearSavedDraft() {
   }
 }
 
+function draftEqual(a, b) {
+  return (
+    JSON.stringify(a.home) === JSON.stringify(b.home) &&
+    JSON.stringify(a.events) === JSON.stringify(b.events) &&
+    JSON.stringify(a.site) === JSON.stringify(b.site) &&
+    JSON.stringify(a.candles) === JSON.stringify(b.candles)
+  );
+}
+
 // No router library: the only two "routes" are /editor/callback (the OAuth
 // redirect target) and everything else (the app shell).
 export default function App() {
@@ -53,24 +71,36 @@ export default function App() {
     login: getLogin(),
     loading: false,
     error: null,
-    data: null, // { headSha, home, events, rawText }
-    draft: null, // { home, events } — the editable copy
+    data: null, // { headSha, home, events, site, candles, rawText }
+    draft: null, // { home, events, site, candles } — the editable copy
     activeTab: "edit",
   }));
+  // Staged-but-uncommitted photo uploads: { [repoPath]: { blob, assetFile,
+  // objectUrl, width, height } }. Kept out of `state`/localStorage — see
+  // saveDraft's comment above.
+  const [pendingImages, setPendingImages] = useState({});
+  const [scrollToSectionId, setScrollToSectionId] = useState(null);
+  const [fullscreenPreview, setFullscreenPreview] = useState(false);
 
   function patch(partial) {
     setState((s) => ({ ...s, ...partial }));
   }
 
+  function revokePendingImages(images) {
+    for (const entry of Object.values(images || {})) {
+      try {
+        URL.revokeObjectURL(entry.objectUrl);
+      } catch {
+        // ignore
+      }
+    }
+  }
+
   async function loadAndPrepareDraft() {
     const data = await loadSiteData({ token: state.token || undefined });
-    let draft = { home: data.home, events: data.events };
+    let draft = { home: data.home, events: data.events, site: data.site, candles: data.candles };
     const saved = loadSavedDraft();
-    if (
-      saved &&
-      (JSON.stringify(saved.home) !== JSON.stringify(data.home) ||
-        JSON.stringify(saved.events) !== JSON.stringify(data.events))
-    ) {
+    if (saved && !draftEqual(saved, draft)) {
       const restore = window.confirm(
         "保存されていた下書きがあります。復元しますか？\n（キャンセルすると破棄して最新の内容から始めます）",
       );
@@ -100,7 +130,8 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.token]);
 
-  // Auto-save the draft (never the token) whenever it changes.
+  // Auto-save the draft (never the token, never pending photo bytes)
+  // whenever it changes.
   useEffect(() => {
     if (state.draft) saveDraft(state.draft);
   }, [state.draft]);
@@ -112,18 +143,34 @@ export default function App() {
   function handleLogout() {
     clearToken();
     clearSavedDraft();
+    revokePendingImages(pendingImages);
+    setPendingImages({});
     patch({ token: null, login: null, data: null, draft: null });
   }
 
   async function handleReload() {
     clearSavedDraft();
+    revokePendingImages(pendingImages);
+    setPendingImages({});
     patch({ loading: true, error: null, draft: null });
     try {
       const data = await loadSiteData({ token: state.token || undefined });
-      patch({ loading: false, data, draft: { home: data.home, events: data.events } });
+      patch({
+        loading: false,
+        data,
+        draft: { home: data.home, events: data.events, site: data.site, candles: data.candles },
+      });
     } catch (err) {
       patch({ loading: false, error: err.message });
     }
+  }
+
+  function updateDraft(partial) {
+    patch({ draft: { ...state.draft, ...partial } });
+  }
+
+  function handleImageStaged(path, entry) {
+    setPendingImages((prev) => ({ ...prev, [path]: entry }));
   }
 
   if (isCallback) {
@@ -158,10 +205,18 @@ export default function App() {
   }
 
   return (
-    <div className="editor-shell">
+    <div className={`editor-shell${fullscreenPreview ? " editor-shell--fullscreen-preview" : ""}`}>
       <header className="editor-shell__topbar">
         <p className="editor-shell__brand">teate1122 編集</p>
         {isDev && !state.token && <span className="badge">開発モード・読み取り専用</span>}
+        <button
+          type="button"
+          className="btn btn--ghost btn--small"
+          onClick={() => setFullscreenPreview((v) => !v)}
+          aria-pressed={fullscreenPreview}
+        >
+          {fullscreenPreview ? "編集画面に戻る" : "全画面プレビュー"}
+        </button>
         {state.login && (
           <button type="button" className="btn btn--ghost btn--small" onClick={handleLogout}>
             ログアウト（{state.login}）
@@ -170,29 +225,49 @@ export default function App() {
       </header>
 
       <div className="editor-shell__preview">
-        <Preview home={state.draft.home} />
+        <Preview
+          home={state.draft.home}
+          site={state.draft.site}
+          candles={state.draft.candles}
+          events={state.draft.events}
+          pendingImages={pendingImages}
+          scrollToSectionId={scrollToSectionId}
+        />
       </div>
 
-      <div className="editor-shell__panel">
-        {state.activeTab === "edit" && (
-          <EditTab home={state.draft.home} onChange={(home) => patch({ draft: { ...state.draft, home } })} />
-        )}
-        {state.activeTab === "dates" && (
-          <DatesTab events={state.draft.events} onChange={(events) => patch({ draft: { ...state.draft, events } })} />
-        )}
-        {state.activeTab === "publish" && (
-          <PublishTab
-            draft={state.draft}
-            rawText={state.data.rawText}
-            headSha={state.data.headSha}
-            token={state.token}
-            onPublished={handleReload}
-            onReloadRequested={handleReload}
-          />
-        )}
-      </div>
+      {!fullscreenPreview && (
+        <div className="editor-shell__panel">
+          {state.activeTab === "edit" && (
+            <EditTab
+              home={state.draft.home}
+              site={state.draft.site}
+              candles={state.draft.candles}
+              pendingImages={pendingImages}
+              onChange={(home) => updateDraft({ home })}
+              onSiteChange={(site) => updateDraft({ site })}
+              onCandlesChange={(candles) => updateDraft({ candles })}
+              onImageStaged={handleImageStaged}
+              onSectionOpen={setScrollToSectionId}
+            />
+          )}
+          {state.activeTab === "dates" && (
+            <DatesTab events={state.draft.events} onChange={(events) => updateDraft({ events })} />
+          )}
+          {state.activeTab === "publish" && (
+            <PublishTab
+              draft={state.draft}
+              rawText={state.data.rawText}
+              headSha={state.data.headSha}
+              token={state.token}
+              pendingImages={pendingImages}
+              onPublished={handleReload}
+              onReloadRequested={handleReload}
+            />
+          )}
+        </div>
+      )}
 
-      <TabBar active={state.activeTab} onChange={(activeTab) => patch({ activeTab })} />
+      {!fullscreenPreview && <TabBar active={state.activeTab} onChange={(activeTab) => patch({ activeTab })} />}
     </div>
   );
 }

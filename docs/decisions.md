@@ -417,3 +417,49 @@
 - `robots.txt`（`src/robots.txt`、passthrough copy）と`editor/index.html`の`<meta name="robots" content="noindex, nofollow">`により`/editor`を検索エンジンから除外する。
 - 実際に機能させるには、GitHub OAuth App登録・Netlify環境変数（`GITHUB_OAUTH_CLIENT_ID`, `GITHUB_OAUTH_CLIENT_SECRET`, 任意で`EDITOR_ALLOWED_LOGIN`）設定というUser側の手動作業が別途必要（`docs/tasks.md`のU1〜U4参照）。
 - 見た目タブ（`site-data/site.json`編集）・受信タブ・写真の圧縮/トリミング・PWA化・履歴からの復元・`site-data/candles.json`編集はPhase 4として今回のスコープから明示的に除外した。着手時はPlannerによる詳細計画が別途必要。
+
+---
+
+## D-024: 編集アプリ（/editor）への画像差し替え機能＋ライブプレビュー精度向上の実装方針
+
+- 日付: 2026-09-09
+- 状態: 採用
+
+### 背景
+- T-021c（D-021の7番の続き、D-023 Phase 4の一部）として、Plannerが調査・設計した詳細計画に基づきDeveloperが実装した。トリミング方式（フォーカルポイント+ズーム、矩形クロップなし）・画像配置（`src/assets/photos/`）・書き込み許可の拡張・ライブプレビュー刷新（ブラウザ内nunjucks）はPlanner側で確認不要と判断し決定済みだった（計画書1章）。本項目はその決定内容をそのまま採用した記録である。
+
+### 決定（Planner確定分。1-1〜1-10として計画書に記載されたもの）
+1. トリミングUIはフォーカルポイント＋ズームのみ。矩形クロップツールは作らない（`src/style.css`が`object-position`/`transform:scale`しか解釈しないため）。
+2. 画像は`src/assets/photos/`に格納。ファイル名は`<セクションid>-<YYYYMMDD>-<連番>.webp`（WebP不可環境は`.jpg`）。
+3. `site.json`の`assets[]`は新規エントリを追加せず、既存エントリの`file`/`w`/`h`/`alt`をin-place更新する。
+4. 差し替え前の古い画像ファイルは削除しない（データ損失リスク回避を優先）。手動整理が必要になった場合はUserが別途GitHub上で削除する。
+5. `site-data/candles.json`を書き込み対象に追加する。画像フィールド（`image`）のみ編集可能とし、文言編集タブは作らない。
+6. ギャラリー8枚にも`focal`/`zoom`を導入する（`src/_includes/sections/gallery.njk`・`src/style.css`・`site-data/pages/home.json`に追加、画像編集UIは1コンポーネント`ImageField.jsx`に統一）。
+7. WebP非対応環境（Safari等）ではJPEGへ自動フォールバックする。許可ファイル名の正規表現は`.webp|.jpg`の2種のみ。
+8. ドラッグ＆ドロップを実装する（`<input type="file">`と同じ処理経路を共有）。
+9. 画像（Blob）はlocalStorageの下書きに保存しない。代わりに公開前バリデーションで「参照切れ検出」（`assets[].file`が既知の既存ファイルにも保留中アップロードにも一致しない場合はエラー）を行い、再読み込みで消えた未公開画像を参照したままの公開をブロックする。
+10. プレビューは実`.njk`＋実`style.css`＋実`site.js`をブラウザ内nunjucksで描画してsrcDoc iframeに流し込む方式にする（Reactによる簡易再現の拡張でも、Netlify Function経由のEleventy実行でもない）。
+
+### 決定（実装時にDeveloperが判断した事項）
+11. **書き込み許可パスの構造**: `editor/src/lib/github.js`の`ALLOWED_PATHS`（固定4ファイル: home.json/events.json/site.json/candles.json）に加え、`isAllowedPath(path)`関数を新設し、`src/assets/photos/`配下は正規表現`/^[a-z0-9][a-z0-9-]*\.(webp|jpg)$/`でファイル名のみを許可する（`/`・`.`・`..`・大文字を構造的に排除）。`commitChanges`は`ALLOWED_PATHS.includes`ではなく`isAllowedPath`を呼ぶよう変更した。D-023の意図（アプリのバグや細工されたdraftが任意ファイルを壊すのを防ぐ）は、固定パスに加えて「生成されるパスの形」を正規表現で縛ることで維持している。
+12. **site.json/candles.jsonの構造ガードは`changes.js`（`computeChanges`）に実装し、例外を投げる方式にした**。`site.json`は`assets`以外のキーが元と一致すること、`candles.json`は各エントリの`image`以外のフィールド（および配列の長さ・id順）が元と一致することを`JSON.stringify`の差分比較で検証する。違反時は`computeChanges`が例外を投げ、`PublishTab.jsx`がそれをキャッチして公開不可の状態として表示する（ネットワーク呼び出しは一切発生しない）。これは`isAllowedPath`（ファイルパス単位の防御）とは別の層で、「許可されたファイルの中でも許可されたフィールドしか書けない」という第2の防御線になる。
+13. **バイナリのコミットは`files[]`要素に`encoding`フィールドを追加するだけの最小変更**にした（`encoding`省略時は従来通り`"utf-8"`）。tree/commit/ref更新の既存フローは無変更。
+14. **base64化は`Blob.arrayBuffer()` + チャンク分割`btoa()`を採用し、計画書が明示した`FileReader.readAsDataURL`は採用しなかった**。理由: `FileReader`はブラウザ専用APIで、Node（`editor/test/changes.test.js`）から`blobToBase64`を直接テストできない。`Blob.arrayBuffer()`と`btoa`はNode 18+にも標準搭載されており（本リポジトリの`.nvmrc`はNode 22）、ブラウザ・Node両方で同一実装が動く。計画が懸念していた「`btoa`+配列スプレッドによるスタック上限リスク」は素の`btoa(String.fromCharCode(...bytes))`を避け、32KBチャンクに分割して`String.fromCharCode.apply`することで同様に回避しており、当初の意図は損なっていない。
+15. **ライブプレビューのnunjucks読み込みは、計画書が想定した「ブラウザビルドのバンドル失敗時はNode版フォールバック」の判断分岐が不要だった**。`node_modules/nunjucks/package.json`に`"browser": "./browser/nunjucks.js"`フィールドが存在し、Viteはクライアントビルド時にこれを自動的に解決するため、`import nunjucks from "nunjucks"`という素のインポートだけで、Node実行時（`editor/test/render.test.js`）は`fs`/`path`を使うNode版（`index.js`）が、Viteビルド時（`editor/src/ui/Preview.jsx`）はブラウザ版（`browser/nunjucks.js`、自己完結ビルドで`fs`/`path`を参照しない）が、それぞれ自動的に選択されることを確認した（`npm run build`が成功し、`editor/dist`のJSバンドルにnunjucksが同梱されることを確認済み）。計画書§3-2の「重要な判断ポイント」（縮退案＝Reactの簡易再現拡張）を検討する必要はなかった。`editor/package.json`の依存は素の`"nunjucks": "^3.2.4"`のみで、明示的な`nunjucks/browser/nunjucks.min.js`直接指定は不要だった。
+16. **プレビューはbase.njk/セクション`.njk`をそのままレンダリングし、`src/index.njk`自体はレンダリングしない**。`index.njk`はEleventyのYAML front matter（`layout: base.njk`）を含みnunjucks単体では解釈できないため、`editor/src/lib/render.js`の`renderContentHtml`が`index.njk`の`{% for section in home.sections %}...{% include %}`ループをJSで再実装し、結果を`content`として`base.njk`に渡す。ループ本体（テンプレート選択・`showId`変数・フィルタ）は複製しているが、各セクションの見た目を生成する`.njk`ファイル自体は一切複製していない（Ponytail: マークアップの単一情報源はテンプレート側に残す）。
+17. **`findAsset`/`pct`/`lines`の3フィルタは`eleventy.config.js`と`editor/src/lib/render.js`の両方に1行ずつ重複定義した**。共有モジュール化も検討したが、Eleventy設定（Node専用、`eleventyConfig.addFilter`前提）と本ファイル（Node/ブラウザ両対応が必要）を1つの抽象化にまとめるコストが、3行のコード重複を正当化しないと判断した（Ponytail: 些細なコードの重複を避けるための抽象化を追加しない）。
+18. **`src/_data/derive-events.js`への切り出し**は計画通り実施し、`src/_data/events.js`（Eleventy）と`editor/src/lib/render.js`（プレビュー、`editor/src/lib`から`../../../src/_data/derive-events.js`への相対importでリポジトリ横断参照）の両方が同一実装を参照する。
+19. **画像アップロード確定時、フォーカルポイントは`[0.5, 0.5]`・ズームは`1`にリセットする**（`schema.js`の`applyUploadedImage`）。計画書に明記はなかったが、「差し替え前の画像に対して調整していたフォーカルポイントが、差し替え後の別構図の写真にそのまま適用される」方が実害が大きいと判断し、常識的な既定値として採用した。ユーザーは同じ`ImageField`でその場から再調整できる。
+20. **ImageFieldの表示比率（アスペクト比）は近似値**を採用した。hero（実サイトはビューポート依存の全面写真、`min-height: clamp(560px, 90svh, 900px)`）は編集枠として`16 / 9`を代表値とする（実際の表示比率を厳密に再現するものではない）。image-text（`3 / 4`）・candle-grid（`1 / 1`）・gallery（各itemの`ratio`）は`src/style.css`の実際のCSSと一致させた。
+21. **プレビュー忠実性の実測結果**: `editor/src/lib/render.js`の`renderContentHtml`が生成するHTMLと、`npx eleventy`が生成した`_site/index.html`の`<main id="top">...</main>`内側を、空白正規化（連続空白を1つに圧縮＋前後trim）した上で比較したところ、**完全一致**（正規化後の文字数: 両者とも11532文字）を確認した（`editor/test/render.test.js`の自動テストに加え、手動でも同内容のnodeワンライナーを実行して確認）。
+
+### 理由（検討した代替案）
+- 矩形クロップUI（クライアント側でクロップ座標を計算しCSS `object-fit: cover`以外の方式で描画する）も検討したが、実サイトのCSSがフォーカルポイント方式のみに対応しており、対応するには`src/style.css`と全`.njk`テンプレートの変更が必要になり影響範囲が過大なため不採用（計画書決定1）。
+- 画像バイナリをGitHub Contents API（単一ファイルPUT）で都度コミットする案も検討したが、D-023で確立したGit Data API単一コミット方式（HEAD sha 1本を追跡）にJSON変更と画像変更をまとめて載せる方が、コミット粒度・競合検知の一貫性の面で優れるため、既存の`commitChanges`を拡張する方式を維持した。
+
+### 影響
+- `editor/package.json`に依存関係`nunjucks`が追加され、`editor/dist`のJSバンドルサイズが約108KB（gzip）増加した（プレビューの精度と引き換えの妥当なコストと判断）。
+- `site-data/pages/home.json`のgallery `items[]`各要素に`focal`/`zoom`が追加され、`src/_includes/sections/gallery.njk`・`src/style.css`が変更された。ビルド後の`_site/index.html`の差分はgalleryの`<img>`要素への`style`属性追加のみであることを確認済み（既存ページの見た目には影響しない、`--focal-x:50.0%;--focal-y:50.0%;--zoom:1`が全画像のデフォルト値のため）。
+- `editor/src/lib/github.js`の`ALLOWED_PATHS`が2件から4件に拡張され、加えて`isAllowedPath`により`src/assets/photos/`配下への書き込みが新たに可能になった。これによりD-023時点の「書き込み可能パスはハードコードされた許可リストのみ」という前提は「固定リスト＋正規表現で縛られた1ディレクトリ」に更新された（D-023の項目13を本項目11・12で上書きする）。
+- `editor/src/lib/changes.js`の`computeChanges`が例外を投げるようになったため、`PublishTab.jsx`は`useMemo`内で`try/catch`する構造に変更されている（呼び出し側が変更を意識する必要がある）。
+- Phase 4の残り（見た目タブ・受信タブ・PWA化・履歴からの復元・candles.jsonの文言編集）は引き続き対象外。着手時は改めてPlannerによる詳細計画が必要（D-023の記載を維持）。
