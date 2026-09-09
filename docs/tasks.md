@@ -26,7 +26,7 @@
 | T-020 | トップページ集約（1ページサイト化） | 高 | 完了 | planner/developer/reviewer | /about・/activities・/contactの内容を/（トップページ）に統合し、アンカーで遷移する1ページ構成に再編。Reviewer承認済み（必須修正なし、推奨2点は今後のデプロイ後確認事項としてバックログへ）。詳細はD-020参照 |
 | T-021a | Claude Designハンドオフ: Phase 0-2（Eleventy移行・新デザイン反映） | 高 | 完了 | planner/developer/reviewer | Reviewer承認済み（必須修正2点＝ワークショップバッジのコントラスト・nav loop.lastの脆弱性は対応・再レビューで解消確認済み）。PR作成・Manager push待ち。推奨事項6点はバックログへ。D-021参照 |
 | T-021b | Claude Designハンドオフ: Phase 3（編集アプリ/editor土台） | 高 | 完了 | planner/developer/reviewer | Reviewer承認（必須修正なし）。PR #8をD-022に従いCIグリーン確認後Managerが自動マージ（マージコミット27606f1）。ドメイン切替・OAuth App登録・Netlify環境変数設定（U1〜U4）完了、User実機でログイン確認済み。D-023参照。 |
-| T-021c | 編集アプリ Phase 4a: 画像の差し替え機能＋プレビュー精度向上 | 高 | 実装中 | developer | Planner計画完了。画像=フォーカルポイント+ズーム方式（矩形クロップなし）、`src/assets/photos/`格納、書き込み許可をファイル名正規表現で限定、site.json/candles.jsonは構造ガード付きで許可対象に追加。プレビューは実`.njk`+実CSS/JSをブラウザ内nunjucksでsrcDoc iframe描画する方式（React再現の拡張ではなくテンプレート単一情報源を維持）。写真運用規模はPlanner判断で「数十枚規模」前提、確認省略。 |
+| T-021c | 編集アプリ Phase 4a: 画像の差し替え機能＋プレビュー精度向上 | 高 | 完了 | planner/developer/reviewer | Reviewer承認（必須修正なし）。書き込みパス制限・構造ガード・バイナリコミット・nunjucks autoescape（XSS対策）・プレビュー忠実性（Eleventy出力とbyte-identical）をReviewerが実機検証済み。D-024参照。マージ待ち。 |
 
 ## バックログ（未着手・優先度未確定）
 
@@ -37,13 +37,11 @@
 - T-020 Reviewer推奨事項: home.jsonのcontact-socialセクション本文がスコープ外の文言変更を含む点の是非確認: 優先度低
 - T-021a Reviewer推奨事項（優先度低、マージ非ブロック）: (1) ヒーローの`ttdrift`ゆらぎアニメーション未実装、(2) プロフィール画像等の角丸がHomepage.dc.htmlと2〜4pxずれ、(3) ギャラリータブのARIA構造が不完全（`role=tablist`だが`role=tab`未使用）、(4) `.gitignore`の`.astro/`エントリが不要、(5) イベントのUPCOMING/ARCHIVE振り分けがビルド時刻固定でNetlifyの定期リビルドが別途必要、(6) `a:hover`の`ember`色がAAコントラスト未達（3.3:1、hover状態のため許容範囲内と判断したが記録として残す）
 - 実素材（実文章・実写真・香りのラインナップ）差し替え: T-021aでは［仮文］のまま実装。実素材確定後に対応（T-008バックログと同様の扱い）
-- **T-021b Phase 4（編集アプリの未実装範囲、次回タスクとして着手時にPlannerによる詳細計画が別途必要）**: 見た目タブ（`site-data/site.json`のtheme/nav/assets編集）、受信タブ（お問い合わせフォーム送信内容の閲覧）、写真の圧縮/トリミングアップロード、PWA化、公開履歴からの復元、`site-data/candles.json`（香りラインナップ）の編集。D-021・D-023参照。
+- **Phase 4b（編集アプリの残り未実装範囲、次回タスクとして着手時にPlannerによる詳細計画が別途必要）**: 見た目タブ（`site-data/site.json`のtheme/nav編集）、受信タブ（お問い合わせフォーム送信内容の閲覧）、PWA化、公開履歴からの復元、`site-data/candles.json`の文言編集（香りの名前・説明文等、画像フィールドはT-021cで編集可能になった）。T-021cで写真差し替え・ライブプレビュー精度向上は実装済み。D-021・D-023・D-024参照。
 - **ドメイン切替（teate1122-candle.nk-pr.com）**: 完了。Cloudflareに所有権確認用TXTレコードとCNAME（`teate1122-candle` → `teate1122.netlify.app`、DNS only）を追加し、NetlifyのDomain managementでPrimary domainとして登録、Let's Encrypt証明書を発行済み（2026-09-09）。User側で`https://teate1122-candle.nk-pr.com`の表示を確認済み。
-- **T-021b User側作業（編集アプリを実際に機能させるために必要、実装完了後にまとめて依頼）**:
-  - U1: GitHub OAuth Appの登録（Homepage URL・Authorization callback URLを`https://teate1122-candle.nk-pr.com`・`https://teate1122-candle.nk-pr.com/editor/callback`に設定し、Client ID/Client Secretを取得）※ドメイン切替完了済みのため最初から本番ドメインで登録可能
-  - U2: NetlifyのSite settings > Environment variablesに`GITHUB_OAUTH_CLIENT_ID`・`GITHUB_OAUTH_CLIENT_SECRET`を設定（`EDITOR_ALLOWED_LOGIN`はデフォルト値`Nagamaki0311`のままで良ければ設定不要）
-  - U3: 許可アカウント（デフォルト`Nagamaki0311`、変更する場合はU2で`EDITOR_ALLOWED_LOGIN`を設定）が本リポジトリへのpush権限を持つGitHubアカウントであることの確認（実効的なセキュリティ境界であるため、D-023参照）
-  - U4: 環境変数設定後の再デプロイ、および実機での動作確認（`/editor`へのアクセス→ログイン→編集→公開の一連のフロー）
+- **T-021b User側作業**: U1〜U4すべて完了済み（OAuth App登録、Netlify環境変数設定、実機ログイン確認）。
+- T-021c Reviewer推奨事項（優先度低、マージ非ブロック）: (1) `render.js`の`applyObjectUrls`が`assets/<file>`という文字列を本文中の偶然の一致でも置換しうる（実害は極めて低い、プレビュー表示のみ・コミットデータに影響なし）、(2) プレビューiframeに`sandbox`属性がない（`site.js`実行のため意図的、多層防御として`sandbox="allow-scripts"`を検討の余地）、(3) `ImageField.jsx`のズームrange上限(2)と`validate.js`のバリデーション上限(3)が不一致、(4) `blobToBase64`の大容量入力（チャンク境界をまたぐサイズ）の専用ユニットテストがない（Reviewerが実機で動作確認済みだが回帰防止のテスト追加が望ましい）
+- T-021c User側実機確認（推奨、次回`/editor`使用時に）: 写真アップロード→フォーカル/ズーム調整→プレビュー確認→公開の一連の流れ
 
 ## メモ
 

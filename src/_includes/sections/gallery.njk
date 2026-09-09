@@ -14,7 +14,7 @@
     </div>
     <div class="gallery__grid">
       {% for g in section.props.items %}<figure class="gallery__item" data-reveal data-category="{{ g.category }}" style="--gallery-ratio:{{ g.ratio }}">
-        <img src="assets/{{ (site.assets | findAsset(g.assetId)).file }}" alt="{{ g.alt }}" loading="lazy">
+        <img src="assets/{{ (site.assets | findAsset(g.assetId)).file }}" style="--focal-x:{{ g.focal[0] | pct }}%;--focal-y:{{ g.focal[1] | pct }}%;--zoom:{{ g.zoom }}" alt="{{ g.alt }}" loading="lazy">
       </figure>
       {% endfor %}</div>
   </div>

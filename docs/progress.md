@@ -19,6 +19,36 @@
 
 ---
 
+## 2026-09-09 T-021c: 編集アプリ（/editor）画像差し替え機能＋ライブプレビュー精度向上
+
+### 実施内容
+- **Step 1（サイト側の下準備）**: `src/_includes/sections/gallery.njk`の`<img>`にhero/image-textと同形の`--focal-x`/`--focal-y`/`--zoom`インラインstyleを追加。`src/style.css`の`.gallery__item img`に`object-position`/`transform:scale`を追加（デフォルト値付き、`var(--focal-x,50%)`等）。`site-data/pages/home.json`のgallery `items[]`8件に`focal:[0.5,0.5]`/`zoom:1`を追加。`src/_data/events.js`から純粋関数`deriveEvents(events, todayIso)`を`src/_data/derive-events.js`へ切り出し（Eleventyと編集アプリが同一実装を参照）。ビルド前後の`_site/index.html`差分はgalleryの`<img>`style属性追加のみ（16行、8枚×2行）であることを確認。
+- **Step 2（データ読み込み拡張）**: `editor/src/lib/github.js`の`loadSiteData`をhome/events/site/candlesの4ファイル並列raw取得に拡張。`editor/src/App.jsx`のdraftを`{home, events, site, candles}`に拡張し、`pendingImages`（未コミットアップロードのblob/objectURL保持、localStorageには保存しない）をstateに追加。
+- **Step 3（書き込み層拡張）**: `github.js`に`isAllowedPath`（固定4パス＋`src/assets/photos/`配下を正規表現`/^[a-z0-9][a-z0-9-]*\.(webp|jpg)$/`で許可、`/`・`..`・大文字・サブディレクトリ・別拡張子を構造的に拒否）を実装し`commitChanges`から呼ぶよう変更。blobの`encoding`を`f.encoding || "utf-8"`にして画像（base64）とJSON（utf-8）を同一コミットで扱えるようにした。`editor/src/lib/changes.js`の`computeChanges`を4ファイル対応に拡張し、site.json（`assets`以外不変）・candles.json（各エントリの`image`以外・件数・id順不変）の構造ガードを追加（違反時は例外を投げ、ネットワーク呼び出し前に阻止）。`pendingImageFiles`（未コミット画像をbase64化してcommit対象に変換、site.assetsが実際に参照しているものだけに絞る）を新設。
+- **Step 4（画像処理ライブラリ）**: `editor/src/lib/image.js`（新規）に`processImage`（`createImageBitmap`でEXIF回転補正→canvas縮小(長辺1600px)→WebP優先・非対応時はJPEG(0.82)へ自動フォールバック→長辺600px未満/1.5MB超をエラー）、`blobToBase64`（`FileReader`ではなく`Blob.arrayBuffer()`+チャンク分割`btoa()`を採用、ブラウザ・Node両対応でテスト可能にした。D-024参照）、`makeAssetFileName`（`<sectionId>-<YYYYMMDD>-<NN>.<ext>`、既存/保留中アップロードと衝突しない連番、id文字列のサニタイズ付き）、`stageImageUpload`（上記3つのオーケストレーション）を実装。
+- **Step 5（画像UI）**: `editor/src/ui/ImageField.jsx`（新規、共通コンポーネント）: 実表示比率の枠にfocal/zoomを反映したプレビュー、ポインタドラッグでのフォーカル指定＋横位置/縦位置/ズームの`<input type="range">`（キーボード/スクリーンリーダー用の等価操作）、ファイル選択ボタン＋ドラッグ&ドロップ、代替テキスト入力（altEditableな場合のみ）。`editor/src/lib/schema.js`に`IMAGE_FIELDS`（hero/image-text=single、gallery=list、candle-grid=candles）、`updateAsset`/`findAsset`/`applyUploadedImage`（アップロード確定時にsite.assetsを更新しfocal/zoomを中央/等倍にリセット）/`updateFocalZoom`/`updateImageAlt`を追加。`editor/src/ui/SectionSheet.jsx`にImageFieldを組み込み（hero/image-textは単一、galleryは8件一覧、candle-gridはcandles.json由来の5件一覧、alt入力なし）。`editor/src/styles.css`にフォーカル枠・アップロードボタン・レンジ入力のスタイルを追加。
+- **Step 6（プレビュー刷新）**: `editor/package.json`に`nunjucks`を依存追加（`npm install`実行、package-lock.json更新）。`editor/src/lib/render.js`（新規、注入型）を実装: ブラウザ内nunjucks環境に`findAsset`/`pct`/`lines`フィルタを登録し、実`.njk`テンプレート文字列（`templates`引数）を独自ローダーで解決、`renderContentHtml`が`index.njk`のセクションループをJSで再実装して各セクションを実テンプレートで描画、`renderPreviewHtml`が`base.njk`で包んで`<base href>`挿入＋style.css/site.jsをインライン化＋未コミット画像のblob URL置換を行う。`nunjucks`パッケージの`"browser"`フィールドをViteが自動解決するため、`import nunjucks from "nunjucks"`のみで書けた（Node実行時はNode版、Viteビルド時はブラウザ版が自動選択される。計画書§3-2で想定していたフォールバック分岐は不要だった。D-024参照）。`editor/src/ui/Preview.jsx`をsrcDoc iframe化（150msデバウンス、`contentWindow.scrollY`の保存/復元、セクション編集シートを開いた際の`scrollIntoView`）。`editor/src/App.jsx`に全画面プレビュートグルを追加。`src/_data/derive-events.js`を`../../../src/_data/derive-events.js`として編集アプリからも参照。
+- **Step 7（バリデーション拡張）**: `editor/src/lib/validate.js`に`validateSite`（assets[]のid重複・file形式・w/h正数・参照切れ検出）、`validateCandles`（image参照チェック、altは必須にしない）を追加。`validateHome`に`site`引数を追加し、hero/image-text/galleryの画像参照（assetId存在・focal範囲・zoom範囲・alt非空）をチェック。`validateAll`のシグネチャを`(draft, context)`に変更（`context`に`originalAssetFiles`/`pendingAssetFiles`を渡し参照切れを検出）。`editor/src/ui/PublishTab.jsx`を新シグネチャに追従し、`computeChanges`の構造ガード例外を`useMemo`内で`try/catch`して公開不可の状態として表示するよう変更。
+- **Step 8（検証）**: `npm test`（node --test、editor/test/*.test.js）が88件全通過（新規: `github.test.js`のisAllowedPath網羅（traversal/サブディレクトリ/拡張子/大文字を拒否）・base64 blob送信・`image.test.js`（`makeAssetFileName`が`isAllowedPath`を満たすことを突き合わせるテストを含む）・`changes.test.js`の4ファイル差分＋構造ガード＋`pendingImageFiles`・`validate.test.js`の画像参照/参照切れ検出・`render.test.js`（全可視セクションid・hero focal%一致・`<script>`エスケープ・blob URL置換・実`.njk`実データでのEleventy出力との一致）。`npm run build`成功、ビルド前後の`_site/index.html`差分はgallery style属性のみ。プレビュー忠実性の実測（nodeワンライナー）: `renderContentHtml`の出力と`_site/index.html`の`<main id="top">...</main>`内側が空白正規化後に完全一致（両者とも11532文字）。`editor/dist`の本番バンドルをgrepし、`localStorage`呼び出しがトークンに触れていないこと・DEVバイパス文言「開発モード・読み取り専用」が含まれないことを確認（D-023からの継続確認）。
+- **Step 9（ドキュメント）**: `docs/decisions.md`にD-024（Planner確定分1-1〜1-10の記録、Developer実装時判断11-21、うち14はFileReader→arrayBuffer+チャンク化btoaへの逸脱、15はnunjucksのbrowserフィールド自動解決によりフォールバック分岐が不要だった判断）を追加。`docs/tasks.md`のT-021cを「レビュー中」に更新し、Phase 4残りを「Phase 4b」として整理（candles.jsonの画像編集はT-021cで完了、文言編集のみ残存）。本エントリを追記。
+
+### 結果
+- `npm test`: 88件全通過（既存53件＋新規35件）。
+- `npm run build`: 成功（Vite build → Eleventy build）。ビルド前後の`_site/index.html`差分はgallery `<img>`のstyle属性追加のみ（Step1で確認、Step8でも再確認）。
+- プレビュー忠実性: `renderContentHtml`（編集アプリのプレビュー描画）と`npx eleventy`が生成した`_site/index.html`の`<main>`内側が、空白正規化後に完全一致することを自動テスト（`render.test.js`）と手動nodeワンライナーの両方で確認。
+- 本番バンドル（`editor/dist`）のgrep確認: トークンに触れる`localStorage`呼び出しなし、DEVバイパス文言なし（既存D-023確認の継続）。
+- 実GitHub認証・実機（ブラウザでのポインタドラッグ操作、実際の写真アップロード、Netlify本番環境での`/editor`動作）は本セッションでは確認できていない。Reviewerによるコードレビュー後、必要であればUser側での実機確認を依頼する。
+- 計画からの逸脱2点（D-024参照）: (1) `blobToBase64`は`FileReader`ではなく`Blob.arrayBuffer()`+チャンク化`btoa()`を採用（Node環境でのテスト容易性のため）。(2) nunjucksのブラウザビルド読み込みは、計画が想定した「失敗時はNode版へフォールバックし縮退を検討」という判断分岐が不要だった（`package.json`の`"browser"`フィールドをViteが自動解決するため、素の`import nunjucks from "nunjucks"`で両対応できた）。
+- 過剰実装の回避: 計画で明示的に除外された、見た目/受信タブ・PWA化・履歴復元・candles.jsonの文言編集・ギャラリー項目の追加/削除/並べ替え・矩形クロップツールは実装していない。
+
+### 次回開始位置
+- Reviewerによるコードレビューを実施し、必須修正があればDeveloperへ差し戻す（D-022のフロー）。
+- レビュー承認・CIグリーン確認後、ManagerがPRを自動マージする（D-022）。
+- マージ後、可能であればUserに`/editor`での実機確認（写真アップロード→フォーカル調整→プレビュー確認→公開）を依頼する。
+- 次のタスクとして着手する場合はPhase 4b（見た目タブ・受信タブ・PWA化・履歴復元・candles.json文言編集）が候補（docs/tasks.mdバックログ参照）。着手時は改めてPlannerによる詳細計画が必要。
+
+---
+
 ## 2026-09-09 T-021b: 編集アプリ（/editor）土台実装
 
 ### 実施内容

@@ -163,49 +163,89 @@
             "assetId": "gallery1",
             "category": "making",
             "ratio": "3/4",
-            "alt": "制作風景"
+            "alt": "制作風景",
+            "focal": [
+              0.5,
+              0.5
+            ],
+            "zoom": 1
           },
           {
             "assetId": "gallery2",
             "category": "making",
             "ratio": "1/1",
-            "alt": "制作風景"
+            "alt": "制作風景",
+            "focal": [
+              0.5,
+              0.5
+            ],
+            "zoom": 1
           },
           {
             "assetId": "gallery3",
             "category": "event",
             "ratio": "1/1",
-            "alt": "イベント出店"
+            "alt": "イベント出店",
+            "focal": [
+              0.5,
+              0.5
+            ],
+            "zoom": 1
           },
           {
             "assetId": "gallery4",
             "category": "workshop",
             "ratio": "3/4",
-            "alt": "ワークショップ"
+            "alt": "ワークショップ",
+            "focal": [
+              0.5,
+              0.5
+            ],
+            "zoom": 1
           },
           {
             "assetId": "gallery5",
             "category": "making",
             "ratio": "1/1",
-            "alt": "制作風景"
+            "alt": "制作風景",
+            "focal": [
+              0.5,
+              0.5
+            ],
+            "zoom": 1
           },
           {
             "assetId": "gallery6",
             "category": "event",
             "ratio": "3/4",
-            "alt": "イベント出店"
+            "alt": "イベント出店",
+            "focal": [
+              0.5,
+              0.5
+            ],
+            "zoom": 1
           },
           {
             "assetId": "gallery7",
             "category": "workshop",
             "ratio": "1/1",
-            "alt": "ワークショップ"
+            "alt": "ワークショップ",
+            "focal": [
+              0.5,
+              0.5
+            ],
+            "zoom": 1
           },
           {
             "assetId": "gallery8",
             "category": "event",
             "ratio": "1/1",
-            "alt": "イベント出店"
+            "alt": "イベント出店",
+            "focal": [
+              0.5,
+              0.5
+            ],
+            "zoom": 1
           }
         ]
       },
