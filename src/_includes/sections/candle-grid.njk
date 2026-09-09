@@ -1,0 +1,24 @@
+<section class="section" id="{{ section.id }}" data-type="candle-grid" data-section-id="{{ section.id }}" data-padding-y="{{ section.style.paddingY }}" data-align="{{ section.style.align }}" data-bg-type="{{ section.style.bg.type }}" data-bg-value="{{ section.style.bg.value }}">
+  <div class="section__inner">
+    <div class="candle-grid__intro" data-reveal>
+      {% if section.props.kicker %}<p class="kicker">{{ section.props.kicker }}</p>{% endif %}
+      <h2>{{ section.props.heading }}</h2>
+      <p class="candle-grid__body">{{ section.props.body }}</p>
+    </div>
+    <div class="candle-grid__list">
+      {% for c in candles %}<article class="candle-grid__item" data-reveal>
+        <div class="candle-grid__media">
+          <img src="assets/{{ (site.assets | findAsset(c.image.assetId)).file }}" style="--focal-x:{{ c.image.focal[0] | pct }}%;--focal-y:{{ c.image.focal[1] | pct }}%;--zoom:{{ c.image.zoom }}" alt="{{ c.name }}" loading="lazy">
+        </div>
+        <div class="candle-grid__meta">
+          <div class="candle-grid__title-row">
+            <h3>{{ c.name }}</h3>
+            <span class="candle-grid__roman">{{ c.roman }}</span>
+          </div>
+          <p class="candle-grid__note">{{ c.note }}</p>
+        </div>
+      </article>
+      {% endfor %}</div>
+    {% if section.props.note %}<p class="candle-grid__footnote" data-reveal>{{ section.props.note }}<a href="#contact">お問い合わせ</a>からどうぞ。</p>{% endif %}
+  </div>
+</section>

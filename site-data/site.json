@@ -4,23 +4,26 @@
     "id": "teate1122",
     "name": "teate1122",
     "locale": "ja",
-    "baseUrl": "https://teate1122.netlify.app",
+    "baseUrl": "https://teate1122-candle.nk-pr.com",
     "meta": {
-      "title": "teate1122 | 心をほどく、灯りのある暮らし",
+      "title": "teate1122 | 灯りは、手当て。",
       "description": "teate1122は、日々の暮らしに寄り添う手作りキャンドルをお届けしています。",
-      "ogImage": "a1"
+      "ogImage": "hero1"
     }
   },
   "theme": {
     "preset": "quiet-mincho",
     "tokens": {
       "color": {
-        "bg": "#fcfbf9",
-        "surface": "#f4f1eb",
-        "text": "#2e2a26",
-        "textMuted": "#6e675e",
-        "accent": "#a8b5a2",
-        "border": "#e6e0d7"
+        "bg": "#f9f4ed",
+        "surface": "#f2ece1",
+        "text": "#2e2b25",
+        "textMuted": "#645c50",
+        "accent": "#56633f",
+        "accent2": "#8fa073",
+        "accent2Pale": "#f0fae1",
+        "ember": "#c67139",
+        "line": "rgba(46,43,37,.11)"
       },
       "font": {
         "heading": "zen-old-mincho",
@@ -32,12 +35,12 @@
         "gap": "md"
       },
       "button": {
-        "shape": "square",
-        "fill": "outline"
+        "shape": "pill",
+        "fill": "solid"
       },
       "animation": {
         "preset": "fade-up",
-        "duration": 600
+        "duration": 700
       }
     }
   },
@@ -45,13 +48,28 @@
     "auto": true,
     "items": [
       {
+        "href": "/#philosophy",
+        "label": "理念",
+        "visible": true
+      },
+      {
         "href": "/#profile",
         "label": "プロフィール",
         "visible": true
       },
       {
-        "href": "/#activities",
-        "label": "活動",
+        "href": "/#candles",
+        "label": "キャンドル",
+        "visible": true
+      },
+      {
+        "href": "/#events",
+        "label": "イベント・WS",
+        "visible": true
+      },
+      {
+        "href": "/#gallery",
+        "label": "ギャラリー",
         "visible": true
       },
       {
@@ -76,19 +94,20 @@
     "privacy"
   ],
   "assets": [
-    {
-      "id": "a1",
-      "file": "hero.svg",
-      "w": 1440,
-      "h": 1440,
-      "alt": "ヒーロー画像準備中"
-    },
-    {
-      "id": "a2",
-      "file": "hero.svg",
-      "w": 1440,
-      "h": 1440,
-      "alt": "プロフィール写真準備中"
-    }
+    { "id": "hero1", "file": "hero.svg", "w": 1440, "h": 1440, "alt": "トップの写真準備中" },
+    { "id": "profile1", "file": "hero.svg", "w": 1440, "h": 1440, "alt": "プロフィール写真準備中" },
+    { "id": "candle1", "file": "hero.svg", "w": 1440, "h": 1440, "alt": "白木蓮 画像準備中" },
+    { "id": "candle2", "file": "hero.svg", "w": 1440, "h": 1440, "alt": "苔と雨 画像準備中" },
+    { "id": "candle3", "file": "hero.svg", "w": 1440, "h": 1440, "alt": "陽だまりの麻 画像準備中" },
+    { "id": "candle4", "file": "hero.svg", "w": 1440, "h": 1440, "alt": "夜の柑橘 画像準備中" },
+    { "id": "candle5", "file": "hero.svg", "w": 1440, "h": 1440, "alt": "灰と蜜 画像準備中" },
+    { "id": "gallery1", "file": "hero.svg", "w": 1440, "h": 1440, "alt": "制作風景 画像準備中" },
+    { "id": "gallery2", "file": "hero.svg", "w": 1440, "h": 1440, "alt": "制作風景 画像準備中" },
+    { "id": "gallery3", "file": "hero.svg", "w": 1440, "h": 1440, "alt": "イベント出店 画像準備中" },
+    { "id": "gallery4", "file": "hero.svg", "w": 1440, "h": 1440, "alt": "ワークショップ 画像準備中" },
+    { "id": "gallery5", "file": "hero.svg", "w": 1440, "h": 1440, "alt": "制作風景 画像準備中" },
+    { "id": "gallery6", "file": "hero.svg", "w": 1440, "h": 1440, "alt": "イベント出店 画像準備中" },
+    { "id": "gallery7", "file": "hero.svg", "w": 1440, "h": 1440, "alt": "ワークショップ 画像準備中" },
+    { "id": "gallery8", "file": "hero.svg", "w": 1440, "h": 1440, "alt": "イベント出店 画像準備中" }
   ]
 }

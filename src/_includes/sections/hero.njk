@@ -1,0 +1,15 @@
+<section class="section hero-section" id="{{ section.id }}" data-type="hero" data-section-id="{{ section.id }}" data-padding-y="{{ section.style.paddingY }}" data-align="{{ section.style.align }}" data-bg-type="{{ section.style.bg.type }}" data-bg-value="{{ section.style.bg.value }}">
+  <div class="hero-section__media">
+    <img class="hero-section__img" style="--focal-x:{{ section.props.image.focal[0] | pct }}%;--focal-y:{{ section.props.image.focal[1] | pct }}%;--zoom:{{ section.props.image.zoom }}" src="assets/{{ (site.assets | findAsset(section.props.image.assetId)).file }}" alt="{{ section.props.image.alt }}">
+  </div>
+  <div class="hero-section__scrim" aria-hidden="true"></div>
+  <div class="hero-section__inner">
+    <p class="kicker kicker--light">{{ section.props.kicker }}</p>
+    <h1 class="hero-section__heading">{% for line in section.props.heading | lines %}{{ line }}{% if not loop.last %}<br>{% endif %}{% endfor %}</h1>
+    <p class="hero-section__body">{{ section.props.body }}</p>
+  </div>
+  <div class="hero-section__scroll" aria-hidden="true">
+    <span>SCROLL</span>
+    <span class="hero-section__scroll-line"></span>
+  </div>
+</section>

@@ -1,0 +1,21 @@
+<section class="section" id="{{ section.id }}" data-type="gallery" data-section-id="{{ section.id }}" data-padding-y="{{ section.style.paddingY }}" data-align="{{ section.style.align }}" data-bg-type="{{ section.style.bg.type }}" data-bg-value="{{ section.style.bg.value }}">
+  <div class="section__inner">
+    <div class="gallery__head" data-reveal>
+      <div>
+        {% if section.props.kicker %}<p class="kicker">{{ section.props.kicker }}</p>{% endif %}
+        <h2>{{ section.props.heading }}</h2>
+      </div>
+      <div class="gallery__tabs" role="tablist" aria-label="ギャラリーの絞り込み">
+        <button type="button" class="gallery__tab" data-gallery-filter="all" aria-pressed="true">すべて</button>
+        <button type="button" class="gallery__tab" data-gallery-filter="making" aria-pressed="false">制作風景</button>
+        <button type="button" class="gallery__tab" data-gallery-filter="event" aria-pressed="false">イベント出店</button>
+        <button type="button" class="gallery__tab" data-gallery-filter="workshop" aria-pressed="false">ワークショップ</button>
+      </div>
+    </div>
+    <div class="gallery__grid">
+      {% for g in section.props.items %}<figure class="gallery__item" data-reveal data-category="{{ g.category }}" style="--gallery-ratio:{{ g.ratio }}">
+        <img src="assets/{{ (site.assets | findAsset(g.assetId)).file }}" alt="{{ g.alt }}" loading="lazy">
+      </figure>
+      {% endfor %}</div>
+  </div>
+</section>

@@ -1,0 +1,45 @@
+<section class="section" id="{{ section.id }}" data-type="contact-social" data-section-id="{{ section.id }}" data-padding-y="{{ section.style.paddingY }}" data-align="{{ section.style.align }}" data-bg-type="{{ section.style.bg.type }}" data-bg-value="{{ section.style.bg.value }}">
+  <div class="section__inner">
+    <div class="contact-social">
+    <div class="contact-social__intro" data-reveal>
+      {% if section.props.kicker %}<p class="kicker">{{ section.props.kicker }}</p>{% endif %}
+      <h2>{{ section.props.heading }}</h2>
+      <p class="contact-social__body">{{ section.props.body }}</p>
+      {% for s in site.social %}<a class="contact-social__insta" href="{{ s.url }}" target="_blank" rel="noopener noreferrer">
+        <svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><path d="M17.5 6.5h.01"></path></svg>
+        <span class="contact-social__insta-text">
+          <span>{{ section.props.instagramLabel }}</span>
+          <span class="contact-social__insta-handle">{{ s.handle }}</span>
+        </span>
+      </a>
+      {% endfor %}<p class="contact-social__note">{{ section.props.instagramNote }}</p>
+    </div>
+    <form name="contact" method="POST" data-netlify="true" netlify-honeypot="bot-field" class="contact-social__form" data-reveal>
+      <input type="hidden" name="form-name" value="contact">
+      <p class="contact-social__hp"><label>入力しないでください<input name="bot-field"></label></p>
+      <label class="contact-social__field">
+        <span>お名前</span>
+        <input id="contact-name" name="name" type="text" required>
+      </label>
+      <label class="contact-social__field">
+        <span>メールアドレス</span>
+        <input id="contact-email" name="email" type="email" required>
+      </label>
+      <label class="contact-social__field">
+        <span>ご用件</span>
+        <select id="contact-topic" name="topic">
+          <option>キャンドルについて</option>
+          <option>ワークショップのお申し込み</option>
+          <option>イベント出店のご依頼</option>
+          <option>その他</option>
+        </select>
+      </label>
+      <label class="contact-social__field">
+        <span>お問い合わせ内容</span>
+        <textarea id="contact-message" name="message" rows="5" required></textarea>
+      </label>
+      <button type="submit" class="btn">送信する</button>
+    </form>
+  </div>
+  </div>
+</section>

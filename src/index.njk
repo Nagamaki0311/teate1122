@@ -1,0 +1,7 @@
+---
+layout: base.njk
+permalink: /index.html
+ogPath: /
+---
+{% set showId = true %}{% for section in home.sections %}{% if section.visible %}{% include "sections/" + section.type + ".njk" %}
+{% endif %}{% endfor %}

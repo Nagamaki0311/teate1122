@@ -1,0 +1,8 @@
+---
+layout: base.njk
+permalink: /privacy.html
+title: プライバシーポリシー | teate1122
+ogPath: /privacy
+---
+{% for section in privacy.sections %}{% if section.visible %}{% include "sections/" + section.type + ".njk" %}
+{% endif %}{% endfor %}

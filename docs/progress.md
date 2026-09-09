@@ -19,6 +19,73 @@
 
 ---
 
+## 2026-09-09 T-021a: Phase 0-2 Reviewer最終承認・PR作成
+
+### 実施内容
+- Reviewerによる再レビュー（必須修正2点の対応確認）がAPIレート制限で一度中断したため、同内容で再実行した。
+- Manager側でも`npm install && npm run build`の成功と、`src/style.css`の`--color-ember-text`・`.events__badge[data-kind="workshop"]`、`src/_includes/base.njk`の`selectattr("visible")`が反映されていることをgrepで直接確認した。
+- Reviewer再実行の結果、コントラスト比を独自にPythonで再計算（`#1a1712` on `#c67139` = 4.95:1、AA基準4.5:1を満たす）し、`nav.items`の一部を一時的に`visible:false`にしたビルドでCTAクラスの付与先が正しく切り替わることを実地確認した上で、必須修正2点の解消と「mainにコミット・pushしてよい」との最終承認を得た。
+- `docs/tasks.md`のT-021を`T-021a`（Phase 0-2、完了）と`T-021b`（Phase 3、未着手）に分割し、Reviewerの推奨事項6点と実素材差し替えをバックログに追記した。
+
+### 結果
+- Reviewer承認済み。ブランチ`claude/t-021-design-handoff-phase-0-2`を作成しpush、draft PRを作成した（https://github.com/Nagamaki0311/teate1122/pull/6 ）。マージはUser判断待ち。
+
+### 次回開始位置
+- PR #6のマージ確認後、T-021b（編集アプリ/editor土台、Phase 3）に着手。着手前にGitHub OAuth App登録・Netlify環境変数設定（Client ID/Secret）をUserに依頼する必要がある（D-021参照）。
+
+---
+
+## 2026-09-08 T-021: Phase 0-2 Reviewer指摘の必須修正2件対応
+
+### 実施内容
+- **ワークショップバッジのコントラスト不足（WCAG AA未達）**: `src/style.css`の`:root`に`--color-ember-text: #1a1712;`を新規追加し、`.events__badge[data-kind="workshop"]`に`color: var(--color-ember-text);`を追加。背景の`--color-ember`（#c67139）はそのまま維持し、文字色のみ変更。実際にコントラスト比を計算して確認: 修正前（白文字#fff）は3.61:1でAA未達（4.5:1未満）。単純に`--color-text`（#2e2b25）へ変更した場合でも3.91:1でまだ未達だったため、より濃い`#1a1712`を専用トークンとして採用し4.96:1を達成（4.5:1を上回る）。あわせて`.events__badge[data-kind="event"]`（背景`--color-accent` #56633f + 白文字）のコントラストも算出し6.45:1でAA適合済みであることを確認、こちらは変更不要と判断。
+- **nav CTAスタイル判定の`loop.last`が脆弱な問題**: `src/_includes/base.njk`のヘッダーnav（24-25行目付近）・モバイルメニューnav（35-36行目付近）の両方で、`{% for item in site.nav.items %}{% if item.visible %}...{% endif %}{% endfor %}`から、Nunjucksの`selectattr`フィルタを使い`{% for item in site.nav.items | selectattr("visible") %}...{% endfor %}`に変更。`loop.last`が可視項目のみの配列に対して評価されるようになり、`nav.items`末尾に`visible:false`の項目が来ても最後の可視項目に正しく`site-header__nav-cta`/`mobile-menu__cta`クラスが付与されるようになった。
+
+### 結果
+- `npm install && npm run build`がエラーなく完了することを確認（Eleventy 3.1.6、`_site/index.html`等が正常生成）。
+- `_site/index.html`をgrepで確認: `<nav class="site-header__nav">`内・`<nav class="mobile-menu__nav">`内ともに、最後の可視nav項目（お問い合わせ）にのみ`site-header__nav-cta`/`mobile-menu__cta`クラスが付与されていることを確認。`_site/style.css`（passthrough copyされた`src/style.css`そのもの）に`--color-ember-text: #1a1712;`と`.events__badge[data-kind="workshop"] { background: var(--color-ember); color: var(--color-ember-text); }`が反映されていることを確認。`events.json`の`kind:"workshop"`イベント（e2）が`_site/index.html`のUPCOMING一覧に`data-kind="workshop"`として出力されていることを確認。
+- コミット・pushは未実施（Manager側で実施予定）。
+
+### 次回開始位置
+- Reviewerが挙げた推奨事項6点（今回は対応なし）はManager側でバックログ管理。次はManagerによるコミット・push、その後の最終確認待ち。
+
+---
+
+## 2026-09-08 T-021: Claude Designハンドオフ取り込み Phase 0-2（Eleventy移行・新デザイン反映）
+
+### 実施内容
+- **Phase 1（Eleventy移行）**: `package.json`（`@11ty/eleventy` ^3.0.0のみ、`type:"module"`）・`.nvmrc`（22）を新規作成。`eleventy.config.js`で`dir:{input:"src",output:"_site",includes:"_includes"}`、`style.css`/`site.js`/`favicon.svg`/`assets/`のpassthrough copy、`findAsset`/`pct`/`lines`フィルタを定義。`style.css`・`favicon.svg`・`assets/`を`src/`配下へ移動（`git mv`）。`src/_data/{site,home,privacy,events,candles}.js`で`site-data/`配下のJSONを読み込み。`src/_includes/base.njk`（head/header/main/footer）と`src/_includes/sections/{hero,text,image-text,activity-cards,contact-social}.njk`を、現行`index.html`/`privacy.html`と実質同一（空白差のみ）になるよう作成し、`src/index.njk`（`permalink:/index.html`）・`src/privacy.njk`（`permalink:/privacy.html`）で`home.json`/`privacy.json`の`sections[]`をループしてパーシャルへ振り分け。ビルド結果を`git show HEAD:index.html`/`privacy.html`と空白正規化diffで比較し差分ゼロ（Google Fontsクエリの`&`/`&amp;`のみ最終的に一致）を確認。既存の`index.html`/`privacy.html`（ルート）と`legacy-astro/`を削除。`netlify.toml`に`command="npm run build"`・`publish="_site"`・`NODE_VERSION=22`を追加。
+- **Phase 2（新デザイン反映）**: `teate1122 Homepage.dc.html`（Claude Design正）のインラインCSS変数を正として`site-data/site.json`の`theme.tokens.color`を更新（bg #f9f4ed / surface #f2ece1 / text #2e2b25 / textMuted #645c50 / accent(sage-d) #56633f / accent2(sage) #8fa073 / accent2Pale(sage-p) #f0fae1 / ember #c67139 / line rgba(46,43,37,.11)、`border`は`line`に置換）。`button.shape`を`pill`/`fill`を`solid`に、`animation.duration`を700msに変更。`site.meta.title`を新コピー「teate1122 | 灯りは、手当て。」に、`baseUrl`を`https://teate1122-candle.nk-pr.com`に変更。`nav.items`を理念/プロフィール/キャンドル/イベント・WS/ギャラリー/お問い合わせの6項目（`/#philosophy`等）に更新。`site.assets`にヒーロー・プロフィール・キャンドル5点・ギャラリー8点ぶんのアセットエントリを追加（実写真が無いため全て`hero.svg`をプレースホルダーとして再利用、現行のa1/a2パターンを踏襲）。
+- `site-data/pages/home.json`をhero/philosophy/profile/candles/events/gallery/contactの7セクション構成に再編（ヒーローは「静謐（全面写真）」案、CTAボタンなし・スクロール指標のみ）。本文コピーはHomepage.dc.htmlの［仮文］文言をそのまま採用。
+- `site-data/events.json`（新規）: `{id,kind:"event"|"workshop",date,time,title,place,body}`形式でHomepage.dc.htmlのUPCOMING/PAST配列相当の5件を投入。`isPast`は保持せず、`src/_data/events.js`がビルド時に`date`と当日日付（UTC比較）を比較して`upcoming`/`past`に振り分け・整形（D-009のisPast導出方針を踏襲）。
+- `site-data/candles.json`（新規）: 香り5種（白木蓮/苔と雨/陽だまりの麻/夜の柑橘/灰と蜜）をHomepage.dc.htmlの内容のまま投入。
+- `src/_includes/sections/`を新セクション構成に合わせて全面書き直し。`hero.njk`（静謐ヒーロー、暗背景+グラデーション+スクロール指標）、`text.njk`（kicker+複数行heading+複数paragraphに対応しつつ、`paragraphs`未指定時は`body`単体にフォールバックしてprivacy.jsonの旧形式とも両立）、`image-text.njk`（プロフィール専用に刷新、subheading/タグ対応）、新規`candle-grid.njk`（香りグリッド、`candles`データ参照）、`events.njk`（UPCOMING/ARCHIVE、`events.upcoming`/`events.past`参照）、`gallery.njk`（4タブ+8枚グリッド、`data-gallery-filter`/`data-category`属性）、`contact-social.njk`（Instagram DM導線+ご用件セレクト追加、hidden `form-name`とhoneypot維持）。使われなくなった`activity-cards.njk`は削除。
+- `base.njk`のheader/footerを新デザインに刷新: sticky+半透明ヘッダー、820px未満は`<dialog id="mobile-menu">`+`showModal()`のフルスクリーンメニュー（ブラウザ標準のフォーカストラップ/Escapeを利用、開閉はinline onclickで`dialog.showModal()`/`close()`を直接呼ぶ簡潔な実装とし、別途JSでの状態管理は追加せず）、モバイル下部固定タブ4つ（キャンドル/イベント/ギャラリー/お問い合わせ、Lucide系インラインSVG stroke-width 2.75、`min-height:44px`、`env(safe-area-inset-bottom)`対応、820px以上で非表示）。Google Fontsの重みを`Zen+Old+Mincho:wght@400;500;600`/`Noto+Sans+JP:wght@300;400;500`に更新。
+- `style.css`を全面書き直し: 角丸（カード26px・画像枠24px・ボタン/入力欄999pxピル）、本文`line-height:2.05`/`letter-spacing:.03em`（Homepage.dc.htmlの値`2.05`/`.045em`に準拠、可読性を優先し字間のみ実用範囲の`.03em`にやや調整）、`:focus-visible`のsage-accentリング、`[data-reveal]`のフェードアップトランジション＋`prefers-reduced-motion:reduce`での無効化。既存の属性セレクタ方式（`.section[data-padding-y="lg"]`等）は維持・踏襲。
+- `src/site.js`（新規、フレームワークなし素のJS、passthrough copyで`/site.js`配信）: `IntersectionObserver`による`[data-reveal]`→`[data-in]`付与、ギャラリーの`.gallery__tab`クリックで`.gallery__item[hidden]`をトグルするタブ切替。
+- `netlify.toml`のリダイレクト先を新セクションID（`/#candles`, `/#gallery`等）に更新。
+
+### 結果
+- `npm install && npm run build`がエラーなく完了することを確認（Eleventy 3.1.6、`_site/index.html`・`_site/privacy.html`・`style.css`・`site.js`・`favicon.svg`・`assets/hero.svg`が生成される）。
+- 生成HTMLをgrepで検証: `data-netlify="true"`・`name="form-name"`・honeypot（`bot-field`）が`_site/index.html`に存在。home側の`data-section-id`が`hero/philosophy/profile/candles/events/gallery/contact`の7件、privacy側が`s1`〜`s5`の5件であることを確認。`href="...#..."`のアンカーが全て`/#top`または`/#{既存セクションID}`のいずれかであり、存在しないアンカーへのリンクがないことを確認（リンク切れなし）。`undefined`文字列が出力に含まれないこと（アセット参照の解決漏れがないこと）を確認。全JSONファイル（`site.json`/`home.json`/`privacy.json`/`events.json`/`candles.json`）のパース成功を確認。
+- 日付導出ロジックの単純な検証: セッション日付2026-09-08基準で、`events.json`のe1(2026-10-18)/e2(2026-11-09)が`upcoming`、e3〜e5（2026-04-05以前）が`past`に正しく分類されることを確認。実装当初、曜日表示をローカルタイムゾーン付きの`Date`コンストラクタで算出しておりUTC実行環境で日付が1日ずれるバグがあったが、`Date.UTC`ベースの計算に修正し解消。
+- CSSの中括弧バランス（148対148）を確認。Astro等の外部依存はpackage.jsonに含まれず、Eleventy 1個のみであることを確認。
+
+### 判断内容と理由（仕様書だけでは決まらなかった点）
+- ヒーローの`props`にCTAを持たせず（静謐ヒーロー案はスクロール指標のみでボタンなし、Homepage.dc.html通り）。
+- philosophy/profileの本文はHomepage.dc.html上の手動`<br>`改行を、JSON上は文単位の`paragraphs`配列に単純化（自然折り返しに委ねる）。実データ差し替え時の保守性を優先し、プレースホルダー特有の改行位置を厳密再現する必要性は低いと判断。
+- イベントカードの色分け（event=accent/workshop=ember）はHomepage.dc.html固有の`#b2622d`ではなく、`site.json`のテーマトークン（`ember`）に寄せた。Phase4で「見た目」タブからテーマ変更した際に整合させるため。
+- イベントの曜日表示はJSONに持たせず`date`から実計算（今日基準で本物の曜日）。Homepage.dc.htmlのサンプルデータ自体の曜日表記（例: 2026-10-18を"sat"）は実際のカレンダーと不一致（実際は日曜）だったため、正しい値を計算で出す方針を優先した。
+- ギャラリーのタブ絞り込みデータは`gallery.json`等を新設せず、`home.json`の`gallery`セクション`props.items`にインライン（instructionsが新設を明示したのは`events.json`/`candles.json`のみのため、YAGNIでデータファイルを増やさなかった）。
+- ハンバーガーメニューの開閉は`site.js`内の別ロジックではなく、`<dialog>`要素へのinline `onclick`で`showModal()`/`close()`を直接呼ぶ形にした（ネイティブAPI1行呼び出しのみのため、わざわざイベントリスナー登録コードを`site.js`に足す方がPonytail的に過剰と判断）。
+- `privacy.html`のタイトル（「プライバシーポリシー | teate1122」）はD-020の「タイトル統一」記述と実ファイルの実装が食い違っていたが、Phase 1の目的（現状のHTMLを実質同一に生成する）を優先し、既存実装（ページ別タイトル）をそのまま踏襲した。統一するかどうかはUser/Reviewer確認事項として残す。
+
+### 次回開始位置
+- Reviewerによるレビュー待ち。D-021・`teate1122 Homepage.dc.html`との整合確認、および上記「判断内容と理由」の妥当性確認を依頼する。
+- レビュー後、Phase 3（編集アプリ`/editor`土台）に着手する（本エントリの対象外）。
+- 実写真素材が用意され次第、`site-data/site.json`の`assets[]`（現状すべて`hero.svg`プレースホルダー）を差し替える。
+- コミット・pushは未実施（Manager側で実施）。ワーキングツリーに変更を残した状態。
+
 ## 2026-08-05 T-020: トップページ集約（1ページサイト化）（D-020対応）
 
 ### 実施内容

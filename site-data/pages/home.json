@@ -8,48 +8,58 @@
       "type": "hero",
       "visible": true,
       "props": {
-        "heading": "心をほどく、灯りのある暮らし",
-        "body": "準備中のダミーテキストです。[ブランド名]は、日々の暮らしに寄り添う手作りキャンドルをお届けしています。",
+        "kicker": "CANDLE . WORKSHOP . MARKET",
+        "heading": ["灯りは、", "手当て。"],
+        "body": "夜のはじまりに、ひとつだけ火を灯す。それだけで、ほどけていくものがあります。",
         "image": {
-          "assetId": "a1",
-          "focal": [
-            0.5,
-            0.4
-          ],
+          "assetId": "hero1",
+          "focal": [0.5, 0.4],
           "zoom": 1,
-          "alt": "ヒーロー画像準備中"
-        },
-        "cta": {
-          "label": "活動を見る",
-          "href": "#activities"
+          "alt": "トップの写真準備中"
         }
       },
       "style": {
         "paddingY": "xl",
         "align": "center",
-        "bg": {
-          "type": "token",
-          "value": "bg"
-        }
+        "bg": { "type": "token", "value": "bg" }
       },
-      "animation": {
-        "preset": "inherit",
-        "delay": 0
-      }
+      "animation": { "preset": "inherit", "delay": 0 }
+    },
+    {
+      "id": "philosophy",
+      "type": "text",
+      "visible": true,
+      "props": {
+        "kicker": "PHILOSOPHY",
+        "heading": ["手を当てる、", "という手当て。"],
+        "paragraphs": [
+          "teate1122のキャンドルは、飾るためのものではなく、その日の自分をいたわるための道具です。",
+          "植物由来のワックスと、控えめな香り。火を見つめる数分間が、いちばんの手当てになりますように。"
+        ]
+      },
+      "style": {
+        "paddingY": "lg",
+        "align": "center",
+        "bg": { "type": "token", "value": "bg" }
+      },
+      "animation": { "preset": "inherit", "delay": 0 }
     },
     {
       "id": "profile",
       "type": "image-text",
       "visible": true,
       "props": {
-        "heading": "プロフィール",
-        "body": "準備中のダミーテキストです。[ブランド名]を主宰する[氏名]です。日々の暮らしの中でキャンドルの灯りに癒やされた経験がきっかけで、手作りキャンドルの制作を始めました。 準備中のダミーテキストです。ここに経歴やキャンドル作りを始めたきっかけなど、プロフィールの詳細が入ります。",
+        "kicker": "PROFILE",
+        "heading": "つくる人",
+        "subheading": "［お名前］　candle artist",
+        "paragraphs": [
+          "［仮文］働きづめだった頃、部屋の隅で灯したひとつのキャンドルに、ずいぶん助けられました。自分をいたわる時間が、こんなに小さなものから始まるのだと知って、つくる側にまわりました。",
+          "［仮文］いまは自宅のアトリエで少量ずつ制作し、季節ごとにマルシェへ出店。ワークショップでは、香りを選ぶところから一緒に考えます。"
+        ],
+        "tags": ["キャンドル制作", "イベント出店", "ワークショップ"],
         "image": {
-          "assetId": "a2",
-          "focal": [
-            0.5,
-            0.5
-          ],
+          "assetId": "profile1",
+          "focal": [0.5, 0.5],
           "zoom": 1,
           "alt": "プロフィール写真準備中"
         },
@@ -58,272 +68,85 @@
       "style": {
         "paddingY": "lg",
         "align": "left",
-        "bg": {
-          "type": "token",
-          "value": "bg"
-        }
+        "bg": { "type": "token", "value": "surface" }
       },
-      "animation": {
-        "preset": "inherit",
-        "delay": 0
-      }
+      "animation": { "preset": "inherit", "delay": 0 }
     },
     {
-      "id": "philosophy",
-      "type": "text",
+      "id": "candles",
+      "type": "candle-grid",
       "visible": true,
       "props": {
-        "heading": "理念",
-        "body": "準備中のダミーテキストです。ひとつひとつ手作りするキャンドルを通じて、忙しい毎日の中にほっと一息つける時間をお届けしたいと考えています。素材選びから香りのブレンドまで、すべての工程に丁寧さを大切にしています。"
-      },
-      "style": {
-        "paddingY": "lg",
-        "align": "center",
-        "bg": {
-          "type": "token",
-          "value": "surface"
-        }
-      },
-      "animation": {
-        "preset": "inherit",
-        "delay": 0
-      }
-    },
-    {
-      "id": "activities",
-      "type": "text",
-      "visible": true,
-      "props": {
-        "heading": "活動",
-        "body": "準備中のダミーテキストです。キャンドル制作・イベント出店・ワークショップを中心に活動しています。"
-      },
-      "style": {
-        "paddingY": "lg",
-        "align": "center",
-        "bg": {
-          "type": "token",
-          "value": "bg"
-        }
-      },
-      "animation": {
-        "preset": "inherit",
-        "delay": 0
-      }
-    },
-    {
-      "id": "candle-making",
-      "type": "image-text",
-      "visible": true,
-      "props": {
-        "heading": "キャンドル制作",
-        "body": "準備中のダミーテキストです。すべて手作業で仕上げるキャンドルを、一つひとつ丁寧に制作しています。素材選びから香りのブレンドまで、こだわりを込めています。",
-        "image": {
-          "assetId": "a1",
-          "focal": [
-            0.5,
-            0.5
-          ],
-          "zoom": 1,
-          "alt": "キャンドル制作 画像準備中"
-        },
-        "imagePosition": "right"
+        "kicker": "CANDLES",
+        "heading": "香りをえらぶ",
+        "body": "［仮文］大豆と米ぬかのワックスに、精油をすこしだけ。灯していない間もほのかに香る、控えめな五種類です。",
+        "note": "［仮文］オーダーメイド・ギフト包装のご相談も承ります。"
       },
       "style": {
         "paddingY": "lg",
         "align": "left",
-        "bg": {
-          "type": "token",
-          "value": "surface"
-        }
+        "bg": { "type": "token", "value": "bg" }
       },
-      "animation": {
-        "preset": "inherit",
-        "delay": 0
-      }
+      "animation": { "preset": "inherit", "delay": 0 }
     },
     {
       "id": "events",
-      "type": "image-text",
+      "type": "events",
       "visible": true,
       "props": {
-        "heading": "イベント出店",
-        "body": "準備中のダミーテキストです。マルシェや手作り市などのイベントに出店しています。",
-        "image": {
-          "assetId": "a1",
-          "focal": [
-            0.5,
-            0.5
-          ],
-          "zoom": 1,
-          "alt": "イベント出店 画像準備中"
-        },
-        "imagePosition": "left"
+        "kicker": "EVENTS & WORKSHOP",
+        "heading": "会いにいく、つくりにくる",
+        "body": "［仮文］マルシェや手作り市への出店と、少人数のワークショップ。ご参加はお問い合わせよりご連絡ください。"
       },
       "style": {
         "paddingY": "lg",
         "align": "left",
-        "bg": {
-          "type": "token",
-          "value": "bg"
-        }
+        "bg": { "type": "token", "value": "surface" }
       },
-      "animation": {
-        "preset": "inherit",
-        "delay": 0
-      }
+      "animation": { "preset": "inherit", "delay": 0 }
     },
     {
-      "id": "events-upcoming",
-      "type": "activity-cards",
+      "id": "gallery",
+      "type": "gallery",
       "visible": true,
       "props": {
-        "heading": "イベント出店・開催予定",
+        "kicker": "GALLERY",
+        "heading": "手のあとの記録",
         "items": [
-          {
-            "title": "秋の手作り市 出店",
-            "description": "2026-10-18・準備中のダミー会場（東京都内） — 準備中のダミーテキストです。秋限定の香りのキャンドルを中心に出店予定です。"
-          }
+          { "assetId": "gallery1", "category": "making", "ratio": "3/4", "alt": "制作風景" },
+          { "assetId": "gallery2", "category": "making", "ratio": "1/1", "alt": "制作風景" },
+          { "assetId": "gallery3", "category": "event", "ratio": "1/1", "alt": "イベント出店" },
+          { "assetId": "gallery4", "category": "workshop", "ratio": "3/4", "alt": "ワークショップ" },
+          { "assetId": "gallery5", "category": "making", "ratio": "1/1", "alt": "制作風景" },
+          { "assetId": "gallery6", "category": "event", "ratio": "3/4", "alt": "イベント出店" },
+          { "assetId": "gallery7", "category": "workshop", "ratio": "1/1", "alt": "ワークショップ" },
+          { "assetId": "gallery8", "category": "event", "ratio": "1/1", "alt": "イベント出店" }
         ]
-      },
-      "style": {
-        "paddingY": "lg",
-        "align": "center",
-        "bg": {
-          "type": "token",
-          "value": "surface"
-        }
-      },
-      "animation": {
-        "preset": "inherit",
-        "delay": 0
-      }
-    },
-    {
-      "id": "events-past",
-      "type": "activity-cards",
-      "visible": true,
-      "props": {
-        "heading": "イベント出店・過去のイベント",
-        "items": [
-          {
-            "title": "春の暮らしフェア 出店",
-            "description": "2026-04-05・準備中のダミー会場（横浜市内） — 準備中のダミーテキストです。春らしい香りの新作キャンドルを発表しました。"
-          }
-        ]
-      },
-      "style": {
-        "paddingY": "lg",
-        "align": "center",
-        "bg": {
-          "type": "token",
-          "value": "surface"
-        }
-      },
-      "animation": {
-        "preset": "inherit",
-        "delay": 0
-      }
-    },
-    {
-      "id": "workshop",
-      "type": "image-text",
-      "visible": true,
-      "props": {
-        "heading": "ワークショップ",
-        "body": "準備中のダミーテキストです。自分だけの香りを見つけられる、体験型のワークショップを開催しています。",
-        "image": {
-          "assetId": "a1",
-          "focal": [
-            0.5,
-            0.5
-          ],
-          "zoom": 1,
-          "alt": "ワークショップ 画像準備中"
-        },
-        "imagePosition": "right"
       },
       "style": {
         "paddingY": "lg",
         "align": "left",
-        "bg": {
-          "type": "token",
-          "value": "bg"
-        }
+        "bg": { "type": "token", "value": "bg" }
       },
-      "animation": {
-        "preset": "inherit",
-        "delay": 0
-      }
-    },
-    {
-      "id": "workshop-upcoming",
-      "type": "activity-cards",
-      "visible": true,
-      "props": {
-        "heading": "ワークショップ・開催予定",
-        "items": [
-          {
-            "title": "キャンドル手作りワークショップ",
-            "description": "2026-11-09・準備中のダミー会場（オンライン開催） — 準備中のダミーテキストです。自分だけの香りをブレンドできる体験型ワークショップです。"
-          }
-        ]
-      },
-      "style": {
-        "paddingY": "lg",
-        "align": "center",
-        "bg": {
-          "type": "token",
-          "value": "surface"
-        }
-      },
-      "animation": {
-        "preset": "inherit",
-        "delay": 0
-      }
-    },
-    {
-      "id": "workshop-past",
-      "type": "activity-cards",
-      "visible": false,
-      "props": {
-        "heading": "ワークショップ・過去のワークショップ",
-        "items": []
-      },
-      "style": {
-        "paddingY": "lg",
-        "align": "center",
-        "bg": {
-          "type": "token",
-          "value": "surface"
-        }
-      },
-      "animation": {
-        "preset": "inherit",
-        "delay": 0
-      }
+      "animation": { "preset": "inherit", "delay": 0 }
     },
     {
       "id": "contact",
       "type": "contact-social",
       "visible": true,
       "props": {
-        "heading": "SNS・お問い合わせ",
-        "body": "準備中のダミーテキストです。ご質問やオーダーメイドのご相談など、お気軽にお問い合わせください。 お問い合わせフォーム（お名前・メールアドレス・お問い合わせ内容）よりご連絡ください。",
-        "showEmail": false,
-        "showSocial": true
+        "kicker": "CONTACT",
+        "heading": "お気軽にどうぞ",
+        "body": "［仮文］オーダーのご相談、ワークショップのお申し込み、出店のお声がけなど。数日以内にお返事します。",
+        "instagramLabel": "Instagram DM でもどうぞ",
+        "instagramNote": "最新の出店予定やあたらしい香りは、Instagramでお知らせしています。"
       },
       "style": {
         "paddingY": "lg",
-        "align": "center",
-        "bg": {
-          "type": "token",
-          "value": "surface"
-        }
+        "align": "left",
+        "bg": { "type": "token", "value": "surface" }
       },
-      "animation": {
-        "preset": "inherit",
-        "delay": 0
-      }
+      "animation": { "preset": "inherit", "delay": 0 }
     }
   ]
 }

@@ -315,3 +315,35 @@
 - HTML生成スクリプトが存在せず`index.html`はJSONの内容を手動反映した静的ファイルであるため、今後`home.json`を更新する際は`index.html`も手動で追従させる必要がある（既存の運用パターンを踏襲）。
 - 外部からの`/about`・`/activities`・`/contact`への既存リンク・ブックマークはNetlifyリダイレクトでアンカー付き`/`へ転送されるため、リンク切れは発生しない。
 - ヘッダーナビ（`index.html`・`privacy.html`）のリンク先が`/about`等のパスから`/#profile`等のアンカーに変わるため、`privacy.html`からトップページ内アンカーへ遷移する際は一度`/`への遷移を挟む。
+
+---
+
+## D-021: Claude Designハンドオフの取り込み — Eleventy導入・新デザイン反映・編集アプリ土台の方針確定
+
+- 日付: 2026-09-08
+- 状態: 採用
+
+### 背景
+- Claude Design（claude.ai/design）でUserが作成したデザインハンドオフバンドル（新ホームページデザイン一式＋編集アプリ「実装仕様書」）を、本リポジトリに反映するIssueが発行された（T-021）。
+- Plannerが現状分析を行った結果、以下2点の重要な事実が判明した。
+  1. `index.html`/`style.css`は既に`data-section-id`/`data-type`/`data-padding-y`等の属性でJSON駆動を前提とした構造になっており、`site-data/pages/home.json`の`sections[]`と1対1対応している。生成器（テンプレートエンジン）だけが欠けている状態。
+  2. Astro 5 + Tailwind v4（T-008で導入）から現在の静的HTML手動同期構成への移行判断が、`docs/decisions.md`（D-009の次がD-020でD-010〜D-019が欠番）にも`docs/progress.md`（最新エントリがT-009で止まっている）にも記録がなく、git履歴もshallow cloneで追跡不能だった。移行理由は不明のまま。
+
+### 決定
+1. **Eleventy（`@11ty/eleventy`）を導入し、JSON→HTML自動生成に移行する。** 編集アプリの前提（アプリがJSONをコミット→自動デプロイ→サイトに反映）を満たすには生成器が必須であり（YAGNI判定で「必要」と判断）、Astro復帰（`legacy-astro/`）は現状の1ページ・素CSS構成との乖離が大きく、かつ離脱理由が不明なため不採用とした。依存はEleventy1つのみ。
+2. **Astro→静的HTML移行の経緯が不明であるリスクを認識した上で導入を進める。** 緩和策として、Phase 1（Eleventy移行）は「生成結果が現行`index.html`と実質同一（空白差のみ）」を合格条件とし、PRのDeploy Previewでビルド成功・表示確認を経てからmainにマージする運用とする。
+3. **データファイルは現行構成（`site-data/site.json` + `site-data/pages/home.json`）を維持し、実装仕様書が指定する`sections.json`/`theme.json`へのリネームは行わない。** 機能上の差がなく、リネームは無駄な差分になるため（Ponytail: 既存実装の再利用優先）。仕様書が新設を求める日程・キャンドルデータは`site-data/events.json`・`site-data/candles.json`として新規追加する。
+4. **`legacy-astro/`ディレクトリを削除する**（User承認済み）。現状`netlify.toml`の`publish = "."`によりNetlify上でソースが露出しており、Eleventy移行（`publish = "_site"`）後もリポジトリの整理として削除する。git履歴には残る。
+5. **ホームページの新デザイン（配色・7セクション構成・丸みのあるビジュアル言語・Zen Old Mincho/Noto Sans JP・ギャラリー/キャンドル紹介の新設）を反映する。** ヒーローレイアウトは3案（静謐・二段組・帯）のうち**「静謐（全面写真）」をUser承認により採用**。本文コピーはデザインプロトタイプの文言（すべて［仮文］表記）を仮採用する（User承認済み。現行の「心をほどく、灯りのある暮らし」から変更）。
+6. **ドメインを`teate1122-candle.nk-pr.com`に今回のフェーズで切り替える**（User承認済み）。CloudflareのDNS（CNAME）設定とNetlifyのカスタムドメイン登録はUser側の手動作業として別途依頼する。GitHub OAuth App登録・Netlify環境変数設定も同様にUser側の手動作業とする（Client Secretはコード・チャット双方に一切含めない）。
+7. **編集アプリ（`/editor`）はReact + Vite + GitHub OAuth（Netlify Functionsでトークン交換のみ）+ Git Data APIで構築する。** 今回のセッションでは土台（認証フロー・編集/日程タブ）まで実装し、見た目/受信タブ・写真圧縮・PWA化・履歴復元は後続フェーズ（Phase 4）とする。
+
+### 理由（検討した代替案）
+- 自前Nodeスクリプトによる生成（Eleventy不使用）も検討したが、レイアウト継承・パーシャル・複数ページ出力を自作することになり複雑化するため不採用。
+- データファイルのリネーム（`sections.json`等への統一）も検討したが、既存の`site-data/site.json`/`home.json`への参照箇所（netlify.toml、docs等）を無駄に書き換えることになるため不採用。
+
+### 影響
+- `netlify.toml`の`publish`が`.`から`_site`に変わり、ビルドコマンドが必須になる（ビルド失敗時はサイト更新が止まる）。`.nvmrc`でNodeバージョンを固定し事故を防ぐ。
+- 本リポジトリの構造がテンプレート雛形の一部ではなく個別アプリ実装として更に深化する（D-008の延長）。
+- OAuthのClient Secret等の機密情報は本リポジトリ・docsのいずれにも記録されず、Netlifyの環境変数としてUserが直接管理する。
+- Phase 4（見た目/受信タブ、写真圧縮、PWA化、履歴復元）は本決定の対象外であり、着手時に改めてPlannerによる詳細計画が必要。

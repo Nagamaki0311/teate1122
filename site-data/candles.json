@@ -1,0 +1,37 @@
+[
+  {
+    "id": "sc1",
+    "name": "白木蓮",
+    "roman": "HAKUMOKUREN",
+    "note": "朝いちばんの空気。ネロリとホワイトティー。",
+    "image": { "assetId": "candle1", "focal": [0.5, 0.5], "zoom": 1 }
+  },
+  {
+    "id": "sc2",
+    "name": "苔と雨",
+    "roman": "KOKE TO AME",
+    "note": "雨あがりの林。ベチバーとシダーウッド。",
+    "image": { "assetId": "candle2", "focal": [0.5, 0.5], "zoom": 1 }
+  },
+  {
+    "id": "sc3",
+    "name": "陽だまりの麻",
+    "roman": "HIDAMARI",
+    "note": "干したての布。ラベンダーとカモミール。",
+    "image": { "assetId": "candle3", "focal": [0.5, 0.5], "zoom": 1 }
+  },
+  {
+    "id": "sc4",
+    "name": "夜の柑橘",
+    "roman": "YORU NO KANKITSU",
+    "note": "眠る前のひと呼吸。ベルガモットと柚子。",
+    "image": { "assetId": "candle4", "focal": [0.5, 0.5], "zoom": 1 }
+  },
+  {
+    "id": "sc5",
+    "name": "灰と蜜",
+    "roman": "HAI TO MITSU",
+    "note": "冬のはじまり。ベンゾインと蜜蝋。",
+    "image": { "assetId": "candle5", "focal": [0.5, 0.5], "zoom": 1 }
+  }
+]

@@ -1,0 +1,33 @@
+<section class="section" id="{{ section.id }}" data-type="events" data-section-id="{{ section.id }}" data-padding-y="{{ section.style.paddingY }}" data-align="{{ section.style.align }}" data-bg-type="{{ section.style.bg.type }}" data-bg-value="{{ section.style.bg.value }}">
+  <div class="section__inner">
+    <div class="events__intro" data-reveal>
+      {% if section.props.kicker %}<p class="kicker">{{ section.props.kicker }}</p>{% endif %}
+      <h2>{{ section.props.heading }}</h2>
+      <p class="events__body">{{ section.props.body }}</p>
+    </div>
+    <p class="events__group-label" data-reveal>UPCOMING ── 開催予定</p>
+    <div class="events__list">
+      {% for e in events.upcoming %}<article class="events__card" data-reveal>
+        <div class="events__card-when">
+          <span class="events__badge" data-kind="{{ e.kind }}">{{ e.kindLabel }}</span>
+          <p class="events__date">{{ e.dateDisplay }}</p>
+          {% if e.time %}<p class="events__time">{{ e.time }}</p>{% endif %}
+        </div>
+        <div class="events__card-what">
+          <h3>{{ e.title }}</h3>
+          <p class="events__place">{{ e.place }}</p>
+          {% if e.body %}<p class="events__desc">{{ e.body }}</p>{% endif %}
+        </div>
+      </article>
+      {% else %}<p class="events__empty">現在、開催予定はありません。</p>
+      {% endfor %}</div>
+    <p class="events__group-label events__group-label--muted" data-reveal>ARCHIVE ── これまで</p>
+    <div class="events__archive">
+      {% for e in events.past %}<div class="events__archive-row" data-reveal>
+        <span class="events__archive-date">{{ e.dateDisplay }}</span>
+        <span class="events__archive-title">{{ e.title }}</span>
+        <span class="events__archive-place">{{ e.place }}</span>
+      </div>
+      {% endfor %}</div>
+  </div>
+</section>

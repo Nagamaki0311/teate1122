@@ -1,0 +1,18 @@
+<section class="section" id="{{ section.id }}" data-type="image-text" data-section-id="{{ section.id }}" data-padding-y="{{ section.style.paddingY }}" data-align="{{ section.style.align }}" data-bg-type="{{ section.style.bg.type }}" data-bg-value="{{ section.style.bg.value }}">
+  <div class="section__inner">
+    <div class="image-text" data-image-position="{{ section.props.imagePosition }}" data-reveal>
+    <div class="image-text__media">
+      <img class="image-text__img" style="--focal-x:{{ section.props.image.focal[0] | pct }}%;--focal-y:{{ section.props.image.focal[1] | pct }}%;--zoom:{{ section.props.image.zoom }}" src="assets/{{ (site.assets | findAsset(section.props.image.assetId)).file }}" alt="{{ section.props.image.alt }}" loading="lazy">
+    </div>
+    <div class="image-text__content">
+      {% if section.props.kicker %}<p class="kicker">{{ section.props.kicker }}</p>{% endif %}
+      <h2>{{ section.props.heading }}</h2>
+      {% if section.props.subheading %}<p class="image-text__subheading">{{ section.props.subheading }}</p>{% endif %}
+      {% for p in section.props.paragraphs or [section.props.body] %}<p class="image-text__body">{{ p }}</p>
+      {% endfor %}{% if section.props.tags %}<ul class="tag-list">
+        {% for t in section.props.tags %}<li class="tag-list__item">{{ t }}</li>
+        {% endfor %}</ul>
+      {% endif %}</div>
+  </div>
+  </div>
+</section>
