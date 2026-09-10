@@ -19,6 +19,26 @@
 
 ---
 
+## 2026-09-10 T-023: ヒーロー本文テキストの中央配置崩れ修正
+
+### 実施内容
+- Manager診断(原因特定・修正案の動作確認済み、作業ツリーは`git checkout --`で復元済み)を引き継ぎ、着手前に`src/style.css`の`.hero-section__body`(157行目付近)が診断内容と一致していることを確認した。
+- `src/style.css`の`.hero-section__body`の`margin: 30px 0 0;`を`margin: 30px auto 0;`に変更(1行のみ)。詳細な原因分析はD-029参照。
+
+### 結果
+- `npm test`: 91件全てグリーン。
+- `npm run build`成功。
+- Playwright(Chromium、`/opt/pw-browsers/chromium-1194/chrome-linux/chrome`、`--ignore-certificate-errors`)で`npm run build`後の`_site`をローカル配信し再検証。
+  - `.hero-section__body`と`.hero-section__inner`の中心x座標が1440×900・390×844の両方で一致(diff=0、修正前は1440×900でdiff=-336px)。
+  - スクリーンショットで本文が見出しと同じ中心線上に表示されることを目視確認。
+- 他セクション(hero/philosophy/profile/candles/events/gallery/contact)についても、`data-align="center"`のセクション内でmax-width指定を持つ子孫要素の中心ズレ(3px超)がないかPlaywrightで独立に全数再スキャンし、hero以外に問題がないことを確認した(Managerの診断結果と一致)。
+
+### 次回開始位置
+- Reviewerによるレビュー待ち。`docs/tasks.md`のT-023状態を「レビュー中」に更新済み。
+- コミット・pushは未実施(Manager判断待ち)。
+
+---
+
 ## 2026-09-10 T-022: ヒーロー背景「灯火の粒子」アニメーション実装
 
 ### 実施内容

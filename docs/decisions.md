@@ -624,3 +624,27 @@ T-021f（ヒーローSCROLLインジケーター削除）マージ後のmainを�
 - ヒーロー背景に浮遊・明滅する光の粒子演出が追加される。新規依存関係の追加はなし。変更ファイルは`src/_includes/sections/hero.njk`・`src/style.css`・`src/site.js`・docs一式の4種のみで、`editor/`側は`?raw`参照のため無変更で自動追従する。
 - モバイル幅（`max-width:819px`）では粒子が8個に削減される。`prefers-reduced-motion: reduce`では粒子が完全非表示になる。
 - ビューポート外では新規`IntersectionObserver`により`animation-play-state:paused`となり、常時アニメーションし続けることによる不要な描画コストを避ける。
+
+---
+
+## D-029: T-023、ヒーロー本文テキストが中央配置されず左寄りになるバグの修正
+
+- 日付: 2026-09-10
+- 状態: 採用
+
+### 背景
+- User報告（ヒーロー本文「夜のはじまりに、ひとつだけ火を灯す。それだけで、ほどけていくものがあります。」の表示位置が左寄り）を受け、Manager・DeveloperがPlaywrightで実機診断を行った。
+
+### 原因
+- `src/style.css`の`.hero-section__body`が`max-width:24em`で幅を制限されているにもかかわらず、`margin: 30px 0 0;`（左右`auto`なし）だったため、親`.hero-section__inner`（`margin:0 auto`でmax-width:1120px内に中央配置）の内部で段落ボックス自体が左端に寄っていた。`data-align="center"`による`text-align:center`は段落ボックス内の行内テキストを中央寄せするだけで、ボックス自体の水平位置には影響しないため顕在化した。見出し（`.hero-section__heading`）はmax-width制限がなくコンテナ幅いっぱいに広がるため問題が起きなかった。
+
+### 決定・修正内容
+- `.hero-section__body`の`margin: 30px 0 0;`を`margin: 30px auto 0;`に変更（1行のみ）。
+
+### 検証方法
+- `npm test`（91件）・`npm run build`がグリーン。
+- `npm run build`後の`_site`をローカル配信し、Playwright（Chromium、`/opt/pw-browsers/chromium-1194/chrome-linux/chrome`、`--ignore-certificate-errors`）で`.hero-section__body`と`.hero-section__inner`の中心x座標を実測。1440×900・390×844の両方でdiff=0（修正前は1440×900でdiff=-336px）。スクリーンショットでも本文が見出しと同じ中心線上に表示されることを目視確認した。
+- 全セクション（hero/philosophy/profile/candles/events/gallery/contact）について、`data-align="center"`のセクション内でmax-width指定を持つ子孫要素の中心が親`__inner`コンテナの中心から3px超ずれるケースがないかPlaywrightでプログラム的に全数スキャンし、hero以外に問題がないことを独立して再確認した（1440×900・390×844とも該当なし）。
+
+### 影響
+- 影響範囲はヒーローセクションの本文段落のみ。他セクションへの影響なし。
