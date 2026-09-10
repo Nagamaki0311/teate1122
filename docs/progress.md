@@ -19,6 +19,33 @@
 
 ---
 
+## 2026-09-10 T-022: ヒーロー背景「灯火の粒子」アニメーション実装
+
+### 実施内容
+- Planner計画（T-021fマージ後のmainを起点）に従い、CSS `@keyframes`のみで浮遊・明滅する光の粒子演出を実装（Canvas/ライブラリ不採用、方式選定・数値仕様の詳細はD-028参照）。
+- `src/_includes/sections/hero.njk`: `.hero-section__scrim`と`.hero-section__inner`の間に`.hero-section__embers`（nunjucks `range(0, 14)`でspan×14、`aria-hidden="true"`）を追加。
+- `src/style.css`: `:root`に`--color-ember-glow: #ffd98e`を追加。`.hero-section__embers`/`.hero-section__ember`のスタイル、`@keyframes hero-ember-drift`（非対称5点漂流経路、`translate3d()`を`vmin`単位で使用）・`@keyframes hero-ember-flicker`（不透明度0.06〜粒子ごとの上限0.25〜0.5）を追加。粒子14個それぞれに`:nth-child()`で位置・サイズ・周期・delayを個別設定し不規則さを出した。既存の`@media (max-width: 819px)`にモバイル用`:nth-child(n+9){display:none}`（8個に削減）、既存の`@media (prefers-reduced-motion: reduce)`に`.hero-section__embers{display:none}`を追記。
+- `src/site.js`: 既存`[data-reveal]`用IntersectionObserverとは別に、ヒーロー要素専用のIntersectionObserverを新規追加。ビューポート外で`.hero-section`に`data-embers-paused`属性を付与し、CSS側で`animation-play-state:paused`に連動。既存のES5スタイルに合わせて実装。
+- 変更ファイルは計画通り`hero.njk`/`style.css`/`site.js`/docs一式の4種のみ。`editor/`側は`?raw`参照のため無変更で自動追従（変更不要）。
+
+### 結果
+- `npm test`: 91件全てグリーン（`npm run build`前は`editor/test/render.test.js`の1件が古い`_site`との比較で一時的に失敗したが、`npm run build`後に再実行し解消。実装のバグではなく、ビルド成果物が古かっただけ）。
+- `npm run build`成功。`_site/index.html`に`.hero-section__embers`（`.hero-section__ember`14個）が出力されていることを確認。
+- Playwright（Chromium、`/opt/pw-browsers/chromium-1194/chrome-linux/chrome`、`--ignore-certificate-errors`）で以下を実機確認。
+  - デスクトップ1440×900・モバイル390×844のスクリーンショットで、粒子が視認でき（複数フレームで各粒子のopacity実測、0.06〜上限間で不規則に変化することを確認）、見出し「灯りは、手当て。」・本文の可読性が損なわれていないこと。
+  - モバイル390×844で可視の`.hero-section__ember`が8個であること。
+  - ヒーローをビューポート外までスクロールすると粒子の`animationPlayState`が`"paused"`になり、ヒーローに戻すと`"running"`に復帰すること。
+  - `reducedMotion: "reduce"`コンテキストで`.hero-section__embers`の`display`が`"none"`になること。
+  - コンソールエラー: `fonts.googleapis.com`への接続が本検証環境のネットワーク制約により失敗しコンソールエラーとして記録されたが、これは`src/_includes/base.njk`の既存のGoogle Fonts参照によるもので本タスクの変更とは無関係（変更前のコードでも同様に発生）であることを確認済み。本タスク由来の新規コンソールエラーはなし。
+- スクリーンショットは`/tmp/claude-0/-home-claude-repo/250b3b09-3a87-5e31-983c-e4fdeb363613/scratchpad/`配下に保存（`t022-desktop-1440x900.png`・`t022-desktop-1440x900-peak.png`・`t022-mobile-390x844.png`）。
+- 詳細な方式選定・検証ログはD-028参照。
+
+### 次回開始位置
+- Reviewerによるレビュー待ち。`docs/tasks.md`のT-022状態を「レビュー中」に更新済み。
+- コミット・pushは未実施（Manager判断待ち）。
+
+---
+
 ## 2026-09-10 T-021f: ヒーローSCROLLインジケーターの削除（T-021e修正後もUser実機で問題が再発したため）
 
 ### 実施内容
