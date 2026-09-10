@@ -119,6 +119,12 @@ a:hover { color: var(--color-ember); }
 .hero-section__scroll { position: absolute; bottom: 26px; right: var(--gut); display: flex; flex-direction: column; align-items: center; gap: 8px; }
 .hero-section__scroll span:first-child { font-size: 10px; letter-spacing: .3em; color: rgba(255, 255, 255, .8); }
 .hero-section__scroll-line { display: block; width: 1px; height: 40px; background: linear-gradient(180deg, rgba(255, 255, 255, .8), transparent); }
+@media (max-width: 819px) {
+  /* .mobile-tabs is a fixed bottom bar on this breakpoint; back the hero off the viewport bottom by
+     the same clearance `main` already reserves (see below) so its bottom edge - and everything
+     anchored to it, including .hero-section__scroll - isn't hidden behind the bar. */
+  .hero-section { min-height: calc(clamp(560px, 90svh, 900px) - 56px - env(safe-area-inset-bottom)); }
+}
 
 /* text-block (philosophy / privacy) */
 .text-block { max-width: 780px; margin: 0 auto; }

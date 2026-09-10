@@ -19,6 +19,56 @@
 
 ---
 
+## 2026-09-10 T-021e: レビュー指摘対応 — プレースホルダーSVGの文字位置が見出しと重なる新規バグを修正
+
+### 実施内容
+- 背景: 下記（1つ下のエントリ）の初回修正でReviewerがレビューを実施。Playwright（Chromium、`npm run build`後の`_site`をローカル配信、`--ignore-certificate-errors`）で390×844 / 375×667 / 412×915 / 1440×900の4ビューポートをスクリーンショット確認した結果、初回修正で`src/assets/hero.svg`の`<text>`の`y`座標を`720`（画像の垂直中央、円`cy=620 r=260`の中心付近）にした変更が、**全ビューポート（1440×900のデスクトップ含む）で見出し「灯りは、手当て。」・「CANDLE . WORKSHOP . MARKET」と直接重なる**という、修正前には無かった新規の視覚バグを生んでいることが判明し、必須修正として指摘された。
+- 原因分析: Playwrightで`.hero-section__img`・`.hero-section__heading`・`.hero-section__body`・`.hero-section__scroll`のバウンディングボックスを4ビューポートで実測し、`object-fit:cover; object-position:50% 40%`（画像は`naturalWidth=naturalHeight=1440`の正方形）の変換式を用いて画面座標をSVG側の画像空間座標（0〜1440）へ逆算した。
+  - モバイル（縦長）幅では画像は常に高さ方向にクロップされず全体（y=0〜1440）が表示される。4viewport中もっとも条件が厳しい375×667でも見出し上端は画像空間でy≈641から始まる。
+  - デスクトップ1440×900（横長）では画像は横方向基準でスケールされ、可視範囲は画像空間でy≈252〜1062に限られる（それ以外は非表示）。可視範囲内で見出し上端はy≈619から始まる。
+  - 円形グラデーションは画像空間でy=360〜880。
+  - これらを避ける安全域として、円の上端（y=360）より上かつデスクトップの可視範囲開始点（y≈252）より上の`y=200〜300`帯を特定し、中間値`y=250`を採用した（デスクトップでは表示されず、モバイルでも見出しよりはるかに上に位置する）。
+- 修正: `src/assets/hero.svg`の`<text>`要素の`y`座標を`720`→`250`に変更。
+- `docs/decisions.md`のD-026を更新: (1) プレースホルダーSVGの経緯（`y=1300`→`y=720`→`y=250`）と新設の「プレースホルダーSVG再修正（レビュー指摘対応）」節を追記、(2) Reviewer指摘の3点（1440px幅で`.mobile-tabs`が実際には非表示になっていない既存バグに関する記述の不正確さ／`main`の`padding-bottom`とヒーロー`min-height`調整に機能的結びつきがあるかのような表現／却下した代替案でのみ発生する副作用として説明していた`.hero-section__body`との境界ボックス重なりが実際は修正前後で変化のないベースラインの挙動であった点）を訂正。
+- `docs/tasks.md`のバックログに、Reviewerが発見した既存バグ（`src/style.css`の`.mobile-tabs`非表示メディアクエリがCSSカスケード順序により1440px幅等で効いていない件、本タスクのdiffとは無関係・修正不要）を追加。T-021eの行も今回の再修正内容を反映して更新。
+
+### 結果
+- **実機確認（Playwright、`y=720`時点＝修正前）**: 390×844・375×667・412×915・1440×900の4ビューポートすべてで「hero image placeholder」の文字が見出しテキスト（「灯りは、手当て。」「CANDLE . WORKSHOP . MARKET」）に重なって表示されることをスクリーンショットで確認（Reviewer指摘の再現）。
+- **実機確認（Playwright、`y=250`変更後）**: 同4ビューポートですべて、「hero image placeholder」の文字が見出しテキスト・SCROLLインジケーターのいずれとも重ならないことをスクリーンショットで目視確認した。390×844・375×667・412×915では文字がヒーロー上部（見出しよりかなり上）に単独で表示され、1440×900では文字がデスクトップの可視トリミング範囲外（画像空間y<252）に位置するため画面には表示されず、見出し・SCROLLいずれとも重なりようがないことを確認した。
+- `npm run build`: 成功（Vite build → Eleventy build）。
+- 一時ファイル（Playwrightスクリプト・スクリーンショット、いずれもスクラッチパッド配下）・ローカルサーバープロセスは作業完了後に削除・停止済み。作業ツリーの変更は`src/assets/hero.svg`・`docs/decisions.md`・`docs/tasks.md`・`docs/progress.md`のみ（`src/style.css`は前回エントリの内容から変更なし）。
+
+### 次回開始位置
+- コミット・pushはManagerが実施。Reviewerによる再レビュー待ち。
+- 実写真のアップロード後（T-008、バックログ）は`hero.svg`自体が不要になり、SVGのテキスト位置調整は意味を失う（あくまで暫定的なプレースホルダー画像に対する応急的な調整であり、恒久対応ではない）。
+- T-021e Reviewer発見の既存バグ（`.mobile-tabs`非表示のCSSカスケード順序問題）は本タスクのスコープ外・修正不要。`docs/tasks.md`バックログに記録済み。次回対応時にPlannerの計画が必要か要判断。
+
+---
+
+## 2026-09-10 T-021e: バグ修正 — 本番トップページのヒーローSCROLLインジケーターが右下端で見切れる
+
+### 実施内容
+- 背景: User実機報告（スマホでトップページを見た際、ヒーロー右下のSCROLL表示が画面端で見切れている）を受け、Developerが`npm run build`→`npx serve _site`でローカル配信し、Playwright（Chromium、`executablePath: /opt/pw-browsers/chromium-1194/chrome-linux/chrome`、`--ignore-certificate-errors`）でモバイル相当ビューポート（390×844 / 375×667 / 412×915 / 360×640）を開いて再現確認した。
+- **原因1（主因）**: `.hero-section__scroll`（`position:absolute; bottom:26px`）はヒーロー自身の下端基準の配置だが、`.mobile-tabs`（画面下部固定のモバイルナビ、`max-width:819px`で表示、実測高さ約71.5px、`z-index:50`）が`position:fixed; bottom:0`で常時ビューポート下端に重なる。ヒーローの`min-height:clamp(560px, 90svh, 900px)`がビューポート高のほぼ全体を占める設計のため、ヒーロー下端が`.mobile-tabs`の高さの範囲内でビューポート下端に接近し、SCROLLの縦線（`.hero-section__scroll-line`、高さ40px）の下側30〜40pxが`.mobile-tabs`の下に隠れて見えなくなっていた。
+- **原因2（副因）**: プレースホルダー画像`src/assets/hero.svg`に焼き込まれた"hero image placeholder"の文字（旧`y="1300"`、画像下端付近）が`object-fit:cover`の下でSCROLLインジケーターとほぼ同じ帯に表示され、「hero image placeholder　SCROLL」が横に並んで見えていた（Userのスクリーンショットの見え方と一致）。
+- **修正**:
+  1. `src/style.css`に`@media (max-width: 819px) { .hero-section { min-height: calc(clamp(560px, 90svh, 900px) - 56px - env(safe-area-inset-bottom)); } }`を追加。`main`が既に使っている「56px + セーフエリア」のクリアランス値をヒーロー自体の高さから差し引き、ヒーロー全体をビューポート下端から後退させることで、内部の相対位置関係（本文テキストとSCROLLインジケーターの間隔）を変えずに両方を一括して押し上げた。
+  2. `src/assets/hero.svg`の`<text>`の`y`座標を`1300`→`720`（画像の垂直中央、円の中心と同じ）に変更し、プレースホルダー文字をSCROLLインジケーターや本文テキストの帯から外した。
+- 検討したが不採用にした案: `.hero-section__scroll`単体に`bottom: calc(80px + env(safe-area-inset-bottom))`を追加する案を先に試したが、375×667（iPhone SE相当）でSCROLLの縦線が本文段落の最終行と新たに視覚的に重なるバグを作り込むことが判明したため不採用（詳細はD-026参照）。
+- `docs/decisions.md`にD-026として原因・修正内容・検証方法を記録。
+
+### 結果
+- **実機確認（Playwright、修正前）**: 390×844・412×915で「hero image placeholder」と「SCROLL」が横並びに重なり、375×667・360×640でSCROLLインジケーターの縦線が`.mobile-tabs`の下に隠れることをスクリーンショットで確認（User報告を再現）。
+- **実機確認（Playwright、修正後）**: 同4ビューポートで`.hero-section__scroll`と`.mobile-tabs`のバウンディングボックスの重なりが解消（`overlapTabs: false`）。`.hero-section__body`との重なりもバウンディングボックス上の1〜5px（line-heightの空白のみ）に留まり、スクリーンショット上は本文とSCROLLの間に明確な隙間があることを確認。1440×900のデスクトップ幅では`.mobile-tabs`が非表示のため新設メディアクエリは適用されず、ヒーロー高さは修正前と同じ（810px）であることも確認。
+- `npm run build`: 成功（Vite build → Eleventy build）。
+- 一時ファイル（Playwrightスクリプト・スクリーンショット、いずれもスクラッチパッド配下）・ローカルサーバープロセスは作業完了後に削除・停止済み。作業ツリーの変更は`src/style.css`・`src/assets/hero.svg`・`docs/tasks.md`・`docs/progress.md`・`docs/decisions.md`のみ。
+
+### 次回開始位置
+- コミット・pushはManagerが実施（D-022の自動マージ方針は本タスクにも適用可）。Reviewerによるレビュー待ち。
+- 実写真のアップロード後（T-008、バックログ）は`hero.svg`自体が不要になり、SVGのテキスト位置調整は意味を失う（副因の解消であり恒久対応ではない点に留意）。
+
+---
+
 ## 2026-09-09 T-021d: バグ修正 — 編集アプリで画像アップロードが下書きに反映されない
 
 ### 実施内容

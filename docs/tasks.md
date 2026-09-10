@@ -27,7 +27,8 @@
 | T-021a | Claude Designハンドオフ: Phase 0-2（Eleventy移行・新デザイン反映） | 高 | 完了 | planner/developer/reviewer | Reviewer承認済み（必須修正2点＝ワークショップバッジのコントラスト・nav loop.lastの脆弱性は対応・再レビューで解消確認済み）。PR作成・Manager push待ち。推奨事項6点はバックログへ。D-021参照 |
 | T-021b | Claude Designハンドオフ: Phase 3（編集アプリ/editor土台） | 高 | 完了 | planner/developer/reviewer | Reviewer承認（必須修正なし）。PR #8をD-022に従いCIグリーン確認後Managerが自動マージ（マージコミット27606f1）。ドメイン切替・OAuth App登録・Netlify環境変数設定（U1〜U4）完了、User実機でログイン確認済み。D-023参照。 |
 | T-021c | 編集アプリ Phase 4a: 画像の差し替え機能＋プレビュー精度向上 | 高 | 完了 | planner/developer/reviewer | Reviewer承認（必須修正なし）。書き込みパス制限・構造ガード・バイナリコミット・nunjucks autoescape（XSS対策）・プレビュー忠実性（Eleventy出力とbyte-identical）をReviewerが実機検証済み。D-024参照。マージ待ち。 |
-| T-021d | バグ修正: 画像アップロード後、下書きに反映されない（updateDraftの状態更新バグ） | 高 | レビュー中 | developer | User実機報告（写真アップロード→「未公開の写真」バッジは増えるがプレビュー・実データに反映されない）。ManagerがPlaywrightで再現し原因を特定、Developerが修正: `editor/src/App.jsx`の`updateDraft`を`setState`の関数形に変更（`composeDraft`を`editor/src/lib/draft.js`へ切り出し）。回帰テスト`editor/test/draft.test.js`追加。`npm test`91件全通過・`npm run build`成功。Playwright実機確認で修正前後の挙動差（badge表示のみ→img srcも変化）を確認済み。D-025参照。 |
+| T-021d | バグ修正: 画像アップロード後、下書きに反映されない（updateDraftの状態更新バグ） | 高 | 完了 | planner/developer/reviewer | Reviewer承認（必須修正なし、Reviewer自身もPlaywrightで再現確認）。PR #14をD-022に従いCIグリーン確認後Managerが自動マージ（マージコミット4efe37e）。D-025参照。 |
+| T-021e | バグ修正: 本番トップページのヒーローSCROLLインジケーターが右下端で見切れる | 中 | レビュー中 | developer | Playwrightで再現確認済み。原因は(1)固定表示の`.mobile-tabs`下部ナビがヒーロー下端付近のSCROLLインジケーターの縦線を隠していたこと（主因）、(2)プレースホルダーSVGの"hero image placeholder"文字がSCROLLと同じ帯に表示されていたこと（副因）。`src/style.css`（モバイル幅で`.hero-section`の`min-height`をタブバー分縮小）・`src/assets/hero.svg`（プレースホルダー文字のy座標を画像上部の余白へ）を修正し、Playwrightで解消を確認。1回目のレビューで、プレースホルダー文字のy座標を`y=720`（画像中央）にした修正が全ビューポートで見出しテキストと新規に重なる不具合をReviewerが指摘、`y=250`（円形グラデーション上端より上、デスクトップの可視範囲外）へ再修正し、390×844/375×667/412×915/1440×900の4ビューポートで見出し・SCROLLいずれとも重ならないことをPlaywrightで再確認。`npm run build`成功。詳細はD-026参照。Reviewerによるレビュー待ち。 |
 
 ## バックログ（未着手・優先度未確定）
 
@@ -43,6 +44,7 @@
 - **T-021b User側作業**: U1〜U4すべて完了済み（OAuth App登録、Netlify環境変数設定、実機ログイン確認）。
 - T-021c Reviewer推奨事項（優先度低、マージ非ブロック）: (1) `render.js`の`applyObjectUrls`が`assets/<file>`という文字列を本文中の偶然の一致でも置換しうる（実害は極めて低い、プレビュー表示のみ・コミットデータに影響なし）、(2) プレビューiframeに`sandbox`属性がない（`site.js`実行のため意図的、多層防御として`sandbox="allow-scripts"`を検討の余地）、(3) `ImageField.jsx`のズームrange上限(2)と`validate.js`のバリデーション上限(3)が不一致、(4) `blobToBase64`の大容量入力（チャンク境界をまたぐサイズ）の専用ユニットテストがない（Reviewerが実機で動作確認済みだが回帰防止のテスト追加が望ましい）
 - T-021c User側実機確認（推奨、次回`/editor`使用時に）: 写真アップロード→フォーカル/ズーム調整→プレビュー確認→公開の一連の流れ
+- T-021e Reviewer発見の既存バグ（本タスクのdiffとは無関係、修正不要・優先度未確定）: `src/style.css:224-228`の`@media (min-width: 820px) { .mobile-tabs { display: none; } }`が、ソース上でより後に書かれた無条件の`.mobile-tabs { display: flex; }`（:250-252）より前に登場するため、CSSカスケードにより1440px幅等のデスクトップでも`.mobile-tabs`が実際には非表示にならず`display:flex`のまま表示され続けている（Reviewerが`getComputedStyle`で実測確認済み）。修正時は非表示指定を`.mobile-tabs`ルールより後ろに移動する、または`.mobile-tabs`のデフォルトを`display:none`にして`max-width:819px`側で`flex`にする等、カスケード順序の入れ替えで対応可能とみられる。
 
 ## メモ
 
