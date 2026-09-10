@@ -7,6 +7,7 @@
   --color-accent2: #8fa073;
   --color-accent2-pale: #f0fae1;
   --color-ember: #c67139;
+  --color-ember-glow: #ffd98e;
   --color-ember-text: #1a1712;
   --color-line: rgba(46, 43, 37, .11);
   --color-hero-bg: #241f19;
@@ -60,6 +61,7 @@ a:hover { color: var(--color-ember); }
 [data-reveal][data-in] { opacity: 1; transform: none; }
 @media (prefers-reduced-motion: reduce) {
   [data-reveal] { opacity: 1; transform: none; transition: none; }
+  .hero-section__embers { display: none; }
 }
 
 .section__inner { max-width: 1120px; margin: 0 auto; padding-inline: var(--gut); }
@@ -113,6 +115,43 @@ a:hover { color: var(--color-ember); }
   position: absolute; inset: 0; pointer-events: none;
   background: linear-gradient(180deg, rgba(36, 31, 25, .3) 0%, rgba(36, 31, 25, .12) 30%, rgba(36, 31, 25, .62) 72%, rgba(36, 31, 25, .86) 100%);
 }
+.hero-section__embers { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.hero-section__ember {
+  position: absolute;
+  top: var(--y); left: var(--x);
+  width: calc(3px * var(--s)); height: calc(3px * var(--s));
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 231, 190, .95) 0%, rgba(255, 217, 142, .5) 45%, rgba(198, 113, 57, 0) 72%);
+  opacity: .06;
+  animation: hero-ember-drift var(--drift-dur) ease-in-out infinite var(--drift-delay),
+    hero-ember-flicker var(--flicker-dur) ease-in-out infinite var(--flicker-delay);
+}
+.hero-section[data-embers-paused] .hero-section__ember { animation-play-state: paused; }
+@keyframes hero-ember-drift {
+  0% { transform: translate3d(0, 0, 0); }
+  26% { transform: translate3d(var(--dx1), var(--dy1), 0); }
+  48% { transform: translate3d(var(--dx2), var(--dy2), 0); }
+  71% { transform: translate3d(var(--dx3), var(--dy3), 0); }
+  100% { transform: translate3d(0, 0, 0); }
+}
+@keyframes hero-ember-flicker {
+  0%, 100% { opacity: .06; }
+  50% { opacity: var(--o); }
+}
+.hero-section__ember:nth-child(1) { --x: 10%; --y: 58%; --s: 1.1; --o: .42; --dx1: -4vmin; --dy1: -6vmin; --dx2: 3vmin; --dy2: -10vmin; --dx3: -2vmin; --dy3: -3vmin; --drift-dur: 19s; --drift-delay: -4s; --flicker-dur: 4.1s; --flicker-delay: -1.6s; }
+.hero-section__ember:nth-child(2) { --x: 22%; --y: 22%; --s: .8; --o: .3; --dx1: 5vmin; --dy1: -4vmin; --dx2: -3vmin; --dy2: -9vmin; --dx3: 2vmin; --dy3: -2vmin; --drift-dur: 27s; --drift-delay: -14s; --flicker-dur: 5.6s; --flicker-delay: -3.2s; }
+.hero-section__ember:nth-child(3) { --x: 34%; --y: 48%; --s: 1.4; --o: .48; --dx1: -6vmin; --dy1: -8vmin; --dx2: 4vmin; --dy2: -12vmin; --dx3: -3vmin; --dy3: -5vmin; --drift-dur: 22s; --drift-delay: -9s; --flicker-dur: 3.6s; --flicker-delay: -.8s; }
+.hero-section__ember:nth-child(4) { --x: 46%; --y: 12%; --s: .9; --o: .28; --dx1: 3vmin; --dy1: -5vmin; --dx2: -5vmin; --dy2: -11vmin; --dx3: 1vmin; --dy3: -4vmin; --drift-dur: 31s; --drift-delay: -21s; --flicker-dur: 6.4s; --flicker-delay: -2.1s; }
+.hero-section__ember:nth-child(5) { --x: 58%; --y: 36%; --s: 1.2; --o: .4; --dx1: -3vmin; --dy1: -7vmin; --dx2: 6vmin; --dy2: 1vmin; --dx3: -4vmin; --dy3: -9vmin; --drift-dur: 16s; --drift-delay: -2s; --flicker-dur: 4.8s; --flicker-delay: -4.4s; }
+.hero-section__ember:nth-child(6) { --x: 70%; --y: 60%; --s: .75; --o: .26; --dx1: 4vmin; --dy1: -3vmin; --dx2: -2vmin; --dy2: -10vmin; --dx3: 3vmin; --dy3: 2vmin; --drift-dur: 25s; --drift-delay: -11s; --flicker-dur: 7s; --flicker-delay: -5.9s; }
+.hero-section__ember:nth-child(7) { --x: 82%; --y: 20%; --s: 1.5; --o: .46; --dx1: -5vmin; --dy1: -9vmin; --dx2: 2vmin; --dy2: -12vmin; --dx3: -1vmin; --dy3: -4vmin; --drift-dur: 34s; --drift-delay: -27s; --flicker-dur: 3.2s; --flicker-delay: -1.1s; }
+.hero-section__ember:nth-child(8) { --x: 90%; --y: 44%; --s: 1; --o: .34; --dx1: 6vmin; --dy1: -6vmin; --dx2: -4vmin; --dy2: 3vmin; --dx3: 2vmin; --dy3: -8vmin; --drift-dur: 20s; --drift-delay: -6s; --flicker-dur: 5.2s; --flicker-delay: -2.8s; }
+.hero-section__ember:nth-child(9) { --x: 14%; --y: 64%; --s: 1.3; --o: .44; --dx1: -4vmin; --dy1: -10vmin; --dx2: 3vmin; --dy2: -2vmin; --dx3: -2vmin; --dy3: -7vmin; --drift-dur: 18s; --drift-delay: -13s; --flicker-dur: 4.4s; --flicker-delay: -3.7s; }
+.hero-section__ember:nth-child(10) { --x: 28%; --y: 8%; --s: .85; --o: .27; --dx1: 5vmin; --dy1: -8vmin; --dx2: -6vmin; --dy2: -1vmin; --dx3: 1vmin; --dy3: -11vmin; --drift-dur: 29s; --drift-delay: -4s; --flicker-dur: 6.1s; --flicker-delay: -.5s; }
+.hero-section__ember:nth-child(11) { --x: 40%; --y: 30%; --s: 1.15; --o: .38; --dx1: -7vmin; --dy1: -4vmin; --dx2: 4vmin; --dy2: -11vmin; --dx3: -3vmin; --dy3: 1vmin; --drift-dur: 23s; --drift-delay: -17s; --flicker-dur: 3.9s; --flicker-delay: -2.2s; }
+.hero-section__ember:nth-child(12) { --x: 54%; --y: 54%; --s: .7; --o: .25; --dx1: 3vmin; --dy1: -9vmin; --dx2: -2vmin; --dy2: -3vmin; --dx3: 5vmin; --dy3: -10vmin; --drift-dur: 33s; --drift-delay: -9s; --flicker-dur: 7.4s; --flicker-delay: -6.3s; }
+.hero-section__ember:nth-child(13) { --x: 66%; --y: 16%; --s: 1.45; --o: .5; --dx1: -6vmin; --dy1: -11vmin; --dx2: 3vmin; --dy2: -1vmin; --dx3: -4vmin; --dy3: -6vmin; --drift-dur: 17s; --drift-delay: -1s; --flicker-dur: 4.7s; --flicker-delay: -4s; }
+.hero-section__ember:nth-child(14) { --x: 88%; --y: 50%; --s: .95; --o: .31; --dx1: 4vmin; --dy1: -2vmin; --dx2: -5vmin; --dy2: -9vmin; --dx3: 2vmin; --dy3: -12vmin; --drift-dur: 26s; --drift-delay: -19s; --flicker-dur: 5.9s; --flicker-delay: -1.3s; }
 .hero-section__inner { position: relative; max-width: 1120px; margin: 0 auto; width: 100%; padding: 0 var(--gut) clamp(80px, 14vh, 132px); }
 .hero-section__heading { color: #fff; font-size: clamp(2.1rem, 7vw, 4.1rem); letter-spacing: .2em; line-height: 1.7; text-shadow: 0 2px 34px rgba(20, 16, 12, .7); margin: 0; }
 .hero-section__body { margin: 30px 0 0; max-width: 24em; font-size: 14px; line-height: 2.3; color: rgba(255, 255, 255, .9); text-shadow: 0 1px 22px rgba(20, 16, 12, .75); }
@@ -121,6 +160,7 @@ a:hover { color: var(--color-ember); }
      the same clearance `main` already reserves (see below) so its bottom edge isn't hidden behind
      the bar. */
   .hero-section { min-height: calc(clamp(560px, 90svh, 900px) - 56px - env(safe-area-inset-bottom)); }
+  .hero-section__ember:nth-child(n+9) { display: none; }
 }
 
 /* text-block (philosophy / privacy) */

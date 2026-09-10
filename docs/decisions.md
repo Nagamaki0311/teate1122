@@ -573,3 +573,54 @@
 - `@media (max-width: 819px)`のヒーロー`min-height`調整は維持されるため、モバイル幅でのヒーロー実効高さへの影響（D-026時点から変化なし）は継続する。
 - `.mobile-tabs`のカスケード順序バグ（デスクトップ幅でも非表示にならない）自体は本タスクのスコープ外のため未修正のまま（バックログ参照）。ただしSCROLL削除によりこのバグと絡んだ表示崩れの再発要因はなくなった。
 - 320×568相当の極小ビューポートでの本文と`.mobile-tabs`の重なり（既存・本タスク起因ではない）は未対応。バックログに追加。
+
+---
+
+## D-028: T-022、ヒーロー背景「灯火の粒子」アニメーションの実装方式
+
+- 日付: 2026-09-10
+- 状態: 採用
+
+### 背景
+T-021f（ヒーローSCROLLインジケーター削除）マージ後のmainを起点に、ヒーロー背景に「灯火の粒子」の浮遊・明滅アニメーションを追加する要望があった。Plannerが方式選定と数値仕様を含む実装計画を作成し、Developerが計画に従って実装した。
+
+### 決定・採用方式
+**CSS `@keyframes`のみで実装した。Canvas/requestAnimationFrameやtsParticles等のライブラリは採用しなかった。**
+
+- 理由: 求められる見た目（浮遊・不規則・明滅）は`transform`/`opacity`の`@keyframes`で満たせる。Canvasは毎フレーム再描画が必要でモバイルの発熱・電池消費が大きく、外部ライブラリの追加はD-021の「依存はEleventy本体のみ」という既存方針に反する（Ponytail判定ラダー: 標準機能で足りるものに新しい依存を足さない）。
+
+### 実装内容
+1. `src/_includes/sections/hero.njk`: `.hero-section__scrim`と`.hero-section__inner`の間に`.hero-section__embers`（`aria-hidden="true"`、nunjucksの`range(0, 14)`ループでspan×14）を追加。DOM順序上`__inner`より前に来るため、`z-index`を追加しなくてもテキストが粒子より常に手前に描画される。
+2. `src/style.css`:
+   - `:root`に`--color-ember-glow: #ffd98e`を既存`--color-ember`の直後に追加。
+   - `.hero-section__embers`/`.hero-section__ember`の基本スタイル、`@keyframes hero-ember-drift`（非対称5点経路: 0/26/48/71/100%）、`@keyframes hero-ember-flicker`（0.06↔粒子ごとの上限`--o`）を追加。
+   - 粒子14個ぶんの`:nth-child(1)`〜`(14)`に、位置（`--x` 6〜94%・`--y` 6〜68%）、サイズ（`--s` 0.7〜1.6）、不透明度上限（`--o` 0.25〜0.5）、漂流の中間点オフセット（`--dx1/--dy1`〜`--dx3/--dy3`、横±7vmin・縦-12〜+4vmin＝上方向やや優位）、漂流周期（16〜34s）と負のdelay、明滅周期（3.2〜7.4s）と負のdelayをそれぞれ個別に設定し、周期のズレと非対称経路で「ループが認識されにくい不規則さ」を出した。
+   - `translate()`には`%`を使わず、`translate3d()`を`vmin`単位で使用した（3px程度の要素に対する`%`基準の移動はほぼ動かないため）。
+   - 既存の`@media (max-width: 819px)`ヒーロー用ブロックに`.hero-section__ember:nth-child(n+9) { display: none; }`を追記し、モバイルでは8個に削減した。
+   - 既存の`@media (prefers-reduced-motion: reduce)`ブロックに`.hero-section__embers { display: none; }`を追記し、モーション低減設定では完全非表示にした。
+3. `src/site.js`: 既存の`[data-reveal]`用`IntersectionObserver`とは別に、ヒーロー要素専用の`IntersectionObserver`を新規追加した（既存observerは初回交差で`unobserve`するため再利用不可）。ヒーローがビューポート外になると`.hero-section`に`data-embers-paused`属性を付与し、CSS側`.hero-section[data-embers-paused] .hero-section__ember { animation-play-state: paused; }`でアニメーションを一時停止する。`IntersectionObserver`非対応環境ではアニメーションが動き続けるのみ（既存の`[data-reveal]`フォールバックと同じ思想）。既存コードのES5スタイル（IIFE、`var`/`function`）に揃え、`DOMContentLoaded`には依存せず即時実行のままにした（editor側の`render.js`がscriptタグを`defer`なしのインラインに置換するため、既存コードと同様に前提を変えない）。
+
+### 端末性能検知を行わない理由
+`navigator.hardwareConcurrency`等による低性能端末の検知・粒子数の動的削減は行わなかった。描画コストが「2〜5pxの要素8〜14個に対するtransform/opacity合成のみ、JSの毎フレーム実行なし」で軽微であり、検知して減らすべき対象がそもそも小さいため。ビューポート幅によるメディアクエリ（14→8個）と粒子数の絶対上限14個で必要十分と判断した（Ponytail: 明示的に要求されていない抽象化を追加しない）。ビューポート外では`animation-play-state:paused`で停止し、バックグラウンドタブはブラウザが自動的にアニメーションを停止する。
+
+### `prefers-reduced-motion: reduce`で完全非表示にする理由
+明滅・浮遊のどちらも動きを伴う演出であり、低減表示では単に静止させる（`animation:none`）のではなく要素自体を非表示にした。低輝度の粒子がテキスト付近に静止して残るより、装飾要素自体をなくす方がヒーローの可読性・意図の面で単純明快であるため（既存の`[data-reveal]`は静止表示だが、これは「最終表示状態を保証する」ためのフォールバックであり性質が異なる。粒子は純粋な装飾のため、低減時は非表示が最も単純な対応）。
+
+### T-021aバックログ「ttdrift」との関係
+ハンドオフ元の`ttdrift`（背景写真自体をゆっくりズーム/パンさせる演出）とは別物であり、今回同時に実装しなかった。今回実装したのは前面を浮遊する光の粒子であり、`ttdrift`はヒーロー背景写真そのもの（`.hero-section__img`の`--zoom`/`--focal-x/y`）を対象とする別スコープの演出で、両者を同時に実装すると`--zoom`/`--focal-x/y`と干渉するリスクがあり独立した検証が必要となるため、スコープを分離した。`ttdrift`バックログはそのまま残す。
+
+### 検証方法
+- `npm test`（91件）がグリーンであることを確認した。なお`editor/test/render.test.js`の「Eleventy自身の`_site/index.html`と比較」するテストは、`npm run build`前の古い`_site`と比較して一時的に1件失敗したが、これは既存の`_site`が本タスクの変更前のビルド成果物のままだったためであり、`npm run build`実行後に再度`npm test`を実行して91件全てグリーンになることを確認した（実装のバグではない）。
+- `npm run build`が成功し、`_site/index.html`に`.hero-section__embers`（`.hero-section__ember`14個）が出力されていることを`grep`で確認した。
+- `_site`をローカル配信（`python3 -m http.server`）し、Playwright（Chromium、`/opt/pw-browsers/chromium-1194/chrome-linux/chrome`、`--ignore-certificate-errors`）で以下を確認した。
+  - デスクトップ1440×900・モバイル390×844のスクリーンショットで、見出し「灯りは、手当て。」・本文の可読性が損なわれていないこと（粒子は`--y`6〜68%に集中し、下部の本文帯とは重ならない）。
+  - モバイル390×844幅で`.hero-section__ember`のうち`display:none`でないもの（可視要素）が8個であること。
+  - `.hero-section`をビューポート外までスクロールすると`data-embers-paused`属性が付与され、粒子の`getComputedStyle(...).animationPlayState`が`"paused"`になること。ヒーローに戻すと`"running"`に復帰すること。
+  - `browser.newContext({ reducedMotion: "reduce" })`（Playwrightの`emulateMedia`相当）で`.hero-section__embers`の`display`が`"none"`になること。
+  - 複数フレームで各粒子の`opacity`（computed style）を実測し、粒子ごとに異なるタイミングで0.06〜上限`--o`の範囲を変化していること（明滅アニメーションが実際に不規則に動作していること）を確認した。
+- コンソールエラー: `fonts.googleapis.com`（Google Fonts、`src/_includes/base.njk`が参照）への接続が本検証環境のネットワーク制約により`net::ERR_CONNECTION_RESET`で失敗し、コンソールエラーとして記録された。これは本タスクの変更（`hero.njk`/`style.css`/`site.js`）とは無関係の既存事象であり（変更前のコードでも同様に発生する、本検証環境固有のネットワーク制約）、本タスクが原因で新規に発生したコンソールエラーはないことを確認した。
+
+### 影響
+- ヒーロー背景に浮遊・明滅する光の粒子演出が追加される。新規依存関係の追加はなし。変更ファイルは`src/_includes/sections/hero.njk`・`src/style.css`・`src/site.js`・docs一式の4種のみで、`editor/`側は`?raw`参照のため無変更で自動追従する。
+- モバイル幅（`max-width:819px`）では粒子が8個に削減される。`prefers-reduced-motion: reduce`では粒子が完全非表示になる。
+- ビューポート外では新規`IntersectionObserver`により`animation-play-state:paused`となり、常時アニメーションし続けることによる不要な描画コストを避ける。

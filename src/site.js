@@ -23,6 +23,14 @@
     });
   }
 
+  // Pause the hero ember animation while the hero is off-screen.
+  var hero = document.querySelector(".hero-section");
+  if (hero && "IntersectionObserver" in window) {
+    new IntersectionObserver(function (entries) {
+      hero.toggleAttribute("data-embers-paused", !entries[0].isIntersecting);
+    }).observe(hero);
+  }
+
   // Gallery category tabs: show/hide items, no page reload.
   var tabs = document.querySelectorAll(".gallery__tab");
   var items = document.querySelectorAll(".gallery__item");
