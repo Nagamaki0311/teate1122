@@ -116,13 +116,10 @@ a:hover { color: var(--color-ember); }
 .hero-section__inner { position: relative; max-width: 1120px; margin: 0 auto; width: 100%; padding: 0 var(--gut) clamp(80px, 14vh, 132px); }
 .hero-section__heading { color: #fff; font-size: clamp(2.1rem, 7vw, 4.1rem); letter-spacing: .2em; line-height: 1.7; text-shadow: 0 2px 34px rgba(20, 16, 12, .7); margin: 0; }
 .hero-section__body { margin: 30px 0 0; max-width: 24em; font-size: 14px; line-height: 2.3; color: rgba(255, 255, 255, .9); text-shadow: 0 1px 22px rgba(20, 16, 12, .75); }
-.hero-section__scroll { position: absolute; bottom: 26px; right: var(--gut); display: flex; flex-direction: column; align-items: center; gap: 8px; }
-.hero-section__scroll span:first-child { font-size: 10px; letter-spacing: .3em; color: rgba(255, 255, 255, .8); }
-.hero-section__scroll-line { display: block; width: 1px; height: 40px; background: linear-gradient(180deg, rgba(255, 255, 255, .8), transparent); }
 @media (max-width: 819px) {
   /* .mobile-tabs is a fixed bottom bar on this breakpoint; back the hero off the viewport bottom by
-     the same clearance `main` already reserves (see below) so its bottom edge - and everything
-     anchored to it, including .hero-section__scroll - isn't hidden behind the bar. */
+     the same clearance `main` already reserves (see below) so its bottom edge isn't hidden behind
+     the bar. */
   .hero-section { min-height: calc(clamp(560px, 90svh, 900px) - 56px - env(safe-area-inset-bottom)); }
 }
 
