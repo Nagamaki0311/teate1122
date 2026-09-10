@@ -19,6 +19,28 @@
 
 ---
 
+## 2026-09-10 T-021f: ヒーローSCROLLインジケーターの削除（T-021e修正後もUser実機で問題が再発したため）
+
+### 実施内容
+- 背景: T-021e（D-026）でSCROLLインジケーターと`.mobile-tabs`の重なりを修正しマージ済みだったが、User実機確認の結果、(1) 通常のスマホ表示では見切れなくなったが右下ぎりぎりで窮屈、(2) スマホの「PC版サイトを表示」モード（デスクトップ幅描画）では既知の`.mobile-tabs`カスケードバグと絡んで再度崩れる、の2点が判明。Manager判断でSCROLLインジケーター自体を削除する方針に決定（D-027参照）。
+- `src/_includes/sections/hero.njk`から`.hero-section__scroll`のブロック（`SCROLL`テキスト＋縦線）を削除。
+- `src/style.css`から`.hero-section__scroll` / `.hero-section__scroll span:first-child` / `.hero-section__scroll-line`の3ルールを削除。
+- T-021eで追加した`@media (max-width: 819px) { .hero-section { min-height: calc(...) } }`について、SCROLL削除により不要になった可能性を検討。削除した場合と維持した場合の両方をPlaywrightで実測比較した結果、390×844等の標準的なモバイル幅では削除しても重なりは生じないが、375×667（iPhone SE相当の低い高さ）では維持時の余白71.6pxに対し削除時は15.6pxまで縮小することを確認。実機での余白変動リスクを考慮し、このメディアクエリは維持することに決定（コメント文のみSCROLLへの言及を除去し、現在の目的＝`.mobile-tabs`重なり回避を明記するよう更新）。
+- プレースホルダーSVG（`src/assets/hero.svg`）の`y=250`（T-021eで設定済み）は、見出しとの重なり回避という制約が引き続き必要であり、画像空間上部の余白に位置し続けているため変更不要と判断（Playwrightで見出しと重ならないことを再確認）。
+- `docs/decisions.md`にD-027として経緯・検証方法・実測値を記録。`docs/tasks.md`のT-021fを更新（状態を「レビュー中」に）。
+
+### 結果
+- Playwright（Chromium、`/opt/pw-browsers/chromium-1194`、`--ignore-certificate-errors`）で`npm run build`後の`_site`をローカル配信し、390×844（モバイル標準）・375×667（iPhone SE相当）・819×844と820×900（`.mobile-tabs`表示切替の境界値）・1440×900（デスクトップ、「PC版サイトを表示」モードの簡易代替）の各ビューポートで、(a) `.hero-section__scroll`要素がDOMに存在しないこと、(b) `.hero-section__body`が`.mobile-tabs`と重ならないこと（`getBoundingClientRect`実測で余白58〜114px確保）をすべてのビューポートで確認。スクリーンショットでも視覚的にSCROLL表示が消え、レイアウト崩れがないことを確認した。
+- 320×568（旧世代の極小ビューポート）ではメディアクエリの維持・削除いずれでも本文と`.mobile-tabs`が約22px重なることを実測したが、`git stash`でT-021f着手前のコードに戻して同条件を再現したところ同じ重なりが再現したため、本タスクの変更に起因しない既存の別問題と判断し、バックログに追加するに留めた（本タスクのスコープ外）。
+- `npm run build`: 成功（Vite build → Eleventy build）。
+- 一時ファイル（Playwrightスクリプト・スクリーンショット、いずれもスクラッチパッド配下）・ローカルサーバープロセスは作業完了後に削除・停止済み。作業ツリーの変更は`src/_includes/sections/hero.njk`・`src/style.css`・`docs/decisions.md`・`docs/tasks.md`・`docs/progress.md`のみ。
+
+### 次回開始位置
+- Reviewerによるレビュー待ち。承認後、D-022の手順（PR作成・CIグリーン確認後にManagerがマージ）に従う。
+- バックログに追加した320×568相当の極小ビューポートでの重なり（本タスクのスコープ外・既存の別問題）は、対応が必要か優先度未確定のまま残っている。
+
+---
+
 ## 2026-09-10 T-021e: レビュー指摘対応 — プレースホルダーSVGの文字位置が見出しと重なる新規バグを修正
 
 ### 実施内容

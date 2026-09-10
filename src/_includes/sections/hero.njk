@@ -8,8 +8,4 @@
     <h1 class="hero-section__heading">{% for line in section.props.heading | lines %}{{ line }}{% if not loop.last %}<br>{% endif %}{% endfor %}</h1>
     <p class="hero-section__body">{{ section.props.body }}</p>
   </div>
-  <div class="hero-section__scroll" aria-hidden="true">
-    <span>SCROLL</span>
-    <span class="hero-section__scroll-line"></span>
-  </div>
 </section>
