@@ -695,3 +695,49 @@ T-021f（ヒーローSCROLLインジケーター削除）マージ後のmainを�
 ### 影響
 - 影響範囲は candles.json の編集経路のみ。home/site 側のガード・書き込み許可パスは変更なし。
 
+
+---
+
+## D-032: T-026、デザイン品質向上（コンセプト「和紙越しの灯り」、6段構成）
+
+- 日付: 2026-09-30
+- 状態: 採用（第1段まで実装。以降の段で追記する）
+
+### 背景
+- User依頼: Awwwards / Webby / FWA 水準を目標に、機械チェックと目視採点の反復でデザイン品質を上げる。実写真・実文章はUser素材待ちのため対象外。仮画像の意匠化とOGP画像も含む。Plannerの計画（コンセプト・§2トークン・§3セクション別設計・§5チェック基準）をManagerが採用した。
+
+### 決定（全体方針）
+- コンセプト: 「和紙越しの灯り — 静かな余白の中に、温度のあるものがひとつだけ。」ページ全体を一晩（夜に灯す＝ヒーロー → 灯りの下の手仕事＝本文 → 火を消した余韻＝夜のフッター）として構成する。
+- シグネチャ要素は4つに絞る: 縦組みヒーロー見出し、灯芯モチーフ（細線＋点）、アーチ形のポートレート、夜のヒーローと夜のフッターで本文を挟む構成。それ以外の装飾は足さない。emberは点でのみ使い、面では使わない。
+- 採用しないもの: カスタムカーソル、WebGL/Three.js、慣性スクロール、ローディング画面、横スクロールの乗っ取り、文字がバラける演出、音。
+- 段構成（1段＝Developer 1回＝1 PR）: 1 土台＋計測／2 ヘッダー＋ヒーロー／3 画像類（プレースホルダーSVG、`validate.js` のファイル名パターン拡張）／4 本文セクション／5 ギャラリー・お問い合わせ・フッター／6 OGP＋総仕上げ。
+- 合格ライン: 機械チェック M0〜M19 すべて合格、必須項目（D1〜D7/U1〜U5/C1/C2/K1）すべて合格、加重平均8.0以上（Design40/Usability30/Creativity20/Content10）で各観点7.5以上。1段あたり最大3回まで反復し、届かない差は記録して次の段へ、最終段で再挑戦する。
+- 公開サイトにCSPを付ける場合、`base.njk` 先頭のインラインスクリプトはhashで許可する必要がある（現状サイト本体にCSPはなく、編集アプリは `'unsafe-inline'` 許可済み）。
+- iOS Safari（縦組み・backdrop-filter・スクロール連動）はこの環境で検証できない。非対応でも静的表示に落ちる作りにする。デプロイ後にUserのiPhoneで一度確認してもらう（任意、進行は止めない）。
+
+### 第1段「土台＋計測」の内容
+- `src/style.css`: `:root` にトークンを定義（文字 `--fs-*`、余白 `--space-*` と新しい `--space-y-*`、色 `--color-ember-deep/line-strong/night/on-night*`、角丸 `--radius-sm/card/media/pill/round`、`--container`、`--header-h`、イージング `--ease-out/--ease-in-out`、`--dur-fast`）。`font-size` と `border-radius` はトークン経由のみ。本文は行間2.0・字間.04em。
+- 登場演出は `.js [data-reveal]` に限定（JS無効なら最初から表示。既存の潜在バグ修正）。`site.js` が同じ親の `[data-reveal]` 兄弟の順番で `--reveal-delay`（0/90/180/270ms）を付与。reduced-motionでは動きなし。
+- `base.njk` head先頭に `js` / `is-embedded` クラスを付けるインラインスクリプトを追加（プレビューのsrcdocでも実行される）。スムーズスクロールは `prefers-reduced-motion: no-preference` かつ `html:not(.is-embedded)` のときだけ（プレビューの再描画でスクロール位置が流れる副作用の解消）。
+- スキップリンク、`.section{scroll-margin-top:var(--header-h)}`（ヘッダーは `height:var(--header-h)` の72pxに固定）、フォーカス枠を accent（暗い地では ember-glow）、ホバー色を ember-deep（AA達成）、入力欄の枠を line-strong（3:1以上）、入力欄の文字16px（iOSのズーム防止）。
+- accent背景セクションの保険（文字・リンク・タグ・ボタン・タブを反転し、カード類は元の配色に戻す）。キッカーの自動連番（01 ── PHILOSOPHY）。和紙のざらつき（feTurbulenceの180pxタイル、不透明度約.035）。Webフォントを `Zen Old Mincho 400` と `Noto Sans JP 400/500` に絞った。
+- タップ領域: ヘッダーのロゴ・フッターのリンク・ギャラリータブを44px以上に。
+- `scripts/design-check.mjs` を新規作成（M0〜M19、CIでは実行しない、`package.json` にも追加しない）。実行: `npm run build` → `_site` を配信 → `node scripts/design-check.mjs --base http://localhost:8080 --out <dir> [--with-tests] [--advisory M4,M5]`。Playwrightは `PLAYWRIGHT_PATH`、Chromiumは `CHROMIUM_PATH` で上書き可能。M0が不合格ならタイポグラフィ採点は無効として中断する。
+
+### 計画から変えた点
+- M13: 計画の「p/li は14px以上」と「ラベル12px（`--fs-label`）」が矛盾するため、ラベル用途のクラス（`.kicker`、`.events__group-label`、`.tag-list__item`、`.events__badge`、`.site-footer__copyright`、`.candle-grid__roman`）は12px以上で可とした。タブバーの文字は10.5px → 12px（計画は11px）。M13は「文字12px以上」を優先。
+- タブバーの文字を12pxにし、幅320pxで収まるよう字間を.02em、横paddingを0、`nowrap` にした。
+- ヘッダーは第2段で60pxにする予定だが、第1段では現状の実測に合わせて72pxを `--header-h` にし、`height` を明示した（scroll-marginを正確にするため）。
+- `--fs-h1`（現状の見出し値）と `--fs-brand`、`--fs-menu` を追加（計画のトークン表にない。`--fs-h1` は第2段で縦組みの `--fs-display` に置換）。
+- `--radius-card` を26px → 24px、textarea 22px → `--radius-sm`(20px) に統一。
+- M16 は計画の (a)〜(h) に (i)「ヒーロー以外の全セクションが accent 背景」を追加。
+- M18 は `--with-tests` 指定時のみ `npm test` を実行（buildは事前に実行）。
+- 既知の未解消（本段の担当外）: モバイルのタブバー実高は約67〜71pxだが T-024 が `body` 下余白に確保しているのは56px（フッター下部の余白で吸収されている）。T-024のルールは書き換えていない。第5段（フッター）で `--tabbar-h` 化を検討。
+
+### 機械チェック結果（第1段）
+- 合格: M0/M1/M2/M3/M6/M9/M10/M11/M12/M13/M14/M17/M18/M19、および参考項目の M7/M8/M15/M16。
+- 不合格（参考値）: M4（1440の見出し 2.55:1 < 3）、M5（白一色の写真で見出し 1440・390とも3:1未満）。現行の全面グラデーションのスクリムでは足りないため、第2段（3層スクリム）と第3段（意匠SVG）で解消する。
+- 数値は `docs/progress.md` を参照。
+
+### 影響
+- 見た目: 文字サイズ・セクション余白（`--space-y-*` の拡大）・イベントの日付サイズが変わる。ホバー色・入力欄の枠が濃くなる。構造（ヘッダー・ヒーロー・各セクション）は第1段では変更しない。
