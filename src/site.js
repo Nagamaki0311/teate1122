@@ -29,12 +29,20 @@
     });
   }
 
-  // Pause the hero ember animation while the hero is off-screen.
+  // Hero on-screen state: pause its infinite animations while off-screen, and (when the hero
+  // is the first section) turn the transparent header solid once the hero has scrolled away.
   var hero = document.querySelector(".hero-section");
+  var header = document.querySelector(".site-header");
   if (hero && "IntersectionObserver" in window) {
-    new IntersectionObserver(function (entries) {
-      hero.toggleAttribute("data-embers-paused", !entries[0].isIntersecting);
-    }).observe(hero);
+    var first = hero.parentElement.firstElementChild === hero;
+    new IntersectionObserver(
+      function (entries) {
+        var on = entries[0].isIntersecting;
+        hero.toggleAttribute("data-embers-paused", !on);
+        if (first && header) header.toggleAttribute("data-solid", !on);
+      },
+      { rootMargin: "-" + (header ? header.offsetHeight : 0) + "px 0px 0px 0px" }
+    ).observe(hero);
   }
 
   // Events: the build sorts upcoming/past by build date, so re-sort by the

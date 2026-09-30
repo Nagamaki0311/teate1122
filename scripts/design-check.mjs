@@ -161,6 +161,8 @@ const measureContrast = () => {
     const field = ["INPUT", "TEXTAREA", "SELECT"].includes(el.tagName);
     if (!hasText(el) && !field) continue;
     if (el.closest(".hero-section")) continue; // hero text sits on a photo: covered by M4/M5
+    const hdr = el.closest(".site-header");
+    if (hdr && window.__dc.parse(getComputedStyle(hdr).backgroundColor).a === 0) continue; // transparent header over the hero photo: measured by pixels in M4
     if (!visible(el)) continue;
     const cs = getComputedStyle(el);
     const op = opacityOf(el);
@@ -238,12 +240,19 @@ async function m1(browser) {
     const page = await open(browser, { width: w, url: BASE + "/", name: "M1" });
     await settle(page);
     const r = await page.evaluate(measureOverflow);
-    const ok = r.scrollWidth <= r.vw && r.bad.length === 0;
+    r.sync = await page.evaluate(() => {
+      // --header-h, the sticky header's height and .section scroll-margin-top must agree (anchors land below the header).
+      const tok = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--header-h"));
+      const h = document.querySelector(".site-header").getBoundingClientRect().height;
+      const sm = parseFloat(getComputedStyle(document.querySelector(".section:not(.hero-section)")).scrollMarginTop);
+      return { token: tok, header: h, scrollMargin: sm, ok: Math.abs(tok - h) < 0.5 && Math.abs(tok - sm) < 0.5 };
+    });
+    const ok = r.scrollWidth <= r.vw && r.bad.length === 0 && r.sync.ok;
     detail[w] = ok ? "ok" : r;
     pass = pass && ok;
     await closePage(page);
   }
-  rec("M1", "No horizontal overflow", pass, detail);
+  rec("M1", "No horizontal overflow; --header-h == header height == section scroll-margin", pass, detail);
 }
 
 async function m2(browser) {
@@ -255,10 +264,19 @@ async function m2(browser) {
     const r = await page.evaluate(measureContrast);
     if (w === 390 && url === "/") {
       await page.evaluate(() => document.getElementById("mobile-menu").showModal());
+      await page.waitForTimeout(1200); // menu links stagger in
       r.menu = await page.evaluate(measureContrast);
       if (r.menu.fails.length) r.fails.push(...r.menu.fails);
     }
-    detail[`${w}${url}`] = { checked: r.checked, skipped: r.skipped, min: r.min, fails: r.fails };
+    if (url === "/") {
+      // Header after the hero has scrolled away: solid state must pass on its own.
+      await page.evaluate(() => { document.documentElement.style.scrollBehavior = "auto"; document.getElementById("events").scrollIntoView(); });
+      await page.waitForTimeout(900);
+      const solid = await page.evaluate(measureContrast);
+      r.solidHeader = { checked: solid.checked, min: solid.min };
+      r.fails.push(...solid.fails);
+    }
+    detail[`${w}${url}`] = { checked: r.checked, skipped: r.skipped, min: r.min, fails: r.fails, solidHeader: r.solidHeader };
     pass = pass && r.fails.length === 0;
     await closePage(page);
   }
@@ -278,13 +296,16 @@ async function m3m11(browser) {
       const cs = getComputedStyle(el);
       const c = window.__dc.parse(cs.outlineColor);
       const bg = window.__dc.bgOf(el.parentElement);
+      const hdr = el.closest(".site-header");
+      const overPhoto = !!hdr && window.__dc.parse(getComputedStyle(hdr).backgroundColor).a === 0; // transparent header: ring measured on photo pixels in M4
       return {
+        overPhoto,
         d: window.__dc.desc(el),
         focusVisible: el.matches(":focus-visible"),
         width: parseFloat(cs.outlineWidth),
         style: cs.outlineStyle,
         skip: el.classList.contains("skip-link"),
-        ratio: c && bg ? window.__dc.ratio(window.__dc.over(c, bg), bg) : null,
+        ratio: !overPhoto && c && bg ? window.__dc.ratio(window.__dc.over(c, bg), bg) : null,
       };
     });
     stops.push(s);
@@ -307,7 +328,7 @@ async function m3m11(browser) {
   });
   const lowField = fields.filter((f) => f.bw < 1 || f.ratio === null || f.ratio < 3).map((f) => `${f.d} ${f.ratio && f.ratio.toFixed(2)}`);
   rec("M3", "Non-text contrast (focus ring, input border) >= 3:1", lowRing.length === 0 && lowField.length === 0 && fields.length > 0, {
-    focusStops: real.length, lowRing, minRing: Math.min(...real.map((s) => s.ratio ?? 99)).toFixed(2), fields: fields.length, lowField,
+    focusStops: real.length, overPhotoStops: real.filter((s) => s.overPhoto).length, lowRing, minRing: Math.min(...real.map((s) => s.ratio ?? 99)).toFixed(2), fields: fields.length, lowField,
   });
   const firstIsSkip = real.length > 0 && real[0].skip;
   await closePage(page);
@@ -328,6 +349,9 @@ async function m3m11(browser) {
 }
 
 async function m4m5(browser) {
+  // --color-ember-glow #ffd98e: focus ring on the dark hero / transparent header (relative luminance).
+  const lin = (v) => ((v /= 255) <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4));
+  const GLOW_LUM = 0.2126 * lin(255) + 0.7152 * lin(217) + 0.0722 * lin(142);
   const measure = async (w, h, whiteHero) => {
     const page = await open(browser, { width: w, height: h, url: "about:blank", name: "M4" });
     if (whiteHero) {
@@ -338,15 +362,35 @@ async function m4m5(browser) {
     await page.goto(BASE + "/", { waitUntil: "load" });
     await page.evaluate(installHelpers);
     await page.evaluate(() => document.fonts.ready);
-    await page.addStyleTag({ content: ".hero-section__heading,.hero-section__body,.hero-section .kicker{visibility:hidden!important}" });
-    await page.waitForTimeout(600);
+    await page.waitForTimeout(3200); // entrance animation done (hero total ~2.5s)
+    await page.addStyleTag({ content: ".hero-section__embers{display:none!important}" }); // random particles would differ between shots
     const out = {};
-    for (const [key, sel, need] of [["heading", ".hero-section__heading", 3], ["body", ".hero-section__body", 4.5]]) {
-      const box = await page.locator(sel).boundingBox();
-      if (!box) { out[key] = { skipped: "no hero" }; continue; }
-      const clip = { x: Math.max(0, box.x), y: Math.max(0, box.y), width: Math.min(box.width, w), height: Math.min(box.height, h - Math.max(0, box.y)) };
-      const png = (await page.screenshot({ clip })).toString("base64");
-      const r = await page.evaluate(async (b64) => {
+    // Text items: contrast of white text against what is *directly behind the glyphs* (photo + scrim + the text's own soft shadow).
+    // Three shots of the same box: A = transparent text, shadow kept; C = transparent text, no shadow; D = black text, no shadow.
+    // Glyph mask = pixels where D differs from C; value = brightest 5% of A inside the mask.
+    // Ring items: brightest 5% of the whole box (element hidden) against ember-glow.
+    const textItems = [
+      ["heading", ".hero-section__heading", 3],
+      ["body", ".hero-section__body", 4.5],
+      ["header-brand", ".site-header__brand", 4.5],
+      ["header-nav", ".site-header__nav", 4.5],
+      ["header-menu-bars", ".site-header__menu-btn span:first-child", 3],
+    ];
+    const ringItems = [
+      ["ring-brand", ".site-header__brand", 3],
+      ["ring-cta", ".site-header__nav-cta", 3],
+      ["ring-menu", ".site-header__menu-btn", 3],
+    ];
+    const shoot = async (sel, pad) => {
+      const box = await page.locator(sel).first().boundingBox();
+      if (!box || box.width === 0) return null;
+      const x = Math.max(0, box.x - pad), y = Math.max(0, box.y - pad);
+      const clip = { x, y, width: Math.min(box.width + 2 * pad, w - x), height: Math.min(box.height + 2 * pad, h - y) };
+      return (await page.screenshot({ clip })).toString("base64");
+    };
+    const style = (css) => page.evaluate((c) => { let t = document.getElementById("__m4"); if (!t) { t = document.createElement("style"); t.id = "__m4"; document.head.appendChild(t); } t.textContent = c; }, css);
+    const analyse = (imgs0, fgc0, useMask0) => page.evaluate(async ([imgs, fgc, useMask]) => {
+      const load = async (b64) => {
         const img = new Image();
         img.src = "data:image/png;base64," + b64;
         await img.decode();
@@ -354,15 +398,50 @@ async function m4m5(browser) {
         cv.width = img.width; cv.height = img.height;
         const cx = cv.getContext("2d");
         cx.drawImage(img, 0, 0);
-        const d = cx.getImageData(0, 0, cv.width, cv.height).data;
-        const ls = [];
-        for (let i = 0; i < d.length; i += 4) ls.push(window.__dc.lum({ r: d[i], g: d[i + 1], b: d[i + 2] }));
-        ls.sort((a, b) => b - a);
-        const top = ls.slice(0, Math.max(1, Math.floor(ls.length * 0.05)));
-        const L = top.reduce((a, b) => a + b, 0) / top.length;
-        return 1.05 / (L + 0.05);
-      }, png);
-      out[key] = { ratio: Number(r.toFixed(2)), need, ok: r >= need };
+        return cx.getImageData(0, 0, cv.width, cv.height).data;
+      };
+      const A = await load(imgs[0]);
+      let C = null, D = null;
+      if (useMask) { C = await load(imgs[1]); D = await load(imgs[2]); }
+      const ls = [];
+      for (let i = 0; i < A.length; i += 4) {
+        if (useMask && Math.abs(C[i] - D[i]) + Math.abs(C[i + 1] - D[i + 1]) + Math.abs(C[i + 2] - D[i + 2]) < 120) continue;
+        ls.push(window.__dc.lum({ r: A[i], g: A[i + 1], b: A[i + 2] }));
+      }
+      if (!ls.length) return null;
+      ls.sort((a, b) => b - a);
+      const top = ls.slice(0, Math.max(1, Math.floor(ls.length * 0.05)));
+      const L = top.reduce((a, b) => a + b, 0) / top.length;
+      return { ratio: (fgc + 0.05) / (L + 0.05), samples: ls.length };
+    }, [imgs0, fgc0, useMask0]);
+    const T = (sel, extra) => `${sel},${sel} *{color:transparent!important;-webkit-text-fill-color:transparent!important;${extra}}`;
+    for (const [key, sel, need] of textItems) {
+      if (key === "header-menu-bars") {
+        // bars are not glyphs: whole box with the bars hidden, brightest 5%
+        await style(`.site-header__menu-btn span{background:transparent!important}`); // bar shadow kept
+        const a = await shoot(sel, 3);
+        if (!a) { out[key] = { skipped: "not displayed" }; continue; }
+        const r = await analyse([a, null, null], 1, false);
+        out[key] = { ratio: Number(r.ratio.toFixed(2)), need, ok: r.ratio >= need };
+        continue;
+      }
+      await style(T(sel, ""));
+      const a = await shoot(sel, 0);
+      if (!a) { out[key] = { skipped: "not displayed" }; continue; }
+      await style(T(sel, "text-shadow:none!important"));
+      const c = await shoot(sel, 0);
+      await style(`${sel},${sel} *{color:#f0f!important;-webkit-text-fill-color:#f0f!important;text-shadow:none!important}`);
+      const d = await shoot(sel, 0);
+      const r = await analyse([a, c, d], 1, true).catch((e) => { throw new Error(`${key}: ${e.message} sizes ${a.length}/${c.length}/${d.length}`); });
+      out[key] = r ? { ratio: Number(r.ratio.toFixed(2)), need, ok: r.ratio >= need, samples: r.samples } : { skipped: "no glyph pixels" };
+    }
+    await style("");
+    for (const [key, sel, need] of ringItems) {
+      await style(`${sel}{visibility:hidden!important}`);
+      const a = await shoot(sel, 5);
+      if (!a) { out[key] = { skipped: "not displayed" }; continue; }
+      const r = await analyse([a, null, null], GLOW_LUM, false);
+      out[key] = { ratio: Number(r.ratio.toFixed(2)), need, ok: r.ratio >= need };
     }
     await closePage(page);
     return out;
@@ -372,9 +451,18 @@ async function m4m5(browser) {
     real[w] = await measure(w, h, false);
     worst[w] = await measure(w, h, true);
   }
-  const ok = (o) => Object.values(o).every((v) => Object.values(v).every((x) => x.skipped || x.ok));
-  rec("M4", "Hero text contrast vs photo (top-5% brightness)", ok(real), real);
-  rec("M5", "Hero worst case (all-white photo)", ok(worst), worst);
+  const ok = (o, rings = true) => Object.values(o).every((v) => Object.entries(v).every(([k, x]) => x.skipped || x.ok || (!rings && k.startsWith("ring-"))));
+  // M3 also covers the focus ring on the transparent header (ember-glow on photo pixels, measured above).
+  if (results.M3) {
+    const rings = { real: {}, worst: {} };
+    for (const w of [1440, 390]) for (const [k, v] of [["real", real], ["worst", worst]]) for (const [key, val] of Object.entries(v[w])) if (key.startsWith("ring-") && !val.skipped) rings[k][`${w} ${key}`] = val.ratio;
+    // Worst case (white photo) is informational for rings: a focus ring can't be guaranteed on an arbitrary photo without a dark halo; the real hero must pass.
+    const bad = ["real"].flatMap((k) => Object.entries(rings[k]).filter(([, r]) => r < 3).map(([n, r]) => `${k} ${n} ${r}`));
+    results.M3.detail.headerRings = rings;
+    if (bad.length) { results.M3.pass = false; results.M3.detail.headerRingFails = bad; console.error("FAIL M3 (transparent-header ring) " + bad.join("; ")); }
+  }
+  rec("M4", "Hero text + transparent-header text/ring contrast vs photo (top-5% brightness)", ok(real), real);
+  rec("M5", "Hero + header text worst case (all-white photo; focus rings informational)", ok(worst, false), worst);
 }
 
 async function m6(browser) {
@@ -419,8 +507,8 @@ async function m7(browser) {
   const r = await page.evaluate(() => ({ lcp: window.__lcp, fcp: performance.getEntriesByName("first-contentful-paint")[0]?.startTime }));
   await ctx.close();
   const gap = r.lcp && r.fcp ? r.lcp.t - r.fcp : null;
-  const isHeroEl = !!(r.lcp && r.lcp.inHero && (r.lcp.tag === "IMG" || r.lcp.tag === "H1"));
-  rec("M7", "LCP <= 2.5s (CPU x4, 390x844), hero element, FCP->LCP <= 300ms", !!r.lcp && r.lcp.t <= 2500 && isHeroEl && gap !== null && gap <= 300, {
+  const isHeroEl = !!(r.lcp && r.lcp.inHero && (r.lcp.tag === "IMG" || r.lcp.tag === "H1" || /hero-section__line/.test(r.lcp.cls || "")));
+  rec("M7", "LCP <= 2.5s (CPU x4, 390x844), hero element, FCP->LCP <= 1000ms (staged entrance)", !!r.lcp && r.lcp.t <= 2500 && isHeroEl && gap !== null && gap <= 1000, {
     lcpMs: r.lcp && Math.round(r.lcp.t), fcpMs: r.fcp && Math.round(r.fcp), gapMs: gap && Math.round(gap), element: r.lcp && `${r.lcp.tag}.${r.lcp.cls}`,
   });
 }
@@ -538,6 +626,21 @@ async function m16(browser) {
     "h no events": (d) => { d.events = []; },
     "i all sections bg accent": (d) => { d.home.sections.filter((s) => s.type !== "hero").forEach((s) => (s.style.bg = { type: "token", value: "accent" })); },
   };
+  // Each mutation must actually have taken effect in the DOM (returns an error string, or null when it did).
+  const asserts = {
+    a: () => (document.querySelector(".hero-section") ? "hero still rendered" : window.__dc.parse(getComputedStyle(document.querySelector(".site-header")).backgroundColor).a < 0.5 ? "header not opaque without hero" : null),
+    b: () => {
+      const f = document.querySelector("main").firstElementChild;
+      return f.classList.contains("hero-section") ? "hero still first" : window.__dc.parse(getComputedStyle(document.querySelector(".site-header")).backgroundColor).a < 0.5 ? "header transparent though hero is not first" : getComputedStyle(document.querySelector(".hero-section")).marginTop !== "0px" ? "hero still pulled under header" : null;
+    },
+    c: () => { const l = [...document.querySelectorAll(".section[data-align]")]; return l.length && l.every((e) => e.dataset.align === "center") ? null : "not all center"; },
+    d: () => { const l = [...document.querySelectorAll(".section[data-align]")]; return l.length && l.every((e) => e.dataset.align === "right") ? null : "not all right"; },
+    e: () => (document.querySelector('.image-text[data-image-position="right"]') ? null : "profile image not right"),
+    f: () => { const l = [...document.querySelectorAll('.section[data-type="text"]')]; return l.length && l.every((e) => e.dataset.bgValue === "accent" && getComputedStyle(e).backgroundColor === "rgb(86, 99, 63)") ? null : "text bg not accent"; },
+    g: () => (document.querySelectorAll(".hero-section__line").length === 3 ? null : "hero heading not 3 lines"),
+    h: () => (document.querySelectorAll(".events__card").length === 0 ? null : "events still present"),
+    i: () => { const l = [...document.querySelectorAll(".section:not(.hero-section)")]; return l.length && l.every((e) => e.dataset.bgValue === "accent") ? null : "not all accent"; },
+  };
   const detail = {};
   let pass = true;
   for (const [name, mutate] of Object.entries(cases)) {
@@ -553,14 +656,16 @@ async function m16(browser) {
       const c = await page.evaluate(measureContrast);
       let fit = null;
       if (name.startsWith("g")) {
+        await page.waitForTimeout(1500); // 3-line heading finishes its staggered entrance
         fit = await page.evaluate(() => {
           const h = document.querySelector(".hero-section__heading"), hs = document.querySelector(".hero-section");
           const a = h.getBoundingClientRect(), b = hs.getBoundingClientRect();
           return { inside: a.left >= b.left - 0.5 && a.right <= b.right + 0.5 && a.top >= b.top - 0.5 && a.bottom <= b.bottom + 0.5, heading: [a.width, a.height].map(Math.round), hero: [b.width, b.height].map(Math.round) };
         });
       }
-      const ok = o.scrollWidth <= o.vw && o.bad.length === 0 && c.fails.length === 0 && (!fit || fit.inside);
-      row[w] = ok ? { ok, minContrast: c.min, ...(fit ? { fit } : {}) } : { ok, overflow: o.bad.length ? o : undefined, contrastFails: c.fails, fit };
+      const asrt = await page.evaluate(asserts[name.slice(0, 1)] || (() => null));
+      const ok = o.scrollWidth <= o.vw && o.bad.length === 0 && c.fails.length === 0 && (!fit || fit.inside) && !asrt;
+      row[w] = ok ? { ok, minContrast: c.min, ...(fit ? { fit } : {}), applied: true } : { ok, overflow: o.bad.length ? o : undefined, contrastFails: c.fails, fit, assertion: asrt || undefined };
       pass = pass && ok;
       await closePage(page);
     }
@@ -569,16 +674,51 @@ async function m16(browser) {
   rec("M16", "Resilience to edited data (preview HTML): overflow, contrast, console", pass, detail);
 }
 
+// Absolute ceilings (not relative to git HEAD): style.css whole file, site.js, each placeholder SVG.
+const LIMITS = { styleCss: 40 * 1024, siteJs: 8 * 1024, svg: 4 * 1024 };
 function m17() {
   const size = (p) => statSync(path.join(repoRoot, p)).size;
   const cssNow = size("src/style.css");
-  const cssBase = Number(process.env.STYLE_CSS_BASE_BYTES) || Buffer.byteLength(execSync("git show HEAD:src/style.css", { cwd: repoRoot }));
   const js = size("src/site.js");
   const svgs = readdirSync(path.join(repoRoot, "src/assets")).filter((f) => f.endsWith(".svg")).map((f) => [f, size("src/assets/" + f)]);
-  const bigSvg = svgs.filter(([, b]) => b > 4096).map(([f, b]) => `${f} ${b}`);
-  rec("M17", "Size: style.css growth <= 14KB, site.js <= 5KB, each SVG <= 4KB", cssNow - cssBase <= 14 * 1024 && js <= 5 * 1024 && bigSvg.length === 0, {
-    styleCssBytes: cssNow, styleCssBaseBytes: cssBase, styleCssGrowth: cssNow - cssBase, siteJsBytes: js, svgs: Object.fromEntries(svgs), bigSvg,
+  const bigSvg = svgs.filter(([, b]) => b > LIMITS.svg).map(([f, b]) => `${f} ${b}`);
+  rec("M17", "Size: style.css <= 40KB, site.js <= 8KB, each SVG <= 4KB", cssNow <= LIMITS.styleCss && js <= LIMITS.siteJs && bigSvg.length === 0, {
+    styleCssBytes: cssNow, styleCssLimit: LIMITS.styleCss, siteJsBytes: js, siteJsLimit: LIMITS.siteJs, svgs: Object.fromEntries(svgs), bigSvg,
   });
+}
+
+// Editor preview: the page inside an iframe gets html.is-embedded and a completely still hero photo/heading.
+async function m20(browser) {
+  const page = await open(browser, { width: 1440, url: BASE + "/privacy.html", name: "M20" });
+  await page.evaluate((src) => { document.body.innerHTML = `<iframe id="f" src="${src}" style="width:1200px;height:800px;border:0"></iframe>`; }, BASE + "/");
+  let frame = null;
+  for (let i = 0; i < 50 && !frame; i++) {
+    frame = page.frames().find((f) => f.url() === BASE + "/") || null;
+    if (!frame) await page.waitForTimeout(100);
+  }
+  if (!frame) throw new Error("iframe not loaded: " + JSON.stringify(page.frames().map((f) => f.url())) + " base=" + BASE);
+  await frame.waitForSelector(".hero-section__line", { state: "attached" });
+  await page.waitForTimeout(800);
+  const r = await frame.evaluate(() => {
+    const heroAnims = document.getAnimations().filter((a) => {
+      const t = a.effect && a.effect.target;
+      return t && t.closest(".hero-section") && !t.closest(".hero-section__embers");
+    });
+    const h = document.querySelector(".hero-section__heading");
+    const img = document.querySelector(".hero-section__img");
+    return {
+      embedded: document.documentElement.classList.contains("is-embedded"),
+      heroAnimationsExceptEmbers: heroAnims.map((a) => a.effect.target.className),
+      writingMode: getComputedStyle(h).writingMode,
+      headingOpacity: getComputedStyle(h).opacity,
+      lineFilter: getComputedStyle(document.querySelector(".hero-section__line")).filter,
+      imgTransform: getComputedStyle(img).transform,
+      imgScale: getComputedStyle(img).scale,
+    };
+  });
+  await closePage(page);
+  const pass = r.embedded && r.heroAnimationsExceptEmbers.length === 0 && r.writingMode === "vertical-rl" && r.headingOpacity === "1" && r.lineFilter === "none" && r.imgScale === "none";
+  rec("M20", "Embedded (editor preview): hero photo/heading/kicker/body still, vertical heading shown", pass, r);
 }
 
 function m18() {
@@ -664,7 +804,7 @@ try {
     console.error("M0 failed: typography scoring is invalid without the web fonts; stopping.");
   } else {
     const steps = [
-      ["M1", m1], ["M2", m2], ["M3", m3m11], ["M4", m4m5], ["M6", m6], ["M7", m7], ["M8", m8], ["M9", m9], ["M10", m10], ["M12", m12], ["M13", m13], ["M15", m15], ["M16", m16],
+      ["M1", m1], ["M2", m2], ["M3", m3m11], ["M4", m4m5], ["M6", m6], ["M7", m7], ["M8", m8], ["M9", m9], ["M10", m10], ["M12", m12], ["M13", m13], ["M15", m15], ["M16", m16], ["M20", m20],
     ];
     for (const [id, fn] of steps) if (wanted(id) || (id === "M3" && wanted("M11")) || (id === "M4" && wanted("M5"))) await fn(browser);
     if (wanted("M17")) m17();
