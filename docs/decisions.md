@@ -651,6 +651,29 @@ T-021f（ヒーローSCROLLインジケーター削除）マージ後のmainを�
 
 ---
 
+## D-030: T-024、保守一括（表示不具合・CI順序・セキュリティヘッダー・ARIA・イベント振り分け）
+
+- 日付: 2026-09-30
+- 状態: 採用
+
+### 原因と対応
+1. PC幅でタブバー表示: `@media(min-width:820px){.mobile-tabs{display:none}}`が後方の無条件`.mobile-tabs{display:flex}`にカスケード順で負けていた。非表示指定を`.mobile-tabs`定義の後ろへ移動。
+2. スマホでフッター最下部が隠れる: タブバー分の余白が`main`の`padding-bottom`のみでフッターに効かなかった。`body`の`padding-bottom`へ移動（heroの`min-height`調整は変更なし）。
+3. ヘッダー/フッター左端ずれ: `.site-footer`が左右に`--gut`を持つ一方、`.site-footer__inner`は`max-width:1120px`のみで、ヘッダー（inner側に`--gut`）と列がずれていた。footer自身は縦paddingのみ、`__inner`に`padding:0 var(--gut)`。
+4. CI: build→testに入れ替え（`render.test.js`の`_site`一致テストがCIで常にスキップされていた）。
+5. `netlify.toml`にヘッダー追加。全体: nosniff / Referrer-Policy / `X-Frame-Options: DENY`。`/editor/*`はCSP。許可: `default-src 'self'`、`script-src 'self' 'unsafe-inline' 'unsafe-eval'`（プレビューのsrcdoc iframeがCSPを継承しインラインsite.js・base.njkのonclickを使うため`unsafe-inline`、nunjucksがブラウザ内で`new Function`するため`unsafe-eval`。実測でeval無しだとプレビューが空になった）、`style-src`に`'unsafe-inline'`とfonts.googleapis.com、`font-src` fonts.gstatic.com、`img-src`に`data: blob:`と本番ドメイン（`<base href>`）、`connect-src 'self' https://api.github.com`（OAuthのgithub.comはトップレベル遷移でconnect-src対象外、トークン交換は自サイトのfunction）、`object-src 'none'`、`base-uri 'self'`＋本番ドメイン、`form-action 'self'`、`frame-ancestors 'none'`。
+6. ギャラリーの`role="tablist"`を`role="group"`へ（中身は`aria-pressed`トグルボタン）。
+7. イベント振り分け: ビルド日基準のままHTMLに予定カード・過去行の両形式を出力（`data-date`付与、本来表示しない側は`hidden`）し、`site.js`が閲覧者のローカル今日で切替（予定0件なら「開催予定はありません」を表示）。`deriveEvents`の予定側に`archiveDateDisplay`を追加（既存フィールドは不変）。過去行は「予定の逆順→過去」の順で日付降順を維持。
+
+### 検証
+- `npm run build`・`npm test`91件グリーン（CIと同順）。
+- Playwright（1440/1024/820/819/390/375）で、820以上は`.mobile-tabs`が`display:none`・819以下は表示、最下部で`.site-footer__copyright`下端がタブバー上端より上、PC幅でヘッダー/フッターのロゴ左端x一致（216/56/45）、ヒーロー本文下端がタブバー上端より上、コンソールエラーなし。
+- `page.clock`で2027-06-01に固定して閲覧すると予定カード0件・過去行5件・空メッセージ表示。現在日では予定2件・過去3件。
+- CSPは同ヘッダーを付けたローカル配信で、/editor/のログイン画面、GitHub API/本番画像をモックした擬似セッションでのプレビュー表示（イベント・メニュー開閉含む）、トップページにCSP違反が無いことを確認。Netlify本番での実配信は未検証。
+- Reviewer承認（必須修正なし）。推奨: 本番デプロイ後に/editor/でログイン→プレビュー→保存のCSP実動作、およびプレビュー内リンククリック時の挙動（`X-Frame-Options: DENY`により本番URLへの遷移は空白表示になる。編集にはページ内スクロールのみで実害は小さい）を確認する。
+
+---
+
 ## D-031: T-025、編集アプリでキャンドルの名前・ローマ字・説明を編集可能にする
 
 - 日付: 2026-09-30

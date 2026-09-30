@@ -16,6 +16,9 @@ function archiveDateDisplay(iso) {
   return iso.replaceAll("-", ".");
 }
 
+// Both lists are rendered in both card and archive-row form (events.njk) and
+// site.js re-sorts them by the viewer's own date, so upcoming items also carry
+// archiveDateDisplay for the case where they have passed since the build.
 // isPast is not stored in events.json; it is derived here from `date` vs
 // `todayIso` (defaults to today, but is injectable so this stays testable
 // and reproducible).
@@ -23,7 +26,12 @@ export function deriveEvents(events, todayIso = new Date().toISOString().slice(0
   const upcoming = events
     .filter((e) => e.date >= todayIso)
     .sort((a, b) => a.date.localeCompare(b.date))
-    .map((e) => ({ ...e, kindLabel: KIND_LABEL[e.kind] || e.kind, dateDisplay: dateDisplay(e.date) }));
+    .map((e) => ({
+      ...e,
+      kindLabel: KIND_LABEL[e.kind] || e.kind,
+      dateDisplay: dateDisplay(e.date),
+      archiveDateDisplay: archiveDateDisplay(e.date),
+    }));
 
   const past = events
     .filter((e) => e.date < todayIso)

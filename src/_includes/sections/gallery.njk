@@ -5,7 +5,7 @@
         {% if section.props.kicker %}<p class="kicker">{{ section.props.kicker }}</p>{% endif %}
         <h2>{{ section.props.heading }}</h2>
       </div>
-      <div class="gallery__tabs" role="tablist" aria-label="ギャラリーの絞り込み">
+      <div class="gallery__tabs" role="group" aria-label="ギャラリーの絞り込み">
         <button type="button" class="gallery__tab" data-gallery-filter="all" aria-pressed="true">すべて</button>
         <button type="button" class="gallery__tab" data-gallery-filter="making" aria-pressed="false">制作風景</button>
         <button type="button" class="gallery__tab" data-gallery-filter="event" aria-pressed="false">イベント出店</button>
