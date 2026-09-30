@@ -97,106 +97,106 @@
     {
       "id": "hero1",
       "file": "hero.svg",
-      "w": 1440,
-      "h": 1440,
+      "w": 1600,
+      "h": 1600,
       "alt": "トップの写真準備中"
     },
     {
       "id": "profile1",
-      "file": "hero.svg",
-      "w": 1440,
-      "h": 1440,
+      "file": "placeholder-portrait.svg",
+      "w": 1200,
+      "h": 1600,
       "alt": "プロフィール写真準備中"
     },
     {
       "id": "candle1",
-      "file": "hero.svg",
-      "w": 1440,
-      "h": 1440,
+      "file": "placeholder-candle-1.svg",
+      "w": 1200,
+      "h": 1200,
       "alt": "白木蓮 画像準備中"
     },
     {
       "id": "candle2",
-      "file": "hero.svg",
-      "w": 1440,
-      "h": 1440,
+      "file": "placeholder-candle-2.svg",
+      "w": 1200,
+      "h": 1200,
       "alt": "苔と雨 画像準備中"
     },
     {
       "id": "candle3",
-      "file": "hero.svg",
-      "w": 1440,
-      "h": 1440,
+      "file": "placeholder-candle-3.svg",
+      "w": 1200,
+      "h": 1200,
       "alt": "陽だまりの麻 画像準備中"
     },
     {
       "id": "candle4",
-      "file": "hero.svg",
-      "w": 1440,
-      "h": 1440,
+      "file": "placeholder-candle-4.svg",
+      "w": 1200,
+      "h": 1200,
       "alt": "夜の柑橘 画像準備中"
     },
     {
       "id": "candle5",
-      "file": "hero.svg",
-      "w": 1440,
-      "h": 1440,
+      "file": "placeholder-candle-5.svg",
+      "w": 1200,
+      "h": 1200,
       "alt": "灰と蜜 画像準備中"
     },
     {
       "id": "gallery1",
-      "file": "hero.svg",
-      "w": 1440,
-      "h": 1440,
+      "file": "placeholder-scene-a.svg",
+      "w": 1200,
+      "h": 1600,
       "alt": "制作風景 画像準備中"
     },
     {
       "id": "gallery2",
-      "file": "hero.svg",
-      "w": 1440,
-      "h": 1440,
+      "file": "placeholder-scene-b.svg",
+      "w": 1200,
+      "h": 1600,
       "alt": "制作風景 画像準備中"
     },
     {
       "id": "gallery3",
-      "file": "hero.svg",
-      "w": 1440,
-      "h": 1440,
+      "file": "placeholder-scene-c.svg",
+      "w": 1200,
+      "h": 1600,
       "alt": "イベント出店 画像準備中"
     },
     {
       "id": "gallery4",
-      "file": "hero.svg",
-      "w": 1440,
-      "h": 1440,
+      "file": "placeholder-scene-b.svg",
+      "w": 1200,
+      "h": 1600,
       "alt": "ワークショップ 画像準備中"
     },
     {
       "id": "gallery5",
-      "file": "hero.svg",
-      "w": 1440,
-      "h": 1440,
+      "file": "placeholder-scene-a.svg",
+      "w": 1200,
+      "h": 1600,
       "alt": "制作風景 画像準備中"
     },
     {
       "id": "gallery6",
-      "file": "hero.svg",
-      "w": 1440,
-      "h": 1440,
+      "file": "placeholder-scene-c.svg",
+      "w": 1200,
+      "h": 1600,
       "alt": "イベント出店 画像準備中"
     },
     {
       "id": "gallery7",
-      "file": "hero.svg",
-      "w": 1440,
-      "h": 1440,
+      "file": "placeholder-scene-b.svg",
+      "w": 1200,
+      "h": 1600,
       "alt": "ワークショップ 画像準備中"
     },
     {
       "id": "gallery8",
-      "file": "hero.svg",
-      "w": 1440,
-      "h": 1440,
+      "file": "placeholder-scene-a.svg",
+      "w": 1200,
+      "h": 1600,
       "alt": "イベント出店 画像準備中"
     }
   ]
