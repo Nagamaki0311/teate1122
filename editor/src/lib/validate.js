@@ -5,7 +5,7 @@
 import { KNOWN_SECTION_TYPES, headingIsMultiline, isValidFocal } from "./schema.js";
 
 const EVENT_KINDS = new Set(["event", "workshop"]);
-const ASSET_FILE = /^(hero\.svg|photos\/[a-z0-9][a-z0-9-]*\.(webp|jpg))$/;
+const ASSET_FILE = /^(hero\.svg|placeholder-[a-z0-9-]+\.svg|og-image\.jpg|photos\/[a-z0-9][a-z0-9-]*\.(webp|jpg))$/;
 
 function isRealDate(iso) {
   const m = typeof iso === "string" ? /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso) : null;
@@ -154,7 +154,7 @@ export function validateSite(site, context = {}) {
     }
     if (!ASSET_FILE.test(a.file || "")) {
       errors.push(`${label}: file の形式が不正です ("${a.file}")`);
-    } else if (a.file !== "hero.svg") {
+    } else if (a.file.startsWith("photos/")) {
       const known = (originalAssetFiles && originalAssetFiles.has(a.file)) || (pendingAssetFiles && pendingAssetFiles.has(a.file));
       if (!known) {
         errors.push(`${label}: 参照先の画像が見つかりません（アップロードが未公開のまま再読み込みされた可能性があります）`);

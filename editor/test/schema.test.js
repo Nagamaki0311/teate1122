@@ -11,6 +11,7 @@ import {
   nextEventId,
   fieldsFor,
   KNOWN_SECTION_TYPES,
+  applyUploadedImage,
 } from "../src/lib/schema.js";
 
 test("only hero and text sections use an array (multiline) heading", () => {
@@ -80,4 +81,22 @@ test("fieldsFor returns [] for an unknown type and a field list for known types"
   for (const type of KNOWN_SECTION_TYPES) {
     assert.ok(fieldsFor(type).includes("heading"), `${type} should expose a heading field`);
   }
+});
+
+test("applyUploadedImage swaps only the targeted asset even when placeholders share a file", () => {
+  const site = {
+    assets: [
+      { id: "gallery1", file: "placeholder-scene-a.svg", w: 1200, h: 1600, alt: "a" },
+      { id: "gallery5", file: "placeholder-scene-a.svg", w: 1200, h: 1600, alt: "b" },
+    ],
+  };
+  const candles = [];
+  const home = { sections: [] };
+  const out = applyUploadedImage(
+    { home, site, candles },
+    { type: "candle-image", candleId: "none", assetId: "gallery1", alt: "new" },
+    { assetFile: "photos/gallery-20260930-01.webp", width: 800, height: 600 },
+  );
+  assert.equal(out.site.assets[0].file, "photos/gallery-20260930-01.webp");
+  assert.equal(out.site.assets[1].file, "placeholder-scene-a.svg");
 });

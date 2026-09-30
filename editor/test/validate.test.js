@@ -179,6 +179,26 @@ test("validateSite flags a malformed file value and non-positive w/h", () => {
   assert.ok(result.errors.some((e) => e.includes("w/h")));
 });
 
+test("validateSite accepts bundled placeholder and og-image files without an existence check", () => {
+  const site = {
+    assets: [
+      { id: "a1", file: "placeholder-portrait.svg", w: 1200, h: 1600, alt: "x" },
+      { id: "a2", file: "placeholder-candle-1.svg", w: 1200, h: 1200, alt: "x" },
+      { id: "a3", file: "og-image.jpg", w: 1200, h: 630, alt: "x" },
+    ],
+  };
+  const result = validateSite(site, { originalAssetFiles: new Set(), pendingAssetFiles: new Set() });
+  assert.deepEqual(result.errors, []);
+});
+
+test("validateSite rejects malformed bundled-image names", () => {
+  for (const file of ["../x.svg", "PLACEHOLDER.svg", "placeholder-.svg", "placeholder-A.svg", "placeholder-x.jpg", "placeholder-x.svg/../y", "og-image.svg", "sub/placeholder-x.svg"]) {
+    const site = { assets: [{ id: "a1", file, w: 1, h: 1, alt: "x" }] };
+    const result = validateSite(site, { originalAssetFiles: new Set(), pendingAssetFiles: new Set() });
+    assert.ok(result.errors.some((e) => e.includes("file の形式")), file);
+  }
+});
+
 test("validateSite flags duplicate asset ids", () => {
   const site = {
     assets: [
