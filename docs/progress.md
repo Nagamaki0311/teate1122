@@ -19,6 +19,24 @@
 
 ---
 
+## 2026-09-30 T-025: 編集アプリでキャンドルの文言を編集可能に
+
+### 実施内容
+- `editor/src/lib/changes.js`: ガードを許可フィールド方式に変更し、`assertOnlyEditableCandleFieldsChanged` に改名（id・配列長・順序は不変、許可は name/roman/note/image のみ）。
+- `editor/src/lib/validate.js`: name/roman/note を必須文字列として検証。
+- `editor/src/ui/SectionSheet.jsx`: キャンドルごとに名前・ローマ字・説明の入力欄を追加。`candleTexts` にバッファし、「この内容を反映」で1回だけ確定、キャンセル・×で破棄（他セクションと同じ挙動）。確定時は最新の candles props に文言だけを重ね、シート表示中にアップロードした写真を上書きしない。
+- `editor/src/ui/PublishTab.jsx`: 変更一覧のラベルを「キャンドル（文言・写真）」に変更。テスト2本を追加・更新。
+- Reviewer 1回目の必須指摘（キャンセルしても文言がドラフトに残る）を修正し、再レビューで承認。
+
+### 結果
+- `npm run build` 後の `npm test` 95件 pass。
+- DEV（Vite）+ Playwright で、キャンセル時に変化なし、反映でプレビュー・公開タブに反映、写真アップロード後の文言反映で両方保持、空欄で公開タブにエラー表示を確認。XSS（`<script>`等）はプレビュー・Eleventy出力ともエスケープされることを確認。
+
+### 次回開始位置
+- D-031 参照。
+
+---
+
 ## 2026-09-10 T-023: ヒーロー本文テキストの中央配置崩れ修正
 
 ### 実施内容

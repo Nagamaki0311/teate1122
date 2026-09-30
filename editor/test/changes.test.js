@@ -66,18 +66,40 @@ test("computeChanges allows site.json's assets to change freely", () => {
   assert.doesNotThrow(() => computeChanges({ home, events, site: edited, candles }, rawText));
 });
 
-test("computeChanges throws if candles.json changed a field other than image (structural guard)", () => {
+test("computeChanges allows editing a candle's name/roman/note", () => {
   const { home, events, site, candles, rawText } = baseFixtures();
-  const tampered = [{ ...candles[0], note: "書き換え" }];
-  assert.throws(() => computeChanges({ home, events, site, candles: tampered }, rawText), /image 以外/);
+  const edited = [{ ...candles[0], name: "新名", roman: "SHINMEI", note: "新しい説明" }];
+  const changes = computeChanges({ home, events, site, candles: edited }, rawText);
+  assert.deepEqual(changes.map((c) => c.path), ["site-data/candles.json"]);
 });
 
-test("computeChanges throws if candles.json entries were added, removed, or reordered", () => {
+test("computeChanges throws if a candle's id changes", () => {
+  const { home, events, site, candles, rawText } = baseFixtures();
+  assert.throws(() => computeChanges({ home, events, site, candles: [{ ...candles[0], id: "c9" }] }, rawText), /id変更/);
+});
+
+test("computeChanges throws if a candle gains an unknown key", () => {
+  const { home, events, site, candles, rawText } = baseFixtures();
+  assert.throws(() => computeChanges({ home, events, site, candles: [{ ...candles[0], price: 100 }] }, rawText), /以外のフィールド/);
+});
+
+test("computeChanges throws if candles are reordered", () => {
+  const { home, events, site, rawText } = baseFixtures();
+  const two = [
+    { id: "c1", name: "a", image: {} },
+    { id: "c2", name: "b", image: {} },
+  ];
+  const raw = { ...rawText, "site-data/candles.json": serializeJson(two) };
+  assert.throws(() => computeChanges({ home, events, site, candles: [two[1], two[0]] }, raw), /id変更|並べ替え/);
+});
+
+test("computeChanges throws if candles.json entries were added or removed", () => {
   const { home, events, site, candles, rawText } = baseFixtures();
   assert.throws(
     () => computeChanges({ home, events, site, candles: [...candles, { id: "c2" }] }, rawText),
     /追加・削除・並べ替え/,
   );
+  assert.throws(() => computeChanges({ home, events, site, candles: [] }, rawText), /追加・削除・並べ替え/);
 });
 
 test("computeChanges allows a candle's image field to change freely", () => {
