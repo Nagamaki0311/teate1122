@@ -45,3 +45,27 @@
   from = "/gallery"
   to = "/#gallery"
   status = 301
+
+# Security headers. frame-ancestors/X-Frame-Options block clickjacking of the
+# whole site; nosniff and the referrer policy are cheap defaults.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    X-Frame-Options = "DENY"
+
+# Editor app: it keeps a GitHub token (public_repo scope) in sessionStorage,
+# so this CSP is defense in depth against exfiltration. connect-src is the
+# strict part: only this site (the OAuth function) and the GitHub API.
+# 'unsafe-inline' is unavoidable: the preview is a srcdoc iframe that inherits
+# this policy and inlines site.js/style.css, and base.njk has inline onclick
+# handlers. 'unsafe-eval' is needed because the preview compiles the .njk
+# templates in the browser (nunjucks uses new Function). base-uri allows the production domain because the preview injects
+# <base href> so relative image URLs resolve there. Google Fonts and blob:
+# (staged photo uploads) are needed for the preview. GitHub OAuth is a
+# top-level navigation, which CSP connect-src does not restrict.
+[[headers]]
+  for = "/editor/*"
+  [headers.values]
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https://teate1122-candle.nk-pr.com; connect-src 'self' https://api.github.com; object-src 'none'; base-uri 'self' https://teate1122-candle.nk-pr.com; form-action 'self'; frame-ancestors 'none'"

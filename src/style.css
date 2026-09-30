@@ -213,6 +213,7 @@ a:hover { color: var(--color-ember); }
 .events__card-what h3 { margin: 0 0 10px; font-size: 19px; letter-spacing: .12em; }
 .events__place, .events__desc { margin: 0 0 6px; font-size: 13px; line-height: 2.1; color: var(--color-text-muted); }
 .events__empty { color: var(--color-text-muted); font-size: 14px; }
+.events__card[hidden], .events__archive-row[hidden], .events__empty[hidden] { display: none; }
 .events__archive-row { display: flex; flex-wrap: wrap; gap: 6px 22px; align-items: baseline; padding: 18px 4px; border-top: 1px solid var(--color-line); }
 .events__archive-date { font-size: 12.5px; letter-spacing: .1em; color: var(--color-text-muted); min-width: 8em; }
 .events__archive-title { font-size: 14px; letter-spacing: .08em; }
@@ -261,7 +262,6 @@ a:hover { color: var(--color-ember); }
 @media (min-width: 820px) {
   .site-header__nav { display: flex; }
   .site-header__menu-btn { display: none; }
-  .mobile-tabs { display: none; }
 }
 
 /* mobile menu dialog */
@@ -274,8 +274,8 @@ a:hover { color: var(--color-ember); }
 .mobile-menu__cta { color: var(--color-accent) !important; }
 
 /* footer */
-.site-footer { background: var(--color-bg); border-top: 1px solid var(--color-line); padding: clamp(44px, 6vw, 72px) var(--gut); }
-.site-footer__inner { max-width: 1120px; margin: 0 auto; display: flex; flex-wrap: wrap; gap: 28px 40px; align-items: flex-end; justify-content: space-between; }
+.site-footer { background: var(--color-bg); border-top: 1px solid var(--color-line); padding: clamp(44px, 6vw, 72px) 0; }
+.site-footer__inner { max-width: 1120px; margin: 0 auto; padding: 0 var(--gut); display: flex; flex-wrap: wrap; gap: 28px 40px; align-items: flex-end; justify-content: space-between; }
 .site-footer__brand { margin: 0 0 10px; font-family: var(--font-heading); font-size: 17px; letter-spacing: .24em; }
 .site-footer__tagline { margin: 0; font-size: 12.5px; line-height: 2; color: var(--color-text-muted); }
 .site-footer__links { display: flex; flex-direction: column; gap: 10px; align-items: flex-start; }
@@ -287,6 +287,12 @@ a:hover { color: var(--color-ember); }
 .mobile-tabs { position: fixed; left: 0; right: 0; bottom: 0; z-index: 50; display: flex; justify-content: space-around; background: rgba(249, 244, 237, .93); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-top: 1px solid var(--color-line); padding: 6px 8px calc(6px + env(safe-area-inset-bottom)); }
 .mobile-tabs__item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 8px 4px; min-height: 44px; text-decoration: none; color: var(--color-text-muted); font-size: 10.5px; letter-spacing: .08em; }
 .mobile-tabs__item--accent { color: var(--color-accent); }
+/* Declared after .mobile-tabs so the cascade lets it win at desktop width. */
+@media (min-width: 820px) {
+  .mobile-tabs { display: none; }
+}
 @media (max-width: 819px) {
-  main { display: block; padding-bottom: calc(56px + env(safe-area-inset-bottom)); }
+  main { display: block; }
+  /* Reserve the tab bar's height on body (not main) so the footer below main isn't covered either. */
+  body { padding-bottom: calc(56px + env(safe-area-inset-bottom)); }
 }

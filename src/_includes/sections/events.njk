@@ -7,7 +7,7 @@
     </div>
     <p class="events__group-label" data-reveal>UPCOMING ── 開催予定</p>
     <div class="events__list">
-      {% for e in events.upcoming %}<article class="events__card" data-reveal>
+      {% for e in events.upcoming %}<article class="events__card" data-reveal data-date="{{ e.date }}">
         <div class="events__card-when">
           <span class="events__badge" data-kind="{{ e.kind }}">{{ e.kindLabel }}</span>
           <p class="events__date">{{ e.dateDisplay }}</p>
@@ -19,11 +19,15 @@
           {% if e.body %}<p class="events__desc">{{ e.body }}</p>{% endif %}
         </div>
       </article>
-      {% else %}<p class="events__empty">現在、開催予定はありません。</p>
-      {% endfor %}</div>
+      {% endfor %}<p class="events__empty"{% if events.upcoming.length %} hidden{% endif %}>現在、開催予定はありません。</p></div>
     <p class="events__group-label events__group-label--muted" data-reveal>ARCHIVE ── これまで</p>
     <div class="events__archive">
-      {% for e in events.past %}<div class="events__archive-row" data-reveal>
+      {% for e in events.upcoming | reverse %}<div class="events__archive-row" data-reveal data-date="{{ e.date }}" hidden>
+        <span class="events__archive-date">{{ e.archiveDateDisplay }}</span>
+        <span class="events__archive-title">{{ e.title }}</span>
+        <span class="events__archive-place">{{ e.place }}</span>
+      </div>
+      {% endfor %}{% for e in events.past %}<div class="events__archive-row" data-reveal data-date="{{ e.date }}">
         <span class="events__archive-date">{{ e.dateDisplay }}</span>
         <span class="events__archive-title">{{ e.title }}</span>
         <span class="events__archive-place">{{ e.place }}</span>
