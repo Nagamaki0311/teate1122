@@ -19,6 +19,23 @@
 
 ---
 
+## 2026-09-30 T-026 第4段: 本文セクション（D-032）
+
+### 実施内容
+- `src/style.css`: 理念（`--fs-statement`、灯芯モチーフ `.text-block::before`／`.text-block__divider`、privacy は小型）、プロフィール（1024px 以上で12列グリッド、上部アーチ＋細い枠、右画像対応、clip-path 登場）、キャンドル（PC 5列1段、819px 以下は scroll-snap カルーセル、hover は `(hover:hover) and (pointer:fine)` のみ）、イベント（罫線リスト、明朝の日付、線のバッジ）、キャンドル・イベントの intro 分割レイアウト（1024px 以上・left）、タグを線のピルに。
+- `candle-grid.njk`（`role="region"` と aria-label）、`site.js`（カルーセルが横スクロール可能なときだけ `tabIndex=0`）。
+- 第2段持ち越し: ヘッダーナビに `white-space:nowrap`（820〜900px で1文字折り返し解消）、透明ヘッダー上のフォーカス枠に暗い帯（box-shadow）を追加し、`design-check.mjs` の M3/M5 でフォーカス枠を実測・必須判定に復帰。
+
+### 結果
+- `npm run build` → `npm test` 98件 pass。design-check（`--with-tests`）M0〜M20 全項目合格（詳細は D-032）。
+- 編集アプリ互換（DEV、ポート5189、Playwright、GitHub API と公開ホストをローカルへルーティング）: プレビュー内に透明のまま残る要素0、`imagePosition: right` 反映、キャンドルの長文編集・イベント追加が反映、pageerror 0。
+- スクリーンショット（scratchpad）: `t026-s4-before-*`、`t026-s4-after-*`（full/各セクション 1440・390、swipe、profile-right、candles-longtext、privacy）、`t026-s4-editor-*`。
+
+### 次回開始位置
+- Reviewer レビュー後、第5段（ギャラリー・お問い合わせ・フッター）。
+
+---
+
 ## 2026-09-30 T-026 第2段: ヘッダー＋ヒーロー（D-032）
 
 ### 実施内容

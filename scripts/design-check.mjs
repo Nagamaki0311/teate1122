@@ -436,13 +436,44 @@ async function m4m5(browser) {
       out[key] = r ? { ratio: Number(r.ratio.toFixed(2)), need, ok: r.ratio >= need, samples: r.samples } : { skipped: "no glyph pixels" };
     }
     await style("");
+    // Focus rings are measured for real: the element is focused (ring + dark bands drawn), its own content made transparent,
+    // and two strips beside the ring are sampled at the centre of the top/bottom edges: inner (0.5-2.5px outside the border
+    // box, between element and ring) and outer (5.5-6.5px, inside the 5-7px band beyond the 3px-offset 2px ring). Each strip's brightest-5% mean is
+    // compared with the ember-glow ring colour; a ring needs 3:1 against both neighbours.
     for (const [key, sel, need] of ringItems) {
-      await style(`${sel}{visibility:hidden!important}`);
-      const a = await shoot(sel, 5);
-      if (!a) { out[key] = { skipped: "not displayed" }; continue; }
-      const r = await analyse([a, null, null], GLOW_LUM, false);
-      out[key] = { ratio: Number(r.ratio.toFixed(2)), need, ok: r.ratio >= need };
+      await style(`${sel},${sel} *{color:transparent!important;-webkit-text-fill-color:transparent!important;text-shadow:none!important}.site-header__menu-btn span{background:transparent!important;box-shadow:none!important}`);
+      const loc = page.locator(sel).first();
+      const box = await loc.boundingBox();
+      if (!box || box.width === 0) { out[key] = { skipped: "not displayed" }; continue; }
+      await loc.focus();
+      await page.waitForTimeout(500); // header colour transitions
+      const pad = 9;
+      const x0 = Math.max(0, Math.floor(box.x - pad)), y0 = Math.max(0, Math.floor(box.y - pad));
+      const clip = { x: x0, y: y0, width: Math.min(Math.ceil(box.width + 2 * pad), w - x0), height: Math.min(Math.ceil(box.height + 2 * pad), h - y0) };
+      const b64 = (await page.screenshot({ clip })).toString("base64");
+      const r = await page.evaluate(async ([b64, geom, fgc]) => {
+        const img = new Image(); img.src = "data:image/png;base64," + b64; await img.decode();
+        const cv = document.createElement("canvas"); cv.width = img.width; cv.height = img.height;
+        const cx = cv.getContext("2d"); cx.drawImage(img, 0, 0);
+        const px = (x, y) => cx.getImageData(Math.round(x), Math.round(y), 1, 1).data;
+        const strip = (d0, d1) => {
+          const ls = [];
+          for (let d = d0; d <= d1; d += 0.5) for (let f = 0.3; f <= 0.7; f += 0.02) for (const y of [geom.top - d, geom.bottom + d]) {
+            const p = px(geom.left + f * geom.w, y);
+            ls.push(window.__dc.lum({ r: p[0], g: p[1], b: p[2] }));
+          }
+          ls.sort((a, b) => b - a);
+          const top = ls.slice(0, Math.max(1, Math.floor(ls.length * 0.05)));
+          return top.reduce((a, b) => a + b, 0) / top.length;
+        };
+        const inner = strip(0.5, 2.5), outer = strip(5.5, 6.5);
+        return { inner: (fgc + 0.05) / (inner + 0.05), outer: (fgc + 0.05) / (outer + 0.05) };
+      }, [b64, { left: box.x - x0, top: box.y - y0, bottom: box.y - y0 + box.height, w: box.width }, GLOW_LUM]);
+      const ratio = Math.min(r.inner, r.outer);
+      out[key] = { ratio: Number(ratio.toFixed(2)), inner: Number(r.inner.toFixed(2)), outer: Number(r.outer.toFixed(2)), need, ok: ratio >= need };
+      await page.evaluate(() => document.activeElement && document.activeElement.blur());
     }
+    await style("");
     await closePage(page);
     return out;
   };
@@ -451,18 +482,18 @@ async function m4m5(browser) {
     real[w] = await measure(w, h, false);
     worst[w] = await measure(w, h, true);
   }
-  const ok = (o, rings = true) => Object.values(o).every((v) => Object.entries(v).every(([k, x]) => x.skipped || x.ok || (!rings && k.startsWith("ring-"))));
+  const ok = (o) => Object.values(o).every((v) => Object.values(v).every((x) => x.skipped || x.ok));
   // M3 also covers the focus ring on the transparent header (ember-glow on photo pixels, measured above).
   if (results.M3) {
     const rings = { real: {}, worst: {} };
     for (const w of [1440, 390]) for (const [k, v] of [["real", real], ["worst", worst]]) for (const [key, val] of Object.entries(v[w])) if (key.startsWith("ring-") && !val.skipped) rings[k][`${w} ${key}`] = val.ratio;
-    // Worst case (white photo) is informational for rings: a focus ring can't be guaranteed on an arbitrary photo without a dark halo; the real hero must pass.
-    const bad = ["real"].flatMap((k) => Object.entries(rings[k]).filter(([, r]) => r < 3).map(([n, r]) => `${k} ${n} ${r}`));
+    // Both the real hero photo and the all-white worst case must pass (dark bands beside the ring, see style.css).
+    const bad = ["real", "worst"].flatMap((k) => Object.entries(rings[k]).filter(([, r]) => r < 3).map(([n, r]) => `${k} ${n} ${r}`));
     results.M3.detail.headerRings = rings;
     if (bad.length) { results.M3.pass = false; results.M3.detail.headerRingFails = bad; console.error("FAIL M3 (transparent-header ring) " + bad.join("; ")); }
   }
   rec("M4", "Hero text + transparent-header text/ring contrast vs photo (top-5% brightness)", ok(real), real);
-  rec("M5", "Hero + header text worst case (all-white photo; focus rings informational)", ok(worst, false), worst);
+  rec("M5", "Hero + header text + focus rings worst case (all-white photo)", ok(worst), worst);
 }
 
 async function m6(browser) {

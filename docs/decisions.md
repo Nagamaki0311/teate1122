@@ -773,3 +773,20 @@ T-021f（ヒーローSCROLLインジケーター削除）マージ後のmainを�
 - 編集アプリの validate.js のファイル名パターンを `hero.svg | placeholder-*.svg | og-image.jpg | photos/…` に広げ、存在チェックは photos/ のみとした。これを広げないと編集アプリからの公開が全件エラーで止まる。og-image.jpg は第6段で追加する前提で先に許可した。github.js の書き込み許可は変更しない（同梱 SVG は編集アプリから書き込まない）。写真差し替えは asset id 基準のため、同じ SVG を共有する asset があっても他へ波及しないことをテストで担保した。
 - Reviewer 承認（パストラバーサル等 18 パターンの拒否、SVG に script/外部参照なし、site.json の差分が file/w/h のみであることを確認）。
 
+### D-032 追記: 第4段（本文セクション）
+- 理念: 見出し `--fs-statement`、段落 `--fs-lead`（id のあるホームのセクションのみ）。灯芯モチーフ（`.text-block::before` と `.text-block__divider`、線＋ember の点）。privacy（id なし）は小型（40px）で見出しサイズは通常のまま。登場は `clip-path` で上から伸びる（`html.js:not(.is-embedded)`、reduced-motion 以外）。
+- プロフィール: 1024px 以上で12列グリッド（画像 1/6・文章 7/13、右画像は 8/13・1/7）、上部アーチ＋outline の細い枠、タグは線のピル。登場の `clip-path` は枠（outline）が切れないよう `.image-text__media` ではなく img に掛け、`scale` プロパティ 1.1→1 を併用（編集アプリのズーム `transform` と独立）。
+- キャンドル: PC は `auto-fit, minmax(170px,1fr)`（コンテンツ幅 1008px で5列1段）、819px 以下は scroll-snap の横スワイプ（72vw、次のカードが見える）。`role="region"` と aria-label、横スクロール可能なときだけ `tabIndex=0`（resize で更新）。hover は `(hover:hover) and (pointer:fine)` のみ。1024px 以上・left では intro を 5fr/1fr/6fr に分割（イベントも同じ）。
+- イベント: カードをやめ罫線リスト、820px 以上で日付列 10〜15rem、日付は明朝 `--fs-numeral`、バッジは線のみ。T-024 の二重出力・`[hidden]`・日付補正は不変。accent 背景の「カードは元配色に戻す」対象から `.events__card` を外した（背景を持たなくなったため）。
+- 第2段持ち越し: ヘッダーナビに `white-space:nowrap`（820〜1024px で単行、はみ出しなし）。透明ヘッダー上のフォーカス枠は、ember-glow の枠の内側 0〜3px と外側 5〜7px に暗い帯（box-shadow、CTA は既存の白 inset を維持）。M3/M5 のフォーカス枠は、要素を実際にフォーカスして枠の内外の隣接画素と ember-glow の比を測る方式に変え、実写真・白一色の両方で必須判定に復帰（白一色でも内 13.2:1／外 約7.3:1）。
+
+### 計画から変えた点（第4段）
+- 灯芯の点は、線と点を別遅延にせず、1つの疑似要素の clip-path で上から同時に現れる形にした。
+- キャンドルのタイトル行は、170px 幅では名前とローマ字が横並びに収まらないため縦積みにし、ローマ字の `nowrap` をやめて `overflow-wrap:anywhere`。長い name/roman/note（T-025 の編集）でも折り返すだけで崩れない（1440・390 で確認）。
+- 820〜1023px のキャンドルは auto-fit により 3+2 段になる（計画どおり 819px 以下のみカルーセル）。
+- 過去分イベントの日付・題名は 14px（`--fs-small`、M19 のトークン規律のため 15px は使わない）。
+
+### 機械チェック結果（第4段）
+- M0〜M20 全項目合格（`npm run build` → `npm test` 98件 pass）。M4 フォーカス枠は実写真 13 前後、M5（白一色）は最小 7.3。
+- 編集アプリ互換（DEV、Playwright）: プレビュー内で透明のまま残る要素 0、`imagePosition:right` 反映、キャンドルの長文編集・イベント追加の反映、pageerror 0。
+
