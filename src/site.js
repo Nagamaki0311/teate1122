@@ -45,6 +45,17 @@
     ).observe(hero);
   }
 
+  // Candle carousel (narrow screens): focusable only while it can actually scroll, so keyboard users can scroll it.
+  var candleList = document.querySelector(".candle-grid__list");
+  if (candleList) {
+    var syncScroll = function () {
+      if (candleList.scrollWidth > candleList.clientWidth + 1) candleList.tabIndex = 0;
+      else candleList.removeAttribute("tabindex");
+    };
+    syncScroll();
+    window.addEventListener("resize", syncScroll);
+  }
+
   // Events: the build sorts upcoming/past by build date, so re-sort by the
   // viewer's local today. Cards (upcoming form) and archive rows (past form)
   // both exist for every upcoming event; only visibility is toggled.
