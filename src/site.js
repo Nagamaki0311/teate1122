@@ -15,6 +15,12 @@
       { rootMargin: "0px 0px -8% 0px", threshold: 0.08 }
     );
     document.querySelectorAll("[data-reveal]").forEach(function (el) {
+      // Stagger siblings that reveal together: 0/90/180/270ms by position among [data-reveal] siblings.
+      var i = 0;
+      for (var s = el.previousElementSibling; s; s = s.previousElementSibling) {
+        if (s.hasAttribute("data-reveal")) i++;
+      }
+      el.style.setProperty("--reveal-delay", (i % 4) * 90 + "ms");
       io.observe(el);
     });
   } else {

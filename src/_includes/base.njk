@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<script>(function(d){d.className+=' js'+(window.self!==window.top?' is-embedded':'')})(document.documentElement)</script>
 <title>{{ title or site.site.meta.title }}</title>
 <meta name="description" content="{{ description or site.site.meta.description }}">
 <link rel="icon" href="/favicon.svg">
@@ -13,10 +14,11 @@
 <meta property="og:url" content="{{ site.site.baseUrl }}{{ ogPath }}">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Old+Mincho:wght@400;500;600&amp;family=Noto+Sans+JP:wght@300;400;500&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Old+Mincho:wght@400&amp;family=Noto+Sans+JP:wght@400;500&amp;display=swap">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
+<a class="skip-link" href="#top">本文へ移動</a>
 <header class="site-header">
   <div class="site-header__inner">
     <a class="site-header__brand" href="/#top">teate<span class="site-header__brand-accent">1122</span></a>
