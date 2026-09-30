@@ -75,18 +75,39 @@
   var empty = document.querySelector(".events__empty");
   if (empty) empty.hidden = shown > 0;
 
-  // Gallery category tabs: show/hide items, no page reload.
+  // Footer glow: pause its infinite animation while the footer is off-screen.
+  var footer = document.querySelector(".site-footer");
+  if (footer && "IntersectionObserver" in window) {
+    new IntersectionObserver(function (entries) {
+      footer.toggleAttribute("data-paused", !entries[0].isIntersecting);
+    }).observe(footer);
+  }
+
+  // Gallery category tabs: show/hide items, no page reload. Where View Transitions exist
+  // (and motion is allowed) the photos glide to their new places.
   var tabs = document.querySelectorAll(".gallery__tab");
   var items = document.querySelectorAll(".gallery__item");
+  items.forEach(function (item, i) {
+    item.style.viewTransitionName = "gallery-item-" + i;
+  });
+  function apply(filter) {
+    tabs.forEach(function (t) {
+      t.setAttribute("aria-pressed", String(t.getAttribute("data-gallery-filter") === filter));
+    });
+    items.forEach(function (item) {
+      item.hidden = filter !== "all" && item.getAttribute("data-category") !== filter;
+    });
+  }
   tabs.forEach(function (tab) {
     tab.addEventListener("click", function () {
       var filter = tab.getAttribute("data-gallery-filter");
-      tabs.forEach(function (t) {
-        t.setAttribute("aria-pressed", String(t === tab));
-      });
-      items.forEach(function (item) {
-        item.hidden = filter !== "all" && item.getAttribute("data-category") !== filter;
-      });
+      if (document.startViewTransition && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        document.startViewTransition(function () {
+          apply(filter);
+        });
+      } else {
+        apply(filter);
+      }
     });
   });
 })();

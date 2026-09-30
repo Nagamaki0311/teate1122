@@ -790,3 +790,18 @@ T-021f（ヒーローSCROLLインジケーター削除）マージ後のmainを�
 - M0〜M20 全項目合格（`npm run build` → `npm test` 98件 pass）。M4 フォーカス枠は実写真 13 前後、M5（白一色）は最小 7.3。
 - 編集アプリ互換（DEV、Playwright）: プレビュー内で透明のまま残る要素 0、`imagePosition:right` 反映、キャンドルの長文編集・イベント追加の反映、pageerror 0。
 
+### D-032 追記: 第5段（ギャラリー・お問い合わせ・フッター）
+- ギャラリー: CSS 段組み（2/3/4列、820px・1200px）、`break-inside:avoid`、データの `ratio`/`[hidden]` を維持（hidden は段組みの流れから外れるので絞り込みで隙間ができない）。写真は clip-path で下から開く登場＋`scale` 1.08→1（`html.js:not(.is-embedded)`・reduced-motion 以外）、hover は `scale:1.05`（`(hover:hover) and (pointer:fine)`）。タブは 44px、選択中は塗り、他は `--color-line-strong` の細線、`data-align=center` では縦並び中央。`site.js` は絞り込みを `apply(filter)` に切り出し、各項目に `view-transition-name` を付け、`document.startViewTransition` があり reduced-motion でなければその中で実行（非対応はそのまま）。`::view-transition-group(*)` は .6s。
+- お問い合わせ: 900px 以上で 5fr/7fr（未満は1列）、入力欄は下線スタイル（`--fs-body`＝16px以上、line-height 1.6）、フォーカス時は下線を accent に（グローバルの outline も残す＝M11 のため）、select は `appearance:none`＋data URI の SVG 矢印、送信ボタンに `<span class="btn__arrow" aria-hidden="true">→</span>`（ホバーで `translate:4px 0`）、Instagram カードは細線枠。**Netlify Forms の属性（name="contact"、data-netlify、netlify-honeypot、form-name の hidden、各 name）は不変**。
+- フッター: `--color-night` 地、大きなブランド名（`--fs-footer-brand`、「1122」は ember-glow）、灯りの点（`.site-footer__brand::before`、4s の明滅。`html.js:not(.is-embedded)`・reduced-motion 以外。`site.js` が画面外で `data-paused` を付けて停止＝M15）、リンクは ember-glow、補足は on-night-muted、フォーカス枠は ember-glow。
+- 第1段持ち越しの解消: `--tabbar-h: 68px`（実測）を追加し、`.mobile-tabs` の高さ・`body` の下余白・モバイルのヒーロー min-height をこのトークンに統一（従来 56px）。フッターは `margin-bottom:-(tabbar+safe-area)` で body 下余白に食い込み、自身の padding-bottom にバー分を足す。T-024 の body 下余白の仕組みは維持。390/375/320 で © の下端がバー上端より上、フッター下端＝画面下端（色の帯なし）を実測。
+- 820〜1023px のキャンドルは `repeat(3, minmax(0,1fr))`（3＋2）。`--font-heading` のフォールバックは `'Zen Old Mincho','Hiragino Mincho ProN','Yu Mincho','Noto Serif JP',serif` に補った（新規フォント読み込みなし）。
+
+### 計画から変えた点（第5段）
+- ラベルは 13px ではなく `--fs-small`（14px。M19 のトークン規律）。
+- M17 の style.css 上限を 40KB → 48KB に引き上げ（第5段で 42KB。ホバー・登場演出・粒子の各ルールが増えたため。site.js は 4.5KB）。
+- フォーカス時、下線強調に加えてグローバルの outline も残した（M11 が全 Tab 停止で 2px 以上の枠を要求するため）。
+
+### 機械チェック結果（第5段）
+- `npm run build` → `npm test` 98件 pass。design-check（`--with-tests`）M0〜M20 全項目合格。
+- 編集アプリ互換（DEV、Playwright）: プレビュー内でギャラリー（2列・8枚）・お問い合わせ（form[name=contact][data-netlify]）・夜色フッターが表示、透明のまま残る要素 0（未登場は画面外の hidden 行とカルーセル外のカードのみ）、ギャラリー画像のアップロード差し替え（blob）とフォーカル調整（横位置80%）がプレビューに反映、pageerror 0。
