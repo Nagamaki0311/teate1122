@@ -19,6 +19,22 @@
 
 ---
 
+## 2026-09-30 T-026 第5段: ギャラリー・お問い合わせ・フッター（D-032）
+
+### 実施内容
+- `src/style.css`: ギャラリーを CSS 段組み（2/3/4列）に、登場・hover・タブ44px・center 対応。お問い合わせを 5fr/7fr・下線入力・select 矢印・Instagram 細線カードに。フッターを夜色（大きなブランド名、灯りの点）に。820〜1023px のキャンドルを3列に。`--tabbar-h`（68px）でタブバー・body 下余白・モバイルヒーローを統一し、フッターをバーの裏まで延ばして色の帯と © の隠れを解消。`--font-heading` のフォールバックを補強。
+- `contact-social.njk`（送信ボタンの矢印 `aria-hidden`。Netlify Forms の属性は不変）、`site.js`（`apply(filter)` 切り出し、View Transitions、フッター灯りの画面外停止）、`scripts/design-check.mjs`（M17 上限 style.css 48KB）。
+
+### 結果
+- `npm run build` → `npm test` 98件 pass。design-check（`--with-tests`）M0〜M20 全項目合格。
+- 編集アプリ互換（DEV、Playwright）: ギャラリー・お問い合わせ・フッターがプレビュー内に表示、画像アップロード差し替えとフォーカル調整が反映、透明のまま残る要素0、pageerror 0。
+- スクリーンショット（scratchpad）: `t026-s5-before-*`、`t026-s5-after-*`（full/gallery/gallery-filtered/contact/contact-focus/footer 1440・390、footer-320、candles-900、bottom-390）、`t026-s5-editor-*`。
+
+### 次回開始位置
+- Reviewer レビュー後、第6段（OGP＋総仕上げ）。
+
+---
+
 ## 2026-09-30 T-026 第4段: 本文セクション（D-032）
 
 ### 実施内容
