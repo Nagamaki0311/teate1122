@@ -174,6 +174,11 @@ export function validateCandles(candles, site) {
   const errors = [];
   candles.forEach((c, i) => {
     const label = c.id ? `candles[${i}] (${c.id})` : `candles[${i}]`;
+    for (const field of ["name", "roman", "note"]) {
+      if (typeof c[field] !== "string" || !c[field].trim()) {
+        errors.push(`${label}: ${field} が空です`);
+      }
+    }
     if (site) validateImageRef(c.image, site, label, errors, { altRequired: false });
   });
   return { ok: errors.length === 0, errors };

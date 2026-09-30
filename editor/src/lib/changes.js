@@ -19,7 +19,7 @@ export function serializeJson(value) {
 }
 
 // Structural guard (D-024 §2-1): the editor's UI only ever writes
-// site.json's `assets[]` and candles.json's per-entry `image`. This is a
+// site.json's `assets[]` and candles.json's per-entry `image`/`name`/`roman`/`note`. This is a
 // second line of defense on top of github.js's ALLOWED_PATHS/isAllowedPath
 // — even if a bug (or a crafted draft) changed theme/nav/copy in memory,
 // publish refuses to commit it rather than silently widening what this app
@@ -32,7 +32,17 @@ function assertOnlyAssetsChanged(originalSite, draftSite) {
   }
 }
 
-function assertOnlyCandleImagesChanged(originalCandles, draftCandles) {
+// Fields the editor may write on a candle (D-031). Everything else — id,
+// array length/order, any unknown key — must stay exactly as loaded.
+const EDITABLE_CANDLE_FIELDS = ["name", "roman", "note", "image"];
+
+function withoutEditable(candle) {
+  const rest = { ...candle };
+  for (const f of EDITABLE_CANDLE_FIELDS) delete rest[f];
+  return JSON.stringify(rest);
+}
+
+function assertOnlyEditableCandleFieldsChanged(originalCandles, draftCandles) {
   if (
     !Array.isArray(originalCandles) ||
     !Array.isArray(draftCandles) ||
@@ -43,10 +53,11 @@ function assertOnlyCandleImagesChanged(originalCandles, draftCandles) {
   for (let i = 0; i < originalCandles.length; i++) {
     const a = originalCandles[i];
     const b = draftCandles[i];
-    const before = JSON.stringify({ ...a, image: undefined });
-    const after = JSON.stringify({ ...b, image: undefined });
-    if (a.id !== b.id || before !== after) {
-      throw new Error(`candles.json: image 以外のフィールドが変更されています ("${a.id ?? i}")`);
+    if (a.id !== b.id) {
+      throw new Error(`candles.json: キャンドルの追加・削除・並べ替え・id変更はこの編集アプリではできません ("${a.id ?? i}")`);
+    }
+    if (withoutEditable(a) !== withoutEditable(b)) {
+      throw new Error(`candles.json: 名前・ローマ字・説明・写真以外のフィールドが変更されています ("${a.id ?? i}")`);
     }
   }
 }
@@ -63,7 +74,7 @@ export function computeChanges(draft, rawText) {
     candles: JSON.parse(rawText[PATHS.candles]),
   };
   assertOnlyAssetsChanged(original.site, draft.site);
-  assertOnlyCandleImagesChanged(original.candles, draft.candles);
+  assertOnlyEditableCandleFieldsChanged(original.candles, draft.candles);
 
   const candidates = [
     { path: PATHS.home, value: draft.home },

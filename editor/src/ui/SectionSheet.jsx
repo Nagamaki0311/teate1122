@@ -27,6 +27,15 @@ const FIELD_LABELS = {
   instagramNote: "Instagram補足",
 };
 
+// Candle name/roman/note are buffered in local state like the other text
+// fields and applied to the draft only on submit (D-031); photos still apply
+// immediately.
+const CANDLE_TEXT_FIELDS = [
+  ["name", "名前"],
+  ["roman", "ローマ字表記"],
+  ["note", "説明"],
+];
+
 const TEXTAREA_FIELDS = new Set(["heading", "body", "paragraphs"]);
 
 function toTextValues(section) {
@@ -74,6 +83,9 @@ export default function SectionSheet({
 }) {
   const dialogRef = useRef(null);
   const [values, setValues] = useState(() => toTextValues(section));
+  const [candleTexts, setCandleTexts] = useState(() =>
+    Object.fromEntries((candles || []).map((c) => [c.id, { name: c.name, roman: c.roman, note: c.note }])),
+  );
   // Per-field (keyed) busy/error state for photo uploads — a section can
   // have several photo fields (gallery/candle-grid) uploading independently.
   const [uploadState, setUploadState] = useState({});
@@ -89,6 +101,11 @@ export default function SectionSheet({
     // No preventDefault: this is a method="dialog" form, so submitting also
     // closes the dialog natively, which fires the onClose handler below.
     onSave(applyTextValues(section, values));
+    // Overlay only the text on the latest candles prop so photo edits made
+    // while the sheet was open (image) are kept, not overwritten by the buffer.
+    if (imageFieldsFor(section.type)?.kind === "candles") {
+      onCandlesChange((candles || []).map((x) => ({ ...x, ...candleTexts[x.id] })));
+    }
     void e;
   }
 
@@ -210,21 +227,32 @@ export default function SectionSheet({
 
           {imageMeta?.kind === "candles" &&
             (candles || []).map((c) => (
-              <ImageField
-                key={c.id}
-                label={c.name}
-                previewSrc={previewSrcFor(c.image?.assetId)}
-                previewAlt={c.name}
-                focal={c.image?.focal}
-                zoom={c.image?.zoom}
-                aspect="1 / 1"
-                altEditable={false}
-                busy={uploadState[`candle-${c.id}`]?.busy}
-                errorMessage={uploadState[`candle-${c.id}`]?.error}
-                onPickFile={(file) => handleUpload(`candle-${c.id}`, { type: "candle-image", candleId: c.id, assetId: c.image?.assetId }, c.name, file)}
-                onFocalChange={(focal) => handleFocalZoom({ type: "candle-image", candleId: c.id }, { focal })}
-                onZoomChange={(zoom) => handleFocalZoom({ type: "candle-image", candleId: c.id }, { zoom })}
-              />
+              <div key={c.id}>
+                <ImageField
+                  label={c.name}
+                  previewSrc={previewSrcFor(c.image?.assetId)}
+                  previewAlt={c.name}
+                  focal={c.image?.focal}
+                  zoom={c.image?.zoom}
+                  aspect="1 / 1"
+                  altEditable={false}
+                  busy={uploadState[`candle-${c.id}`]?.busy}
+                  errorMessage={uploadState[`candle-${c.id}`]?.error}
+                  onPickFile={(file) => handleUpload(`candle-${c.id}`, { type: "candle-image", candleId: c.id, assetId: c.image?.assetId }, c.name, file)}
+                  onFocalChange={(focal) => handleFocalZoom({ type: "candle-image", candleId: c.id }, { focal })}
+                  onZoomChange={(zoom) => handleFocalZoom({ type: "candle-image", candleId: c.id }, { zoom })}
+                />
+                {CANDLE_TEXT_FIELDS.map(([field, label]) => (
+                  <label className="field" key={field}>
+                    <span>{`${c.name}：${label}`}</span>
+                    <input
+                      type="text"
+                      value={candleTexts[c.id]?.[field] ?? ""}
+                      onChange={(e) => setCandleTexts((t) => ({ ...t, [c.id]: { ...t[c.id], [field]: e.target.value } }))}
+                    />
+                  </label>
+                ))}
+              </div>
             ))}
 
           {fields.map((field) => (

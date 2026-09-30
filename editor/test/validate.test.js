@@ -192,11 +192,23 @@ test("validateSite flags duplicate asset ids", () => {
 // --- validateCandles -----------------------------------------------------------
 
 test("validateCandles checks each candle's image ref but does not require alt", () => {
-  const good = validateCandles([{ id: "c1", image: { assetId: "hero1", focal: [0.5, 0.5], zoom: 1 } }], baseSite);
+  const good = validateCandles([{ id: "c1", name: "n", roman: "R", note: "x", image: { assetId: "hero1", focal: [0.5, 0.5], zoom: 1 } }], baseSite);
   assert.deepEqual(good, { ok: true, errors: [] });
 
-  const bad = validateCandles([{ id: "c1", image: { assetId: "missing", focal: [0.5, 0.5], zoom: 1 } }], baseSite);
+  const bad = validateCandles([{ id: "c1", name: "n", roman: "R", note: "x", image: { assetId: "missing", focal: [0.5, 0.5], zoom: 1 } }], baseSite);
   assert.equal(bad.ok, false);
+});
+
+test("validateCandles requires non-empty string name/roman/note", () => {
+  const image = { assetId: "hero1", focal: [0.5, 0.5], zoom: 1 };
+  const ok = { id: "c1", name: "n", roman: "R", note: "x", image };
+  for (const field of ["name", "roman", "note"]) {
+    for (const bad of ["", "  ", undefined, 5]) {
+      const r = validateCandles([{ ...ok, [field]: bad }], baseSite);
+      assert.equal(r.ok, false);
+      assert.ok(r.errors.some((e) => e.includes(field)));
+    }
+  }
 });
 
 test("validateAll merges home/events/site/candles errors and threads the reference-check context through", () => {
@@ -204,7 +216,7 @@ test("validateAll merges home/events/site/candles errors and threads the referen
     home: { sections: [baseSection()] },
     events: [{ id: "e1", kind: "event", date: "2026-10-18", title: "t" }],
     site: { assets: [{ id: "a1", file: "photos/gone.webp", w: 1, h: 1, alt: "x" }] },
-    candles: [{ id: "c1", image: { assetId: "a1", focal: [0.5, 0.5], zoom: 1 } }],
+    candles: [{ id: "c1", name: "n", roman: "R", note: "x", image: { assetId: "a1", focal: [0.5, 0.5], zoom: 1 } }],
   };
   const result = validateAll(draft, { originalAssetFiles: new Set(), pendingAssetFiles: new Set() });
   assert.equal(result.ok, false);

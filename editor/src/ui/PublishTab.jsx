@@ -7,7 +7,7 @@ const PATH_LABELS = {
   "site-data/pages/home.json": "ホームページの内容",
   "site-data/events.json": "日程",
   "site-data/site.json": "写真（assets）",
-  "site-data/candles.json": "キャンドルの写真",
+  "site-data/candles.json": "キャンドル（文言・写真）",
 };
 
 export default function PublishTab({ draft, rawText, headSha, token, pendingImages, onPublished, onReloadRequested }) {
