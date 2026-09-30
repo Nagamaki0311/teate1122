@@ -19,6 +19,31 @@
 
 ---
 
+## 2026-09-30 T-026 第2段: ヘッダー＋ヒーロー（D-032）
+
+### 実施内容
+- `src/style.css`: 縦組みヒーロー見出し、スクリム3層、登場演出・写真のゆらぎ（`scale`）・スクロール連動（is-embedded では無効）、透明ヘッダー（`:has()`、ヒーローが先頭のときのみ）、`--header-h` 60/72px、ナビの下線ホバー、スマホメニューの登場と連番、h1〜h3 の `text-wrap: balance`。
+- `src/_includes/sections/hero.njk`（行ごとの span、fetchpriority）、`base.njk`（メニューの `--i`、タブバー線幅 1.5）、`src/site.js`（ヒーロー observer が `data-solid` も切り替え）。
+- `scripts/design-check.mjs`: M17 絶対上限化、M16 DOM アサート、M3/M4/M5 を透明ヘッダー（文字・フォーカス枠）に拡張、M1 に header-h 一致、M20 新設。
+
+### 結果
+- `npm run build` → `npm test` 95件 pass。design-check（`--with-tests`）M0〜M20 全項目合格（数値は D-032 参照）。M4/M5 は必須合格（第1段では参考不合格だった）。
+- 編集アプリ互換（DEV、ポート5185、Playwright）: プレビュー iframe は `js is-embedded`、ヒーロー写真・見出し関連のアニメーション 0、縦組み見出し表示、ImageField のズーム 1.5・横位置 20% がプレビューの `transform: scale(1.5)`・`object-position: 20% 40%` に反映、見出しを編集して「この内容を反映」でプレビューが更新、pageerror 0。
+- スクリーンショット（scratchpad）: `t026-s2-before-*.png`、`t026-s2-after-*.png`（1440/390 のファーストビュー t=0.6s・2.5s、フルページ、320×568、メニュー、スクロール後の不透明ヘッダー）、`t026-s2-vis-*`（align left/right、長文3行）、`t026-s2-editor-*.png`。
+- 未検証（この環境）: iOS Safari（縦組み、`:has()`、`animation-timeline`、backdrop-filter）、実機の日本語縦書き字形（Chromium では「、」「。」は縦書き字形で表示）。
+
+### 改善1回目（Manager セルフチェック指摘への対応）
+- 暗幕を文字の背後だけに絞った（楕円 中心.5・約50%×76%、上部帯 .42・150px、下部帯 .2・30%）。可読性は複数層のやわらかい text-shadow（見出し・本文・ヘッダー文字・メニュー線）で確保。炎（左20〜35%）は楕円の外で、暖色が見える。
+- ヒーロー本文と全 `p` に `text-wrap: pretty` と `word-break: auto-phrase`（ヒーロー本文は balance）。1440/390 は文節で改行。320 は「ひと／つだけ」で切れる（ブラウザの分節辞書に依存、制御不可）。
+- `site-data/pages/home.json` のヒーロー画像 focal x を 0.5 → 0.3（390・320 で炎が画面内）。デスクトップは画像が全幅に収まるため見え方は変わらない。
+- `design-check.mjs` の M4/M5: 文字の測定を「グリフの真下の画素（写真＋暗幕＋文字自身の影）」に変更（文字を透明にして影だけ残した画像 A、影なし C、マゼンタ色の文字 D の差でグリフ領域を抽出）。M5 のフォーカス枠は参考値（白一色の写真で枠を保証するには暗い縁取りが要るため）。実写真（現hero.svg）の枠は M3 で必須。
+- 結果は D-032 を参照。スクリーンショット: scratchpad の `t026-s2r1-first-{1440,390,320}.png`（改善前 `t026-s2r1-pre-*`）。
+
+### 次回開始位置
+- Reviewer レビュー後、第4段（本文セクション）。
+
+---
+
 ## 2026-09-30 T-026 第3段: 意匠プレースホルダー画像
 
 ### 実施内容
