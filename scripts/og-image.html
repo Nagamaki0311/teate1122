@@ -1,0 +1,29 @@
+<!doctype html>
+<!--
+  OGP image source (1200x630). Not published: Eleventy only reads src/.
+  Output: src/assets/og-image.jpg (JPEG quality 88, <=150KB). Text stays inside x240-960 / y70-560.
+  Generate (Chromium needs --ignore-certificate-errors or the web font is not fetched; aborts if the font is missing):
+    NODE_PATH=$(npm root -g) node -e "const{chromium}=require('playwright');(async()=>{const b=await chromium.launch({executablePath:'/opt/pw-browsers/chromium-1194/chrome-linux/chrome',args:['--ignore-certificate-errors'],proxy:process.env.HTTPS_PROXY?{server:process.env.HTTPS_PROXY}:undefined});const p=await b.newPage({viewport:{width:1200,height:630},deviceScaleFactor:1,ignoreHTTPSErrors:true});await p.goto('file://'+process.cwd()+'/scripts/og-image.html');await p.evaluate(()=>document.fonts.ready);const ok=await p.evaluate(()=>[...document.fonts].some(f=>f.family.includes('Zen Old Mincho')&&f.status==='loaded'));if(!ok)throw new Error('Zen Old Mincho not loaded');await p.screenshot({path:'src/assets/og-image.jpg',type:'jpeg',quality:88});await b.close()})()"
+-->
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Old+Mincho:wght@400&display=swap">
+<style>
+  html, body { margin: 0; width: 1200px; height: 630px; overflow: hidden; }
+  body { position: relative; background: linear-gradient(160deg, #f4ede2, #efe6d9); font-family: 'Zen Old Mincho', serif; color: #2e2b25; }
+  .wick { position: absolute; left: 520px; top: 96px; width: 1px; height: 110px; background: #8a8174; }
+  .flame { position: absolute; left: 514px; top: 78px; width: 14px; height: 14px; border-radius: 50%; background: #f0a15e; box-shadow: 0 0 22px 8px rgba(240, 161, 94, .45); }
+  .logo { position: absolute; left: 520px; top: 292px; transform: translateX(-50%); white-space: nowrap; font-size: 44px; letter-spacing: .24em; margin-right: -.24em; }
+  .logo span { color: #56633f; }
+  .copy { position: absolute; left: 810px; top: 96px; writing-mode: vertical-rl; font-size: 48px; letter-spacing: .16em; line-height: 1.5; margin: 0; }
+  .tag { position: absolute; left: 520px; top: 512px; transform: translateX(-50%); white-space: nowrap; font-size: 15px; letter-spacing: .4em; color: #645c50; }
+</style>
+</head>
+<body>
+  <div class="flame"></div><div class="wick"></div>
+  <div class="logo">teate<span>1122</span></div>
+  <p class="copy">灯りは、手当て。</p>
+  <div class="tag">CANDLE · WORKSHOP · MARKET</div>
+</body>
+</html>

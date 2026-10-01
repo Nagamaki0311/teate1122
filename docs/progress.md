@@ -19,6 +19,26 @@
 
 ---
 
+## 2026-09-30 T-026 第6段: OGP＋総仕上げ（D-032）
+
+### 実施内容
+- OGP 画像（`scripts/og-image.html` → `src/assets/og-image.jpg`、1200×630、19KB）、`site.json` に og1 追加・`meta.ogImage` 変更、`base.njk` に og:image:width/height/alt・og:site_name・og:locale・twitter:card・theme-color。
+- 持ち越し: Instagram カードの配色（細線枠＋ホバーで薄い苔色）、design-check M17 を 44KB に、`.gallery__item img` の冗長な transition と hover の整理。
+
+### 総仕上げ（セルフチェック）
+- 反復1回目（1440×900・390×844 のフルページ、ファーストビュー、各セクション単体）: Design 8.3 / Usability 8.2 / Creativity 8.1 / Content 7.6、加重平均 8.1。必須項目 D1〜D7・U1〜U5・C1〜C2・K1 すべて合格。合格ラインに届いたため、修正は機械チェックで見つかった Instagram カードの不具合（カード背景を透明にすると accent 背景セクションで文字が読めない＝M16 (i) 不合格）の修正のみ（背景は生成りに戻し、ホバーだけ薄い苔色）。反復は1回で終了。
+- 余白のリズム・左端（217px で一致）・角丸の種類・ember の使い方・文字サイズ・ホバーに不統一は見つからなかった。
+
+### 結果
+- `npm run build` → `npm test` 98件 pass。design-check（`--with-tests`）M0〜M20 全項目合格。
+- 編集アプリ互換（DEV）: 公開検証エラー 0、プレビュー・写真差し替え・フォーカル調整が動作、pageerror 0。
+- スクリーンショット（scratchpad `t026-s6/`）: `t026-s6-final-{1440,390}-{full,first}.png`、`t026-s6-final-sec0〜6-{1440,390}.png`、`t026-s6-og-image.jpg`。
+
+### 次回開始位置
+- Reviewer レビュー後、T-026 完了。T-027（開発ドキュメント整理）へ。
+
+---
+
 ## 2026-09-30 T-026 第5段: ギャラリー・お問い合わせ・フッター（D-032）
 
 ### 実施内容

@@ -805,3 +805,25 @@ T-021f（ヒーローSCROLLインジケーター削除）マージ後のmainを�
 ### 機械チェック結果（第5段）
 - `npm run build` → `npm test` 98件 pass。design-check（`--with-tests`）M0〜M20 全項目合格。
 - 編集アプリ互換（DEV、Playwright）: プレビュー内でギャラリー（2列・8枚）・お問い合わせ（form[name=contact][data-netlify]）・夜色フッターが表示、透明のまま残る要素 0（未登場は画面外の hidden 行とカルーセル外のカードのみ）、ギャラリー画像のアップロード差し替え（blob）とフォーカル調整（横位置80%）がプレビューに反映、pageerror 0。
+
+### D-032 追記: 第6段（OGP＋総仕上げ）
+- OGP: `scripts/og-image.html`（公開対象外）から Chromium（`--ignore-certificate-errors` 必須）で 1200×630 の `src/assets/og-image.jpg` を生成（19KB、quality 88）。生成手順は html 冒頭コメント。Zen Old Mincho が `loaded` でなければ例外で止める。文字は x240〜960・y70〜560 内（ロゴ x327〜613、縦組みコピー右端 x≈882・下端 y≈541、下部英字 y512〜533。第6段で全体を右へ50px 寄せて重心を中央に）。コピーは 8 文字のため計画の 64px では 656px になり y70〜560 に入らないので 48px（字間 .16em）に変更。
+- `site.json`: assets に `og1`（og-image.jpg、1200×630、alt「teate1122 — 灯りは、手当て。」）を追加、`meta.ogImage` を `og1` に。`validate.js` は存在チェック対象外のため、`site.assets` の file と `src/assets` の実在を確認。`validateAll` は ok。
+- `base.njk`: `og:image`（baseUrl＋/assets/og-image.jpg の絶対URL）、`og:image:width/height/alt`（asset の値）、`og:site_name`、`og:locale=ja_JP`、`twitter:card=summary_large_image`、`theme-color=#f9f4ed`。
+- 持ち越し: Instagram カードは細線枠・角丸24px・地は `--color-bg`、ホバーで `color-mix` の薄い苔色（accent2-pale をやめた）。透明にすると accent 背景セクション（M16 (i)）で文字が読めなくなるため、通常時は透明でなく生成りにした。M17 の style.css 上限を 44KB に締めた（実測 41.0KB）。`.gallery__item img` の重複 transition と重複 hover ルールを削除（登場・hover は motion 許可時のルールに集約）。
+- 総仕上げの採点は `docs/progress.md`。
+
+### 最終採点表（第6段、1回目で合格）
+| 観点（配点） | 点 | 主な根拠 |
+|---|---|---|
+| Design（40） | 8.3 | 夜→昼→夜の構成、余白のリズム、角丸20/24/ピル/アーチ、ember は点のみ、左端 217px で全セクション一致 |
+| Usability（30） | 8.2 | 16px入力・上ラベル、タブバー/メニュー整合、キャンドルの横スクロール示唆、M11/M12 合格 |
+| Creativity（20） | 8.1 | 縦組みヒーロー・灯芯・アーチのポートレート・夜のフッターの4要素、他の装飾なし |
+| Content（10） | 7.6 | 仮文（［仮文］）は対象外。長文でも崩れない（M16 g）。実写真・実文章は User 素材待ち |
+| 加重平均 | 8.1 | 合格ライン 8.0 以上・各観点 7.5 以上を満たす |
+
+必須項目: D1〜D7、U1〜U5、C1〜C2、K1 すべて合格（1440・390 のフルページと各セクション画像で確認）。限界: ヒーロー右半分は余白が大きい（意図的）、写真は仮画像（意匠SVG）、Content は仮文のため 7.6。
+
+### 機械チェック結果（第6段）
+- `npm run build` → `npm test` 98件 pass。design-check（`--with-tests`）M0〜M20 全項目合格（M17: style.css 41,963B / 上限 45,056B、site.js 4,552B）。途中で M16 (i) が不合格になった（Instagram カードを透明にした場合）ため上記のとおり修正して合格。
+- 編集アプリ互換（DEV、Playwright、Vite 5194）: プレビュー表示（ギャラリー8枚・form[name=contact][data-netlify]・夜色フッター）、透明のまま残る要素 0、画像アップロード差し替えとフォーカル調整の反映、フィルター動作、pageerror 0。公開タブ相当の `validateAll`（og1 追加後の実データ）は ok・エラー 0。
