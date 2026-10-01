@@ -1,28 +1,40 @@
-# project001
+# teate1122
 
-Claude CodeによるAI開発OS。新規アプリ開発に共通する開発ルール・タスク管理・レビュー手順をテンプレートとして提供する。
+手作りキャンドルブランド teate1122 のホームページと、その更新用の編集アプリ。
+
+- 公開サイト: https://teate1122-candle.nk-pr.com
+- 編集アプリ: https://teate1122-candle.nk-pr.com/editor/ （GitHubでログイン。リポジトリへの書き込み権限が必要）
 
 ## 構成
 
-- CLAUDE.md
-  - Claude Codeの開発ルール（Manager = このセッション自身の役割を含む）
+- `src/` — サイト本体。Eleventy（Nunjucks）＋素のCSS（`style.css`）＋素のJS（`site.js`）。新規の依存は追加しない方針。
+- `site-data/` — サイトの内容（JSON）。`pages/home.json`（セクション構成と文言）、`site.json`（メタ情報・画像一覧・ナビ）、`candles.json`、`events.json`。編集アプリはこのJSONをGitHub経由でコミットし、Netlifyが自動で再ビルドする。
+- `editor/` — 編集アプリ（React＋Vite）。サイトと同じテンプレート・CSS・JSをブラウザ内で描画してライブプレビューする。
+- `netlify/functions/` — GitHub OAuthのトークン交換（Client Secretはブラウザに出さない）。
+- `scripts/` — ローカル専用の補助（`design-check.mjs`: デザインの機械チェック、`og-image.html`: 共有用画像の生成手順）。CIでは実行しない。
+- `docs/` — 開発の記録（下記）。
 
-- .claude/agents
-  - planner
-  - developer
-  - reviewer
+## コマンド
 
-- .claude/settings.json
-  - SessionStart / PreCompact Hook（セッション継続性の補助。詳細はdocs/agents.md）
+```
+npm ci
+npm run dev          # サイト（Eleventy）
+npm run dev:editor   # 編集アプリ
+npm run build        # editor → eleventy の順にビルド（出力: _site/）
+npm test             # 編集アプリのテスト（先に build しておく。プレビューと本番出力の一致テストが _site を使う）
+```
 
-- docs
-  - tasks.md: タスクと状態管理
-  - progress.md: 作業履歴
-  - decisions.md: 設計判断の記録
-  - agents.md: Agent構成・オーケストレーションルール・Ponytail原則
+## 開発の進め方（AI開発OS）
 
-## 開発フロー
+User → Manager → Planner → Developer → Reviewer → Manager → 完了。詳細は `CLAUDE.md` と `docs/agents.md`。
 
-User → Manager → Planner → Developer → Reviewer → Manager → Complete
+- `docs/tasks.md` — タスクと状態、バックログ（完了した古いものは `tasks-archive.md`）
+- `docs/progress.md` — 作業履歴
+- `docs/decisions.md` — 設計判断（D-001〜）
+- `docs/agents.md` — Agent構成・コード品質ルール（Ponytail）
+- `docs/design/anti-slop.md` — AI-slop（既定の型に寄ったデザイン・文章）の監査基準
 
-詳細は CLAUDE.md と docs/agents.md を参照。
+## 注意
+
+- 問い合わせフォームはNetlify Forms。`contact-social.njk`のform属性（name/data-netlify/netlify-honeypot/form-name）を変えると届かなくなる。
+- 画像は`/editor`から差し替える。ファイル名は`placeholder-*.svg`・`og-image.jpg`（同梱）または`photos/*.webp|jpg`（アップロード）のみ許可（`editor/src/lib/validate.js`）。
