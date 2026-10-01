@@ -706,14 +706,14 @@ async function m16(browser) {
 }
 
 // Absolute ceilings (not relative to git HEAD): style.css whole file, site.js, each placeholder SVG.
-const LIMITS = { styleCss: 48 * 1024, siteJs: 8 * 1024, svg: 4 * 1024 };
+const LIMITS = { styleCss: 44 * 1024, siteJs: 8 * 1024, svg: 4 * 1024 };
 function m17() {
   const size = (p) => statSync(path.join(repoRoot, p)).size;
   const cssNow = size("src/style.css");
   const js = size("src/site.js");
   const svgs = readdirSync(path.join(repoRoot, "src/assets")).filter((f) => f.endsWith(".svg")).map((f) => [f, size("src/assets/" + f)]);
   const bigSvg = svgs.filter(([, b]) => b > LIMITS.svg).map(([f, b]) => `${f} ${b}`);
-  rec("M17", "Size: style.css <= 48KB, site.js <= 8KB, each SVG <= 4KB", cssNow <= LIMITS.styleCss && js <= LIMITS.siteJs && bigSvg.length === 0, {
+  rec("M17", "Size: style.css <= 44KB, site.js <= 8KB, each SVG <= 4KB", cssNow <= LIMITS.styleCss && js <= LIMITS.siteJs && bigSvg.length === 0, {
     styleCssBytes: cssNow, styleCssLimit: LIMITS.styleCss, siteJsBytes: js, siteJsLimit: LIMITS.siteJs, svgs: Object.fromEntries(svgs), bigSvg,
   });
 }
