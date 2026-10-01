@@ -674,3 +674,13 @@
 ### 次回開始位置
 - 今後のタスクは `docs/tasks.md` にタスクIDを追記してから着手すること。
 - 次回セッション開始時は、まず `docs/progress.md` の最新エントリと `docs/tasks.md` の状態を確認する。
+
+## 2026-10-01 T-028: AI-slop 監査の小・中の修正（D-033）
+
+### 実施内容
+- 基準文書を `docs/design/anti-slop.md` に保存。`src/style.css`、`src/site.js`、`src/_includes/base.njk`、`src/_includes/sections/contact-social.njk`、`events.njk` を修正（連番削除、kicker の大文字化・字間、フッターの点の脈動・発光削除、メニューのぼかし削除（背景は不透明に）、タブバーのアイコン削除、送信ボタンの矢印削除、ダッシュの字間を詰める（色は M2 不合格のため変えていない）、登場演出の差別化、caret/accent/scrollbar の色）。不要になったフッターの IntersectionObserver も削除。
+- 途中で API 上限により中断したが、作業ツリーに変更が残っていなかったため最初からやり直した。
+
+### 結果
+- build → test 98件 pass、`git diff site-data` 空、編集アプリ互換は D-033 参照。design-check（--with-tests）は M0〜M20 全項目 PASS（M12 のタップ領域44px以上を維持、M17 の style.css は 40,928B で上限 44KB 内）。Reviewer 承認。
+- 再審査のスクリーンショットは scratchpad の `audit-after-*.png`。

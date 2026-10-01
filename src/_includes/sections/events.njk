@@ -5,7 +5,7 @@
       <h2>{{ section.props.heading }}</h2>
       <p class="events__body">{{ section.props.body }}</p>
     </div>
-    <p class="events__group-label" data-reveal>UPCOMING ── 開催予定</p>
+    <p class="events__group-label" data-reveal>UPCOMING <span class="events__group-dash" aria-hidden="true">──</span> 開催予定</p>
     <div class="events__list">
       {% for e in events.upcoming %}<article class="events__card" data-reveal data-date="{{ e.date }}">
         <div class="events__card-when">
@@ -20,7 +20,7 @@
         </div>
       </article>
       {% endfor %}<p class="events__empty"{% if events.upcoming.length %} hidden{% endif %}>現在、開催予定はありません。</p></div>
-    <p class="events__group-label events__group-label--muted" data-reveal>ARCHIVE ── これまで</p>
+    <p class="events__group-label events__group-label--muted" data-reveal>ARCHIVE <span class="events__group-dash" aria-hidden="true">──</span> これまで</p>
     <div class="events__archive">
       {% for e in events.upcoming | reverse %}<div class="events__archive-row" data-reveal data-date="{{ e.date }}" hidden>
         <span class="events__archive-date">{{ e.archiveDateDisplay }}</span>
