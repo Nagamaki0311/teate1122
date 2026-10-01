@@ -75,14 +75,6 @@
   var empty = document.querySelector(".events__empty");
   if (empty) empty.hidden = shown > 0;
 
-  // Footer glow: pause its infinite animation while the footer is off-screen.
-  var footer = document.querySelector(".site-footer");
-  if (footer && "IntersectionObserver" in window) {
-    new IntersectionObserver(function (entries) {
-      footer.toggleAttribute("data-paused", !entries[0].isIntersecting);
-    }).observe(footer);
-  }
-
   // Gallery category tabs: show/hide items, no page reload. Where View Transitions exist
   // (and motion is allowed) the photos glide to their new places.
   var tabs = document.querySelectorAll(".gallery__tab");
