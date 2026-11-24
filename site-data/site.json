@@ -49,12 +49,12 @@
     "items": [
       {
         "href": "/#philosophy",
-        "label": "理念",
+        "label": "ものづくり",
         "visible": true
       },
       {
         "href": "/#profile",
-        "label": "プロフィール",
+        "label": "つくる人",
         "visible": true
       },
       {
@@ -64,7 +64,7 @@
       },
       {
         "href": "/#events",
-        "label": "イベント・WS",
+        "label": "出店・教室",
         "visible": true
       },
       {

@@ -118,6 +118,11 @@ export default function SectionSheet({
     return pending ? pending.objectUrl : `/assets/${asset.file}`;
   }
 
+  function photoRatio(assetId, fallback) {
+    const asset = findAsset(site, assetId);
+    return asset?.w && asset?.h ? `${asset.w} / ${asset.h}` : fallback;
+  }
+
   function existingFiles() {
     return [
       ...(site.assets || []).map((a) => a.file),
@@ -187,7 +192,7 @@ export default function SectionSheet({
               previewAlt={section.props.image?.alt}
               focal={section.props.image?.focal}
               zoom={section.props.image?.zoom}
-              aspect={imageMeta.aspect}
+              aspect={section.type === "image-text" ? photoRatio(section.props.image?.assetId, imageMeta.aspect) : imageMeta.aspect}
               altEditable={imageMeta.altEditable}
               altValue={section.props.image?.alt}
               busy={uploadState["image"]?.busy}
@@ -215,7 +220,7 @@ export default function SectionSheet({
                 previewAlt={item.alt}
                 focal={item.focal}
                 zoom={item.zoom}
-                aspect={(item.ratio || "1/1").replace("/", " / ")}
+                aspect={photoRatio(item.assetId, item.ratio || "1/1")}
                 altEditable={imageMeta.altEditable}
                 altValue={item.alt}
                 busy={uploadState[`item-${i}`]?.busy}

@@ -32,7 +32,7 @@
   --fs-statement: clamp(1.875rem, 1.4rem + 2.4vw, 3.25rem);
   --fs-numeral: clamp(1.75rem, 1.4rem + 1.8vw, 2.75rem);
   --fs-h1: clamp(2.1rem, 7vw, 4.1rem);
-  --fs-footer-brand: clamp(2.5rem, 9vw, 6rem);
+  --fs-footer-brand: clamp(1.6rem, 3vw, 2.4rem);
   --fs-display: clamp(2rem, 1.2rem + 4vw, 4.75rem);
 
   --container: 1120px;
@@ -71,7 +71,7 @@
 
 * { box-sizing: border-box; }
 @media (min-width: 820px) {
-  :root { --header-h: 72px; }
+  :root { --header-h: 64px; }
 }
 @media (prefers-reduced-motion: no-preference) {
   html:not(.is-embedded) { scroll-behavior: smooth; }
@@ -280,7 +280,7 @@ input, textarea, select { caret-color: var(--color-accent); accent-color: var(--
 
 /* image-text (profile) */
 .image-text { display: flex; flex-direction: column; gap: 2rem; }
-.image-text__media { width: 100%; max-width: 420px; aspect-ratio: 3 / 4; border-radius: var(--radius-pill) var(--radius-pill) var(--radius-media) var(--radius-media); overflow: hidden; background: var(--color-surface); outline: 1px solid var(--color-line-strong); outline-offset: 12px; }
+.image-text__media { width: 100%; max-width: 420px; align-self: center; aspect-ratio: var(--photo-ratio, 3 / 4); border-radius: var(--radius-sm); overflow: hidden; background: var(--color-surface); outline: 1px solid var(--color-line-strong); outline-offset: 12px; }
 .image-text__img { width: 100%; height: 100%; object-fit: cover; object-position: var(--focal-x) var(--focal-y); transform: scale(var(--zoom)); }
 .image-text__subheading { font-size: var(--fs-small); letter-spacing: .16em; color: var(--color-text-muted); margin: -8px 0 24px; }
 .image-text__body { color: var(--color-text-muted); }
@@ -421,14 +421,14 @@ input, textarea, select { caret-color: var(--color-accent); accent-color: var(--
 .site-header__brand, .site-header__brand-accent, .site-header__nav a, .site-header__nav-cta { transition: color var(--dur-header) var(--ease-out), background-color var(--dur-header) var(--ease-out), box-shadow var(--dur-header) var(--ease-out); }
 .site-header__brand { display: inline-flex; align-items: center; min-height: 44px; font-family: var(--font-heading); font-size: var(--fs-brand); letter-spacing: .24em; color: var(--color-text); text-decoration: none; line-height: 1; }
 .site-header__brand-accent { color: var(--color-accent); }
-.site-header__nav { display: none; gap: clamp(18px, 2.4vw, 34px); align-items: center; }
-.site-header__nav a { white-space: nowrap; font-size: var(--fs-small); letter-spacing: .12em; color: var(--color-text-muted); text-decoration: none; }
+.site-header__nav { display: none; gap: clamp(14px, 1.7vw, 25px); align-items: center; }
+.site-header__nav a { white-space: nowrap; display: inline-flex; align-items: center; min-height: 44px; font-size: var(--fs-small); letter-spacing: .025em; color: var(--color-text-muted); text-decoration: none; }
 .site-header__nav a:not(.site-header__nav-cta) { position: relative; }
 .site-header__nav a:not(.site-header__nav-cta)::after { content: ""; position: absolute; left: 0; right: 0; bottom: 4px; height: 1px; background: currentColor; transform: scaleX(0); transform-origin: left; transition: transform 400ms var(--ease-out); }
 .site-header__nav a:not(.site-header__nav-cta):is(:hover, :focus-visible)::after { transform: scaleX(1); }
 .site-header__nav a:hover { color: var(--color-text); }
-.site-header__nav-cta { color: #fff !important; background: var(--color-accent); padding: 9px 20px; border-radius: var(--radius-pill); transition: background-color var(--dur-fast); }
-.site-header__nav-cta:hover { background: var(--color-ember-deep); }
+.site-header__nav-cta { color: var(--color-accent); box-shadow: inset 0 0 0 1px currentColor; padding: 0 14px; border-radius: var(--radius-pill); transition: background-color var(--dur-fast); }
+.site-header__nav-cta:hover { background: var(--color-surface); }
 .site-header__menu-btn { display: inline-flex; flex-direction: column; justify-content: center; gap: 5px; width: 44px; height: 44px; padding: 0 10px; border: none; background: transparent; cursor: pointer; }
 .site-header__menu-btn span { display: block; height: 1px; background: var(--color-text); }
 /* Over the hero (only when it is the first section of <main>): transparent header on the dark photo; site.js sets data-solid once the hero has scrolled away. Requires :has(); otherwise the normal opaque header stays. */
@@ -462,14 +462,13 @@ html.js body:has(> main > .hero-section:first-child) .site-header:not([data-soli
 @keyframes menu-link-in { from { opacity: 0; translate: 0 12px; } }
 
 /* footer: the night that closes the page (the hero is the other one). */
-.site-footer { background: var(--color-night); color: var(--color-on-night); padding: clamp(4rem, 8vw, 7.5rem) 0 clamp(2.5rem, 4vw, 3.5rem); }
+.site-footer { background: var(--color-night); color: var(--color-on-night); padding: clamp(1.25rem, 3vw, 2rem) 0; }
 .site-footer :focus-visible { outline-color: var(--color-ember-glow); }
-.site-footer__inner { max-width: var(--container); margin: 0 auto; padding: 0 var(--gut); display: flex; flex-wrap: wrap; gap: 2.5rem 3rem; align-items: flex-end; justify-content: space-between; }
-.site-footer__brand { margin: 0 0 var(--space-s); font-family: var(--font-heading); font-size: var(--fs-footer-brand); letter-spacing: .12em; line-height: 1.2; color: var(--color-on-night); }
-.site-footer__brand::before { content: ""; display: block; width: 6px; height: 6px; margin: 0 0 var(--space-m) .25em; border-radius: var(--radius-round); background: var(--color-ember-glow); }
+.site-footer__inner { max-width: var(--container); margin: 0 auto; padding: 0 var(--gut); display: flex; flex-wrap: wrap; gap: .5rem 2rem; align-items: center; justify-content: space-between; }
+.site-footer__brand { margin: 0; font-family: var(--font-heading); font-size: var(--fs-footer-brand); letter-spacing: .12em; line-height: 1.2; color: var(--color-on-night); }
 .site-footer .site-header__brand-accent { color: var(--color-ember-glow); }
 .site-footer__tagline { margin: 0; font-size: var(--fs-small); line-height: 2; color: var(--color-on-night-muted); }
-.site-footer__links { display: flex; flex-direction: column; align-items: flex-start; }
+.site-footer__links { display: flex; flex-wrap: wrap; align-items: center; gap: 0 1rem; }
 .site-footer__links a { display: inline-flex; align-items: center; min-height: 44px; font-size: var(--fs-small); letter-spacing: .1em; color: var(--color-ember-glow); text-decoration: none; }
 .site-footer__links a:hover { color: #fff; }
 .site-footer__copyright { margin: 8px 0 0; font-size: var(--fs-label); letter-spacing: .06em; color: var(--color-on-night-muted); }
@@ -487,7 +486,7 @@ html.js body:has(> main > .hero-section:first-child) .site-header:not([data-soli
   /* Reserve the tab bar's height on body (not main) so the footer below main isn't covered either. */
   body { padding-bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom)); }
   /* The night footer runs down behind the bar (negative margin cancels the body padding) and pads its own bottom, so no light strip shows between footer and bar and the copyright clears it. */
-  .site-footer { margin-bottom: calc(-1 * (var(--tabbar-h) + env(safe-area-inset-bottom))); padding-bottom: calc(clamp(2.5rem, 4vw, 3.5rem) + var(--tabbar-h) + env(safe-area-inset-bottom)); }
+  .site-footer { margin-bottom: calc(-1 * (var(--tabbar-h) + env(safe-area-inset-bottom))); padding-bottom: calc(1.25rem + var(--tabbar-h) + env(safe-area-inset-bottom)); }
 }
 
 /* Routine information uses the body face; Mincho remains for brand headings. */
