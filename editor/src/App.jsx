@@ -81,6 +81,7 @@ export default function App() {
   // saveDraft's comment above.
   const [pendingImages, setPendingImages] = useState({});
   const [scrollToSectionId, setScrollToSectionId] = useState(null);
+  const [collapsed, setCollapsed] = useState(false);
   const [fullscreenPreview, setFullscreenPreview] = useState(false);
 
   function patch(partial) {
@@ -243,7 +244,10 @@ export default function App() {
         )}
       </header>
 
-      <div className="editor-shell__preview">
+      {!fullscreenPreview && <button type="button" className="preview-toggle" aria-expanded={!collapsed} aria-controls="site-preview" onClick={() => setCollapsed(!collapsed)}>
+        {collapsed ? "プレビューを表示" : "プレビューを畳む"}
+      </button>}
+      <div id="site-preview" className={`editor-shell__preview${collapsed && !fullscreenPreview ? " preview-collapsed" : ""}`}>
         <Preview
           home={state.draft.home}
           site={state.draft.site}
@@ -258,6 +262,8 @@ export default function App() {
         <div className="editor-shell__panel">
           {state.activeTab === "edit" && (
             <EditTab
+              original={state.data}
+              events={state.draft.events}
               home={state.draft.home}
               site={state.draft.site}
               candles={state.draft.candles}

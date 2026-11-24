@@ -69,6 +69,7 @@ function applyTextValues(section, values) {
 // focal-point drag or an upload is direct manipulation with instant visual
 // feedback, not a form to fill in and submit.
 export default function SectionSheet({
+  name,
   section,
   home,
   site,
@@ -168,10 +169,10 @@ export default function SectionSheet({
   const pendingCount = Object.keys(pendingImages || {}).length;
 
   return (
-    <dialog ref={dialogRef} className="sheet" onClose={onClose} onCancel={(e) => { if (processing) e.preventDefault(); }} aria-label={`${section.id} を編集`}>
+    <dialog ref={dialogRef} className="sheet" onClose={onClose} onCancel={(e) => { if (processing) e.preventDefault(); }} aria-label={`${name}を編集`}>
       <form method="dialog" className="sheet__form" onSubmit={handleSubmit}>
         <header className="sheet__header">
-          <h2>{section.id} を編集</h2>
+          <h2>{name}を編集</h2>
           {pendingCount > 0 && <span className="badge">未公開の写真 {pendingCount}件</span>}
           <button type="button" disabled={processing} className="sheet__close" onClick={() => dialogRef.current?.close()} aria-label="閉じる">
             ×

@@ -542,3 +542,9 @@ textarea {
     order: 3;
   }
 }
+
+.preview-toggle { display: none; }
+@media (max-width: 719px) {
+  .preview-toggle { display: block; min-height: 44px; border: 0; background: var(--color-surface); color: var(--color-accent); }
+  .preview-collapsed { display: none; }
+}

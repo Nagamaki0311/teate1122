@@ -11,7 +11,18 @@ const TYPE_LABELS = {
   "contact-social": "お問い合わせ",
 };
 
+const SECTION_NAMES = {
+  hero: "トップ", philosophy: "理念", profile: "プロフィール", candles: "キャンドル",
+  events: "イベント・ワークショップ", gallery: "ギャラリー", contact: "お問い合わせ",
+};
+
+function sectionName(section) {
+  return SECTION_NAMES[section.id] || TYPE_LABELS[section.type] || "セクション";
+}
+
 export default function EditTab({
+  original,
+  events,
   home,
   site,
   candles,
@@ -69,11 +80,22 @@ export default function EditTab({
         </select>
       </label>
       <ul className="section-list">
-        {sections.map((section, i) => (
+        {sections.map((section, i) => {
+          const name = sectionName(section);
+          const heading = [section.props.heading].flat().join("");
+          const ids = [section.props.image?.assetId, ...(section.props.items || []).map(item => item.assetId)];
+          if (section.type === "candle-grid") ids.push(...candles.map(c => c.image?.assetId));
+          const differs = (a, b) => JSON.stringify(a) !== JSON.stringify(b);
+          const changed = differs(section, original.home.sections[i])
+            || (section.type === "events" && differs(events, original.events))
+            || (section.type === "candle-grid" && differs(candles, original.candles))
+            || differs(site.assets.filter(a => ids.includes(a.id)), original.site.assets.filter(a => ids.includes(a.id)));
+          return (
           <li className="section-list__item" key={section.id}>
             <div className="section-list__info">
-              <p className="section-list__id">{Array.isArray(section.props.heading) ? section.props.heading.join("") : section.props.heading || TYPE_LABELS[section.type]}</p>
-              <p className="section-list__type">{TYPE_LABELS[section.type] || section.type}</p>
+              <p className="section-list__id">{name}</p>
+              {heading && heading !== name && <p className="section-list__type">{heading}</p>}
+              {changed && <small className="badge">変更あり</small>}
             </div>
             <div className="section-list__actions">
               <button
@@ -81,7 +103,7 @@ export default function EditTab({
                 className="icon-btn"
                 onClick={() => move(section.id, -1)}
                 disabled={i === 0}
-                aria-label={`${section.id} を上へ移動`}
+                aria-label={`${name}を上へ移動`}
               >
                 ▲
               </button>
@@ -90,28 +112,29 @@ export default function EditTab({
                 className="icon-btn"
                 onClick={() => move(section.id, 1)}
                 disabled={i === sections.length - 1}
-                aria-label={`${section.id} を下へ移動`}
+                aria-label={`${name}を下へ移動`}
               >
                 ▼
               </button>
               <label className="switch">
-                <input type="checkbox" checked={section.visible} onChange={() => toggleVisible(section.id)} />
+                <input type="checkbox" aria-label={`${name}を表示`} checked={section.visible} onChange={() => toggleVisible(section.id)} />
                 <span>表示</span>
               </label>
               {section.type === "contact-social" && <label className="switch">
                 <input type="checkbox" checked={section.props.showForm === true} onChange={(e) => handleSectionSave({ ...section, props: { ...section.props, showForm: e.target.checked } })} />
                 <span>フォームを表示</span>
               </label>}
-              <button type="button" className="btn btn--small" onClick={() => openSection(section.id)}>
+              <button type="button" className="btn btn--small" aria-label={`${name}を編集`} onClick={() => openSection(section.id)}>
                 編集
               </button>
             </div>
           </li>
-        ))}
+        );})}
         {sections.length === 0 && <p className="muted">セクションがありません。</p>}
       </ul>
       {editingSection && (
         <SectionSheet
+          name={sectionName(editingSection)}
           section={editingSection}
           home={home}
           site={site}
