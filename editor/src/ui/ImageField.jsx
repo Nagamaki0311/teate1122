@@ -94,7 +94,7 @@ export default function ImageField({
 
       <div className="image-field__controls">
         <button type="button" className="btn btn--small" onClick={() => inputRef.current?.click()} disabled={busy}>
-          写真を選ぶ・ドラッグ＆ドロップ
+          写真を選ぶ
         </button>
         <input
           ref={inputRef}
@@ -141,7 +141,7 @@ export default function ImageField({
         <input
           type="range"
           min="1"
-          max="2"
+          max="3"
           step="0.05"
           value={zoom ?? 1}
           onChange={(e) => onZoomChange(Number(e.target.value))}

@@ -53,7 +53,7 @@ function canvasToBlob(canvas, type, quality) {
 // Returns { blob, width, height, ext, objectUrl }. Throws ImageProcessingError
 // with a message safe to show the user directly.
 export async function processImage(file, { maxEdge = 1600, quality = 0.8 } = {}) {
-  if (!file || !file.type || !file.type.startsWith("image/")) {
+  if (!file || !(file.type?.startsWith("image/") || (!file.type && /\.(jpe?g|png|webp|heic|heif)$/i.test(file.name || "")))) {
     throw new ImageProcessingError("この形式の写真は読み込めません。JPEG/PNGでお試しください。");
   }
   if (file.size > MAX_INPUT_BYTES) {

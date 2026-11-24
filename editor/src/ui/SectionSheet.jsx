@@ -98,6 +98,7 @@ export default function SectionSheet({
   }, []);
 
   function handleSubmit(e) {
+    if (processing) { e.preventDefault(); return; }
     // No preventDefault: this is a method="dialog" form, so submitting also
     // closes the dialog natively, which fires the onClose handler below.
     onSave(applyTextValues(section, values));
@@ -163,19 +164,21 @@ export default function SectionSheet({
 
   const fields = fieldsFor(section.type);
   const imageMeta = imageFieldsFor(section.type);
+  const processing = Object.values(uploadState).some((entry) => entry.busy);
   const pendingCount = Object.keys(pendingImages || {}).length;
 
   return (
-    <dialog ref={dialogRef} className="sheet" onClose={onClose} aria-label={`${section.id} を編集`}>
+    <dialog ref={dialogRef} className="sheet" onClose={onClose} onCancel={(e) => { if (processing) e.preventDefault(); }} aria-label={`${section.id} を編集`}>
       <form method="dialog" className="sheet__form" onSubmit={handleSubmit}>
         <header className="sheet__header">
           <h2>{section.id} を編集</h2>
           {pendingCount > 0 && <span className="badge">未公開の写真 {pendingCount}件</span>}
-          <button type="button" className="sheet__close" onClick={() => dialogRef.current?.close()} aria-label="閉じる">
+          <button type="button" disabled={processing} className="sheet__close" onClick={() => dialogRef.current?.close()} aria-label="閉じる">
             ×
           </button>
         </header>
-        <div className="sheet__body">
+        <div className="sheet__body" inert={processing}>
+          {imageMeta && <p>写真は選択すると下書きに反映されます。公開するまでこのページを開いたままにしてください。</p>}
           {imageMeta?.kind === "single" && (
             <ImageField
               label="写真"
@@ -274,9 +277,9 @@ export default function SectionSheet({
             </label>
           ))}
         </div>
-        <footer className="sheet__footer">
+        <footer className="sheet__footer" inert={processing}>
           <button type="button" className="btn btn--ghost" onClick={() => dialogRef.current?.close()}>
-            キャンセル
+            文章の変更を取り消す
           </button>
           <button type="submit" className="btn">
             この内容を反映

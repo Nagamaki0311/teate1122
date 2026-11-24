@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { nextEventId } from "../lib/schema.js";
 
 const KIND_LABELS = { event: "イベント出店", workshop: "ワークショップ" };
@@ -7,6 +7,8 @@ const EMPTY_FORM = { kind: "event", date: "", time: "", title: "", place: "", bo
 
 export default function DatesTab({ events, onChange }) {
   const [form, setForm] = useState(EMPTY_FORM);
+  const dateInput = useRef(null);
+  const [editingId, setEditingId] = useState(null);
   const [confirmId, setConfirmId] = useState(null);
 
   const list = events || [];
@@ -15,12 +17,14 @@ export default function DatesTab({ events, onChange }) {
   function handleAdd(e) {
     e.preventDefault();
     if (!form.date || !form.title.trim()) return;
-    const id = nextEventId(list);
-    onChange([...list, { id, ...form, title: form.title.trim() }]);
+    const entry = { ...form, id: editingId || nextEventId(list), title: form.title.trim() };
+    onChange(editingId ? list.map((event) => event.id === editingId ? entry : event) : [...list, entry]);
+    setEditingId(null);
     setForm(EMPTY_FORM);
   }
 
   function handleDelete(id) {
+    if (editingId === id) { setEditingId(null); setForm(EMPTY_FORM); }
     onChange(list.filter((e) => e.id !== id));
     setConfirmId(null);
   }
@@ -37,6 +41,7 @@ export default function DatesTab({ events, onChange }) {
               <p className="event-list__title">{e.title}</p>
               {e.place && <p className="event-list__place">{e.place}</p>}
             </div>
+            <button type="button" className="btn btn--small" onClick={() => { setEditingId(e.id); setForm({ ...e }); dateInput.current?.focus(); }}>修正</button>
             {confirmId === e.id ? (
               <div className="event-list__confirm">
                 <span>削除しますか？</span>
@@ -58,7 +63,7 @@ export default function DatesTab({ events, onChange }) {
       </ul>
 
       <form className="event-form" onSubmit={handleAdd}>
-        <h3>新しい日程を追加</h3>
+        <h3>{editingId ? "日程を修正" : "新しい日程を追加"}</h3>
         <label className="field">
           <span>種別</span>
           <select value={form.kind} onChange={(e) => setForm((f) => ({ ...f, kind: e.target.value }))}>
@@ -68,7 +73,7 @@ export default function DatesTab({ events, onChange }) {
         </label>
         <label className="field">
           <span>日付</span>
-          <input type="date" required value={form.date} onChange={(e) => setForm((f) => ({ ...f, date: e.target.value }))} />
+          <input ref={dateInput} type="date" required value={form.date} onChange={(e) => setForm((f) => ({ ...f, date: e.target.value }))} />
         </label>
         <label className="field">
           <span>時間（任意）</span>
@@ -92,8 +97,9 @@ export default function DatesTab({ events, onChange }) {
           <textarea rows={3} value={form.body} onChange={(e) => setForm((f) => ({ ...f, body: e.target.value }))} />
         </label>
         <button type="submit" className="btn">
-          追加する
+          {editingId ? "修正を下書きに反映" : "追加する"}
         </button>
+        {editingId && <button type="button" className="btn btn--ghost" onClick={() => { setEditingId(null); setForm(EMPTY_FORM); }}>修正をやめる</button>}
       </form>
     </div>
   );

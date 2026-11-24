@@ -72,7 +72,7 @@ export default function EditTab({
         {sections.map((section, i) => (
           <li className="section-list__item" key={section.id}>
             <div className="section-list__info">
-              <p className="section-list__id">{section.id}</p>
+              <p className="section-list__id">{Array.isArray(section.props.heading) ? section.props.heading.join("") : section.props.heading || TYPE_LABELS[section.type]}</p>
               <p className="section-list__type">{TYPE_LABELS[section.type] || section.type}</p>
             </div>
             <div className="section-list__actions">

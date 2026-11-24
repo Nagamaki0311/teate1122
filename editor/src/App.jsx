@@ -137,6 +137,15 @@ export default function App() {
     if (state.draft) saveDraft(state.draft);
   }, [state.draft]);
 
+  useEffect(() => {
+    if (!Object.keys(pendingImages).length) return;
+    const warn = (e) => { e.preventDefault(); e.returnValue = ""; };
+    window.addEventListener("beforeunload", warn);
+    return () => window.removeEventListener("beforeunload", warn);
+  }, [pendingImages]);
+
+  const [savedCommit, setSavedCommit] = useState(null);
+
   function handleAuthenticated(token, login) {
     patch({ token, login });
   }
@@ -150,12 +159,12 @@ export default function App() {
   }
 
   async function handleReload() {
-    clearSavedDraft();
-    revokePendingImages(pendingImages);
-    setPendingImages({});
-    patch({ loading: true, error: null, draft: null });
+    patch({ loading: true, error: null });
     try {
       const data = await loadSiteData({ token: state.token || undefined });
+      clearSavedDraft();
+      revokePendingImages(pendingImages);
+      setPendingImages({});
       patch({
         loading: false,
         data,
@@ -197,7 +206,7 @@ export default function App() {
           <p className="error" role="alert">
             読み込みに失敗しました: {state.error}
           </p>
-          <button type="button" className="btn" onClick={handleReload}>
+          <button type="button" className="btn" onClick={() => { if (!state.draft || window.confirm("下書きを破棄して再読み込みしますか？")) handleReload(); }}>
             再読み込み
           </button>
         </div>
@@ -215,6 +224,7 @@ export default function App() {
 
   return (
     <div className={`editor-shell${fullscreenPreview ? " editor-shell--fullscreen-preview" : ""}`}>
+      {savedCommit && <div role="status">GitHubに保存しました。サイトへの反映には数分かかります。 <a href="/" target="_blank" rel="noopener noreferrer">サイトを確認</a> <button onClick={() => setSavedCommit(null)} aria-label="通知を閉じる">×</button></div>}
       <header className="editor-shell__topbar">
         <p className="editor-shell__brand">teate1122 編集</p>
         {isDev && !state.token && <span className="badge">開発モード・読み取り専用</span>}
@@ -269,8 +279,8 @@ export default function App() {
               headSha={state.data.headSha}
               token={state.token}
               pendingImages={pendingImages}
-              onPublished={handleReload}
-              onReloadRequested={handleReload}
+              onPublished={(sha) => { setSavedCommit(sha); handleReload(); }}
+              onReloadRequested={() => { if (window.confirm("未公開の文章と写真を破棄し、最新の内容を取得しますか？")) handleReload(); }}
             />
           )}
         </div>

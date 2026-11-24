@@ -67,7 +67,7 @@ function makeEnv(templates) {
 function applyObjectUrls(html, objectUrls) {
   let out = html;
   for (const [assetFile, blobUrl] of Object.entries(objectUrls || {})) {
-    out = out.split(`assets/${assetFile}`).join(blobUrl);
+    out = out.split(`src="assets/${assetFile}"`).join(`src="${blobUrl}"`);
   }
   return out;
 }
