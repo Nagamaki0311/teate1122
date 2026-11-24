@@ -6,7 +6,7 @@ import { commitChanges } from "../lib/github.js";
 const PATH_LABELS = {
   "site-data/pages/home.json": "ホームページの内容",
   "site-data/events.json": "日程",
-  "site-data/site.json": "写真（assets）",
+  "site-data/site.json": "配色・書体・写真",
   "site-data/candles.json": "キャンドル（文言・写真）",
 };
 

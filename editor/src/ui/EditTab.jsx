@@ -60,6 +60,14 @@ export default function EditTab({
 
   return (
     <div className="edit-tab">
+      <label className="field">
+        <span>配色と書体</span>
+        <select value={site.theme?.preset || "quiet-mincho"} onChange={(e) => onSiteChange({ ...site, theme: { ...site.theme, preset: e.target.value } })}>
+          <option value="quiet-mincho">生成り・見出し明朝</option>
+          <option value="forest">若葉・ゴシック</option>
+          <option value="clay">薄紅・本文明朝</option>
+        </select>
+      </label>
       <ul className="section-list">
         {sections.map((section, i) => (
           <li className="section-list__item" key={section.id}>
@@ -90,6 +98,10 @@ export default function EditTab({
                 <input type="checkbox" checked={section.visible} onChange={() => toggleVisible(section.id)} />
                 <span>表示</span>
               </label>
+              {section.type === "contact-social" && <label className="switch">
+                <input type="checkbox" checked={section.props.showForm === true} onChange={(e) => handleSectionSave({ ...section, props: { ...section.props, showForm: e.target.checked } })} />
+                <span>フォームを表示</span>
+              </label>}
               <button type="button" className="btn btn--small" onClick={() => openSection(section.id)}>
                 編集
               </button>

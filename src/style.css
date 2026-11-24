@@ -48,7 +48,7 @@
   --space-xl: 4rem;
   --space-2xl: 6rem;
   --space-y-sm: clamp(3rem, 2.5rem + 2vw, 4rem);
-  --space-y-md: clamp(4.5rem, 3.5rem + 4vw, 6.5rem);
+  --space-y-md: clamp(3.5rem, 2.5rem + 3vw, 5rem);
   --space-y-lg: clamp(6rem, 4rem + 8vw, 10rem);
   --space-y-xl: clamp(7.5rem, 5rem + 10vw, 12.5rem);
   --gap-sm: 0.5rem;
@@ -84,11 +84,11 @@ body {
   font-family: var(--font-body);
   font-weight: 400;
   font-size: calc(var(--fs-body) * var(--font-scale));
-  line-height: 2;
-  letter-spacing: .04em;
+  line-height: 1.85;
+  letter-spacing: .02em;
   -webkit-font-smoothing: antialiased;
 }
-h1, h2, h3 { font-family: var(--font-heading); font-weight: 400; line-height: 1.6; letter-spacing: .14em; margin: 0 0 .6em; color: var(--color-text); text-wrap: balance; word-break: auto-phrase; }
+h1, h2, h3 { font-family: var(--font-heading); font-weight: 400; line-height: 1.6; letter-spacing: .06em; margin: 0 0 .6em; color: var(--color-text); text-wrap: balance; word-break: auto-phrase; }
 h1 { font-size: var(--fs-h1); }
 h2 { font-size: var(--fs-h2); }
 h3 { font-size: var(--fs-h3); }
@@ -271,7 +271,7 @@ input, textarea, select { caret-color: var(--color-accent); accent-color: var(--
 .text-block__divider { margin: 0; height: 44px; }
 .section[data-align="left"] .text-block::before { margin-inline: 0; }
 .section[data-align="right"] .text-block::before { margin-inline: auto 0; }
-.section[id] .text-block h2 { font-size: var(--fs-statement); line-height: 1.9; letter-spacing: .18em; margin-bottom: 1em; }
+.section[id] .text-block h2 { font-size: var(--fs-h2); line-height: 1.6; letter-spacing: .06em; margin-bottom: 1em; }
 .section[id] .text-block__body { font-size: var(--fs-lead); max-width: 28em; }
 @media (prefers-reduced-motion: no-preference) {
   html.js:not(.is-embedded) .text-block::before { clip-path: inset(0 0 100% 0); transition: clip-path 1.2s var(--ease-out) .25s; }
@@ -488,4 +488,24 @@ html.js body:has(> main > .hero-section:first-child) .site-header:not([data-soli
   body { padding-bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom)); }
   /* The night footer runs down behind the bar (negative margin cancels the body padding) and pads its own bottom, so no light strip shows between footer and bar and the copyright clears it. */
   .site-footer { margin-bottom: calc(-1 * (var(--tabbar-h) + env(safe-area-inset-bottom))); padding-bottom: calc(clamp(2.5rem, 4vw, 3.5rem) + var(--tabbar-h) + env(safe-area-inset-bottom)); }
+}
+
+/* Routine information uses the body face; Mincho remains for brand headings. */
+.events__card-what h3, .contact-social__field { font-family: var(--font-body); letter-spacing: .02em; }
+.events__group-label { letter-spacing: .06em; }
+
+:root[data-theme="forest"] {
+  --color-bg: #eff4ec;
+  --color-surface: #dfe9dc;
+  --color-accent: #34563f;
+  --font-heading: 'Noto Sans JP', sans-serif;
+}
+:root[data-theme="clay"] {
+  --color-bg: #fcf1ed;
+  --color-surface: #f1e1da;
+  --color-accent: #81493f;
+  --font-body: 'Zen Old Mincho', 'Yu Mincho', serif;
+}
+.site-header__brand, .site-footer__brand {
+  font-family: 'Book Antiqua', 'Palatino Linotype', Palatino, Georgia, serif;
 }

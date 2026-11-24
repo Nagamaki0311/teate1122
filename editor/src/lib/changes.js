@@ -26,7 +26,12 @@ export function serializeJson(value) {
 // can touch, preserving the intent of D-023's write-allowlist.
 function assertOnlyAssetsChanged(originalSite, draftSite) {
   const before = JSON.stringify({ ...originalSite, assets: undefined });
-  const after = JSON.stringify({ ...draftSite, assets: undefined });
+  const comparable = { ...draftSite, assets: undefined };
+  if (draftSite.theme?.preset !== originalSite.theme?.preset &&
+      ["quiet-mincho", "forest", "clay"].includes(draftSite.theme?.preset)) {
+    comparable.theme = { ...draftSite.theme, preset: originalSite.theme?.preset };
+  }
+  const after = JSON.stringify(comparable);
   if (before !== after) {
     throw new Error("site.json: assets 以外のフィールドが変更されています（この編集アプリでは変更できません）");
   }

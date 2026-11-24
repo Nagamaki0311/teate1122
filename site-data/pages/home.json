@@ -8,12 +8,12 @@
       "type": "hero",
       "visible": true,
       "props": {
-        "kicker": "CANDLE . WORKSHOP . MARKET",
+        "kicker": "",
         "heading": [
           "灯りは、",
           "手当て。"
         ],
-        "body": "夜のはじまりに、ひとつだけ火を灯す。それだけで、ほどけていくものがあります。",
+        "body": "手作りキャンドルの紹介と、出店・ワークショップのお知らせ。",
         "image": {
           "assetId": "hero1",
           "focal": [
@@ -42,18 +42,16 @@
       "type": "text",
       "visible": true,
       "props": {
-        "kicker": "PHILOSOPHY",
+        "kicker": "",
         "heading": [
-          "手を当てる、",
-          "という手当て。"
+          "キャンドルづくり"
         ],
         "paragraphs": [
-          "teate1122のキャンドルは、飾るためのものではなく、その日の自分をいたわるための道具です。",
-          "植物由来のワックスと、控えめな香り。火を見つめる数分間が、いちばんの手当てになりますように。"
+          "暮らしの中で灯して使うキャンドルを、一つずつ手作りしています。"
         ]
       },
       "style": {
-        "paddingY": "lg",
+        "paddingY": "md",
         "align": "center",
         "bg": {
           "type": "token",
@@ -70,18 +68,13 @@
       "type": "image-text",
       "visible": true,
       "props": {
-        "kicker": "PROFILE",
+        "kicker": "",
         "heading": "つくる人",
-        "subheading": "［お名前］　candle artist",
+        "subheading": "［お名前］",
         "paragraphs": [
-          "［仮文］働きづめだった頃、部屋の隅で灯したひとつのキャンドルに、ずいぶん助けられました。自分をいたわる時間が、こんなに小さなものから始まるのだと知って、つくる側にまわりました。",
-          "［仮文］いまは自宅のアトリエで少量ずつ制作し、季節ごとにマルシェへ出店。ワークショップでは、香りを選ぶところから一緒に考えます。"
+          "［仮文］制作を始めたきっかけや、現在の活動について紹介します。"
         ],
-        "tags": [
-          "キャンドル制作",
-          "イベント出店",
-          "ワークショップ"
-        ],
+        "tags": [],
         "image": {
           "assetId": "profile1",
           "focal": [
@@ -94,7 +87,7 @@
         "imagePosition": "left"
       },
       "style": {
-        "paddingY": "lg",
+        "paddingY": "md",
         "align": "left",
         "bg": {
           "type": "token",
@@ -111,13 +104,13 @@
       "type": "candle-grid",
       "visible": true,
       "props": {
-        "kicker": "CANDLES",
+        "kicker": "",
         "heading": "香りをえらぶ",
-        "body": "［仮文］大豆と米ぬかのワックスに、精油をすこしだけ。灯していない間もほのかに香る、控えめな五種類です。",
+        "body": "［仮文］五種類の香りをご紹介します。",
         "note": "［仮文］オーダーメイド・ギフト包装のご相談も承ります。"
       },
       "style": {
-        "paddingY": "lg",
+        "paddingY": "sm",
         "align": "left",
         "bg": {
           "type": "token",
@@ -134,12 +127,12 @@
       "type": "events",
       "visible": true,
       "props": {
-        "kicker": "EVENTS & WORKSHOP",
-        "heading": "会いにいく、つくりにくる",
-        "body": "［仮文］マルシェや手作り市への出店と、少人数のワークショップ。ご参加はお問い合わせよりご連絡ください。"
+        "kicker": "",
+        "heading": "出店・ワークショップ",
+        "body": "参加のお問い合わせはInstagramのDMへ。"
       },
       "style": {
-        "paddingY": "lg",
+        "paddingY": "sm",
         "align": "left",
         "bg": {
           "type": "token",
@@ -156,8 +149,8 @@
       "type": "gallery",
       "visible": true,
       "props": {
-        "kicker": "GALLERY",
-        "heading": "手のあとの記録",
+        "kicker": "",
+        "heading": "制作と出店の記録",
         "items": [
           {
             "assetId": "gallery1",
@@ -250,7 +243,7 @@
         ]
       },
       "style": {
-        "paddingY": "lg",
+        "paddingY": "md",
         "align": "left",
         "bg": {
           "type": "token",
@@ -267,14 +260,15 @@
       "type": "contact-social",
       "visible": true,
       "props": {
-        "kicker": "CONTACT",
-        "heading": "お気軽にどうぞ",
-        "body": "［仮文］オーダーのご相談、ワークショップのお申し込み、出店のお声がけなど。数日以内にお返事します。",
-        "instagramLabel": "Instagram DM でもどうぞ",
-        "instagramNote": "最新の出店予定やあたらしい香りは、Instagramでお知らせしています。"
+        "kicker": "",
+        "heading": "お問い合わせ",
+        "body": "キャンドルのご相談や参加のお申し込みは、InstagramのDMでご連絡ください。",
+        "showForm": false,
+        "instagramLabel": "Instagramで問い合わせる",
+        "instagramNote": "出店予定はInstagramでもお知らせしています。"
       },
       "style": {
-        "paddingY": "lg",
+        "paddingY": "sm",
         "align": "left",
         "bg": {
           "type": "token",

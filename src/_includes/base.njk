@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ja">
+<html lang="ja" data-theme="{{ site.theme.preset | escape }}">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -53,7 +53,6 @@
   <div class="site-footer__inner">
     <div>
       <p class="site-footer__brand">teate<span class="site-header__brand-accent">1122</span></p>
-      <p class="site-footer__tagline">手当てのような灯りを、ひとつずつ。</p>
     </div>
     <div class="site-footer__links">
       {% for s in site.social %}<a href="{{ s.url }}" target="_blank" rel="noopener noreferrer" class="site-footer__social-link">{{ s.platform | capitalize }} {{ s.handle }}</a>

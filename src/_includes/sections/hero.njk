@@ -7,7 +7,7 @@
     {% for i in range(0, 14) %}<span class="hero-section__ember"></span>{% endfor %}
   </div>
   <div class="hero-section__inner">
-    <p class="kicker kicker--light">{{ section.props.kicker }}</p>
+    {% if section.props.kicker %}<p class="kicker kicker--light">{{ section.props.kicker }}</p>{% endif %}
     <h1 class="hero-section__heading">{% for line in section.props.heading | lines %}<span class="hero-section__line" style="--i:{{ loop.index0 }}">{{ line }}</span>{% endfor %}</h1>
     <p class="hero-section__body">{{ section.props.body }}</p>
   </div>
