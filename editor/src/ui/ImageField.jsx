@@ -137,7 +137,7 @@ export default function ImageField({
         />
       </label>
       <label className="field field--range">
-        <span>ズーム</span>
+        <span>拡大</span>
         <input
           type="range"
           min="1"
@@ -145,13 +145,13 @@ export default function ImageField({
           step="0.05"
           value={zoom ?? 1}
           onChange={(e) => onZoomChange(Number(e.target.value))}
-          aria-label={`${label || "写真"}のズーム`}
+          aria-label={`${label || "写真"}の拡大`}
         />
       </label>
 
       {altEditable && (
         <label className="field">
-          <span>代替テキスト（写真の説明）</span>
+          <span>写真の説明（読み上げ用）</span>
           <input type="text" value={altValue || ""} onChange={(e) => onAltChange(e.target.value)} />
         </label>
       )}

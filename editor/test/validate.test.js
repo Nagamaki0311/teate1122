@@ -71,7 +71,7 @@ test("validateHome flags an unknown assetId on hero/image-text", () => {
     baseSite,
   );
   assert.equal(result.ok, false);
-  assert.ok(result.errors.some((e) => e.includes("assets に存在しません")));
+  assert.ok(result.errors.some((e) => e.includes("写真が見つかりません")));
 });
 
 test("validateHome flags an out-of-range focal point", () => {
@@ -80,7 +80,7 @@ test("validateHome flags an out-of-range focal point", () => {
     baseSite,
   );
   assert.equal(result.ok, false);
-  assert.ok(result.errors.some((e) => e.includes("focal")));
+  assert.ok(result.errors.some((e) => e.includes("写真の位置")));
 });
 
 test("validateHome flags a zoom outside 1-3", () => {
@@ -89,7 +89,7 @@ test("validateHome flags a zoom outside 1-3", () => {
     baseSite,
   );
   assert.equal(result.ok, false);
-  assert.ok(result.errors.some((e) => e.includes("zoom")));
+  assert.ok(result.errors.some((e) => e.includes("拡大率")));
 });
 
 test("validateHome flags an empty alt on hero/image-text/gallery images", () => {
@@ -98,7 +98,7 @@ test("validateHome flags an empty alt on hero/image-text/gallery images", () => 
     baseSite,
   );
   assert.equal(result.ok, false);
-  assert.ok(result.errors.some((e) => e.includes("alt")));
+  assert.ok(result.errors.some((e) => e.includes("写真の説明")));
 });
 
 test("validateHome checks every gallery item's image ref", () => {
@@ -114,7 +114,7 @@ test("validateHome checks every gallery item's image ref", () => {
     baseSite,
   );
   assert.equal(result.ok, false);
-  assert.ok(result.errors.some((e) => e.includes("items[1]")));
+  assert.ok(result.errors.some((e) => e.includes("写真 2")));
 });
 
 test("validateEvents accepts a minimal well-formed event list", () => {

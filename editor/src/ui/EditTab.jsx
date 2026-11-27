@@ -1,24 +1,7 @@
 import { useState } from "react";
 import SectionSheet from "./SectionSheet.jsx";
 
-const TYPE_LABELS = {
-  hero: "ヒーロー",
-  text: "テキスト",
-  "image-text": "画像+テキスト",
-  "candle-grid": "キャンドル一覧",
-  events: "イベント",
-  gallery: "ギャラリー",
-  "contact-social": "お問い合わせ",
-};
-
-const SECTION_NAMES = {
-  hero: "トップ", philosophy: "理念", profile: "プロフィール", candles: "キャンドル",
-  events: "イベント・ワークショップ", gallery: "ギャラリー", contact: "お問い合わせ",
-};
-
-function sectionName(section) {
-  return SECTION_NAMES[section.id] || TYPE_LABELS[section.type] || "セクション";
-}
+import { sectionName } from "../lib/section-names.js";
 
 export default function EditTab({
   original,
@@ -74,7 +57,7 @@ export default function EditTab({
       <label className="field">
         <span>配色と書体</span>
         <select value={site.theme?.preset || "quiet-mincho"} onChange={(e) => onSiteChange({ ...site, theme: { ...site.theme, preset: e.target.value } })}>
-          <option value="quiet-mincho">生成り・見出し明朝</option>
+          <option value="quiet-mincho">生成り・はんなり明朝</option>
           <option value="forest">若葉・ゴシック</option>
           <option value="clay">薄紅・本文明朝</option>
         </select>
@@ -130,7 +113,7 @@ export default function EditTab({
             </div>
           </li>
         );})}
-        {sections.length === 0 && <p className="muted">セクションがありません。</p>}
+        {sections.length === 0 && <p className="muted">編集する項目がありません。</p>}
       </ul>
       {editingSection && (
         <SectionSheet

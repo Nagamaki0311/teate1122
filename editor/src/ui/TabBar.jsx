@@ -1,6 +1,6 @@
 const TABS = [
   { id: "edit", label: "編集" },
-  { id: "dates", label: "日程" },
+  { id: "dates", label: "出店日程" },
   { id: "publish", label: "公開" },
 ];
 

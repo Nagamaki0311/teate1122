@@ -3,9 +3,8 @@
     <div class="events__intro" data-reveal>
       {% if section.props.kicker %}<p class="kicker">{{ section.props.kicker }}</p>{% endif %}
       <h2>{{ section.props.heading }}</h2>
-      <p class="events__body">{{ section.props.body }}</p>
+      {% if section.props.body %}<p class="events__body">{{ section.props.body }}</p>{% endif %}
     </div>
-    <p class="events__group-label" data-reveal>開催予定</p>
     <div class="events__list">
       {% for e in events.upcoming %}<article class="events__card" data-reveal data-date="{{ e.date }}">
         <div class="events__card-when">
@@ -19,7 +18,7 @@
           {% if e.body %}<p class="events__desc">{{ e.body }}</p>{% endif %}
         </div>
       </article>
-      {% endfor %}<p class="events__empty"{% if events.upcoming.length %} hidden{% endif %}>現在、開催予定はありません。</p></div>
+      {% endfor %}<p class="events__empty"{% if events.upcoming.length %} hidden{% endif %}>現在、出店予定はありません。{% for account in site.social %}{% if account.platform == "instagram" %} 次回の出店は<a href="{{ account.url }}" target="_blank" rel="noopener noreferrer">Instagram</a>でお知らせします。{% endif %}{% endfor %}</p></div>
     <p class="events__group-label events__group-label--muted" data-reveal>過去の開催</p>
     <div class="events__archive">
       {% for e in events.upcoming | reverse %}<div class="events__archive-row" data-reveal data-date="{{ e.date }}" hidden>

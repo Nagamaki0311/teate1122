@@ -12,7 +12,7 @@
           <span class="contact-social__insta-handle">{{ s.handle }}</span>
         </span>
       </a>
-      {% endfor %}<p class="contact-social__note">{{ section.props.instagramNote }}</p>
+      {% endfor %}{% if section.props.instagramNote %}<p class="contact-social__note">{{ section.props.instagramNote }}</p>{% endif %}
     </div>
     {% if section.props.showForm == true %}<form name="contact" method="POST" data-netlify="true" netlify-honeypot="bot-field" class="contact-social__form" data-reveal>
       <input type="hidden" name="form-name" value="contact">
@@ -29,7 +29,6 @@
         <span>ご用件</span>
         <select id="contact-topic" name="topic">
           <option>キャンドルについて</option>
-          <option>ワークショップのお申し込み</option>
           <option>イベント出店のご依頼</option>
           <option>その他</option>
         </select>

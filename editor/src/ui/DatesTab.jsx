@@ -63,9 +63,9 @@ export default function DatesTab({ events, onChange }) {
       </ul>
 
       <form className="event-form" onSubmit={handleAdd}>
-        <h3>{editingId ? "日程を修正" : "新しい日程を追加"}</h3>
+        <h3>{editingId ? "日程を修正" : "出店予定を追加"}</h3>
         <label className="field">
-          <span>種別</span>
+          <span>活動の種類</span>
           <select value={form.kind} onChange={(e) => setForm((f) => ({ ...f, kind: e.target.value }))}>
             <option value="event">イベント出店</option>
             <option value="workshop">ワークショップ</option>
@@ -85,7 +85,7 @@ export default function DatesTab({ events, onChange }) {
           />
         </label>
         <label className="field">
-          <span>タイトル</span>
+          <span>イベント名</span>
           <input type="text" required value={form.title} onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))} />
         </label>
         <label className="field">

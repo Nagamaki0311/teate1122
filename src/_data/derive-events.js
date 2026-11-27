@@ -22,7 +22,7 @@ function archiveDateDisplay(iso) {
 // isPast is not stored in events.json; it is derived here from `date` vs
 // `todayIso` (defaults to today, but is injectable so this stays testable
 // and reproducible).
-export function deriveEvents(events, todayIso = new Date().toISOString().slice(0, 10)) {
+export function deriveEvents(events, todayIso = new Intl.DateTimeFormat("sv-SE", { timeZone: "Asia/Tokyo" }).format(new Date())) {
   const upcoming = events
     .filter((e) => e.date >= todayIso)
     .sort((a, b) => a.date.localeCompare(b.date))

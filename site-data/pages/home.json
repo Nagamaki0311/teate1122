@@ -13,7 +13,7 @@
           "灯りは、",
           "手当て。"
         ],
-        "body": "手作りキャンドルの紹介と、出店・ワークショップのお知らせ。",
+        "body": "手作りキャンドルと、次回の出店のお知らせ。",
         "image": {
           "assetId": "hero1",
           "focal": [
@@ -30,6 +30,28 @@
         "bg": {
           "type": "token",
           "value": "bg"
+        }
+      },
+      "animation": {
+        "preset": "inherit",
+        "delay": 0
+      }
+    },
+    {
+      "id": "events",
+      "type": "events",
+      "visible": true,
+      "props": {
+        "kicker": "",
+        "heading": "出店予定",
+        "body": ""
+      },
+      "style": {
+        "paddingY": "sm",
+        "align": "left",
+        "bg": {
+          "type": "token",
+          "value": "surface"
         }
       },
       "animation": {
@@ -70,10 +92,8 @@
       "props": {
         "kicker": "",
         "heading": "つくる人",
-        "subheading": "［お名前］",
-        "paragraphs": [
-          "［仮文］制作を始めたきっかけや、現在の活動について紹介します。"
-        ],
+        "subheading": "",
+        "paragraphs": [],
         "tags": [],
         "image": {
           "assetId": "profile1",
@@ -105,9 +125,9 @@
       "visible": true,
       "props": {
         "kicker": "",
-        "heading": "香りをえらぶ",
-        "body": "［仮文］五種類の香りをご紹介します。",
-        "note": "［仮文］オーダーメイド・ギフト包装のご相談も承ります。"
+        "heading": "キャンドル",
+        "body": "",
+        "note": ""
       },
       "style": {
         "paddingY": "sm",
@@ -123,34 +143,12 @@
       }
     },
     {
-      "id": "events",
-      "type": "events",
-      "visible": true,
-      "props": {
-        "kicker": "",
-        "heading": "出店・ワークショップ",
-        "body": "参加のお問い合わせはInstagramのDMへ。"
-      },
-      "style": {
-        "paddingY": "sm",
-        "align": "left",
-        "bg": {
-          "type": "token",
-          "value": "surface"
-        }
-      },
-      "animation": {
-        "preset": "inherit",
-        "delay": 0
-      }
-    },
-    {
       "id": "gallery",
       "type": "gallery",
       "visible": true,
       "props": {
         "kicker": "",
-        "heading": "制作と出店の記録",
+        "heading": "出店と制作の記録",
         "items": [
           {
             "assetId": "gallery1",
@@ -262,10 +260,10 @@
       "props": {
         "kicker": "",
         "heading": "お問い合わせ",
-        "body": "キャンドルのご相談や参加のお申し込みは、InstagramのDMでご連絡ください。",
+        "body": "出店のお声がけや作品へのお問い合わせは、InstagramのDMへ。",
         "showForm": false,
-        "instagramLabel": "Instagramで問い合わせる",
-        "instagramNote": "出店予定はInstagramでもお知らせしています。"
+        "instagramLabel": "Instagramを開く",
+        "instagramNote": ""
       },
       "style": {
         "paddingY": "sm",

@@ -3,6 +3,7 @@
 // means no API call is made at all.
 
 import { KNOWN_SECTION_TYPES, headingIsMultiline, isValidFocal } from "./schema.js";
+import { sectionName } from "./section-names.js";
 
 const EVENT_KINDS = new Set(["event", "workshop"]);
 const ASSET_FILE = /^(hero\.svg|placeholder-[a-z0-9-]+\.svg|og-image\.jpg|photos\/[a-z0-9][a-z0-9-]*\.(webp|jpg))$/;
@@ -29,21 +30,21 @@ function headingIsEmpty(heading, multiline) {
 // { assetId, focal, zoom[, alt] } image reference.
 function validateImageRef(image, site, label, errors, { altRequired }) {
   if (!image || typeof image !== "object") {
-    errors.push(`${label}: image がありません`);
+    errors.push(`${label}: 写真がありません`);
     return;
   }
   const asset = (site?.assets || []).find((a) => a.id === image.assetId);
   if (!asset) {
-    errors.push(`${label}: assetId が site.assets に存在しません ("${image.assetId}")`);
+    errors.push(`${label}: 写真が見つかりません。写真を選び直してください`);
   }
   if (!isValidFocal(image.focal)) {
-    errors.push(`${label}: focal の値が不正です（0〜1の[x, y]である必要があります）`);
+    errors.push(`${label}: 写真の位置を設定し直してください`);
   }
   if (!(Number(image.zoom) >= 1 && Number(image.zoom) <= 3)) {
-    errors.push(`${label}: zoom は1〜3の範囲で指定してください`);
+    errors.push(`${label}: 写真の拡大率は1〜3倍の範囲で指定してください`);
   }
   if (altRequired && !String(image.alt ?? "").trim()) {
-    errors.push(`${label}: alt（代替テキスト）が空です`);
+    errors.push(`${label}: 読み上げ用の写真の説明を入力してください`);
   }
 }
 
@@ -62,7 +63,7 @@ export function validateHome(home, site) {
       errors.push(`${tag}: セクションがオブジェクトではありません`);
       return;
     }
-    const label = section.id ? `${tag} (${section.id})` : tag;
+    const label = sectionName(section);
     if (!section.id) {
       errors.push(`${tag}: id がありません`);
     } else if (seenIds.has(section.id)) {
@@ -87,7 +88,7 @@ export function validateHome(home, site) {
       }
       if (section.type === "gallery") {
         (section.props?.items || []).forEach((item, gi) => {
-          validateImageRef(item, site, `${label} items[${gi}]`, errors, { altRequired: true });
+          validateImageRef(item, site, `${label}の写真 ${gi + 1}`, errors, { altRequired: true });
         });
       }
     }

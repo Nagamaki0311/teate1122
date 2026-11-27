@@ -17,14 +17,14 @@ import { stageImageUpload, ImageProcessingError } from "../lib/image.js";
 import ImageField from "./ImageField.jsx";
 
 const FIELD_LABELS = {
-  kicker: "小見出し（キッカー）",
+  kicker: "見出しの上に添える言葉",
   heading: "見出し",
   body: "本文",
-  paragraphs: "本文（段落、空行区切り）",
-  subheading: "サブ見出し",
+  paragraphs: "本文（段落の間は1行空ける）",
+  subheading: "見出しの下に添える言葉",
   note: "補足",
-  instagramLabel: "Instagramラベル",
-  instagramNote: "Instagram補足",
+  instagramLabel: "Instagramリンクの表示名",
+  instagramNote: "Instagramへの案内文",
 };
 
 // Candle name/roman/note are buffered in local state like the other text
@@ -288,7 +288,7 @@ export default function SectionSheet({
             文章の変更を取り消す
           </button>
           <button type="submit" className="btn">
-            この内容を反映
+            下書きに保存
           </button>
         </footer>
       </form>

@@ -89,11 +89,6 @@ export default function PublishTab({ draft, rawText, headSha, token, pendingImag
               {PATH_LABELS[c.path] || c.path}
             </li>
           ))}
-          {Object.keys(pendingImages || {}).map((path) => (
-            <li key={path} className="diff-list__item">
-              {path}
-            </li>
-          ))}
         </ul>
       )}
 

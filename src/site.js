@@ -57,11 +57,9 @@
   }
 
   // Events: the build sorts upcoming/past by build date, so re-sort by the
-  // viewer's local today. Cards (upcoming form) and archive rows (past form)
+  // current date in Japan. Cards (upcoming form) and archive rows (past form)
   // both exist for every upcoming event; only visibility is toggled.
-  var d = new Date();
-  var today =
-    d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2) + "-" + ("0" + d.getDate()).slice(-2);
+  var today = new Intl.DateTimeFormat("sv-SE", { timeZone: "Asia/Tokyo" }).format(new Date());
   var shown = 0;
   document.querySelectorAll(".events__card").forEach(function (card) {
     card.hidden = card.getAttribute("data-date") < today;

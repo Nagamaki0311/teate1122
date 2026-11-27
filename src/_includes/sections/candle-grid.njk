@@ -3,7 +3,7 @@
     <div class="candle-grid__intro" data-reveal>
       {% if section.props.kicker %}<p class="kicker">{{ section.props.kicker }}</p>{% endif %}
       <h2>{{ section.props.heading }}</h2>
-      <p class="candle-grid__body">{{ section.props.body }}</p>
+      {% if section.props.body %}<p class="candle-grid__body">{{ section.props.body }}</p>{% endif %}
     </div>
     <div class="candle-grid__list" role="region" aria-label="{{ section.props.heading }}の一覧">
       {% for c in candles %}<article class="candle-grid__item" data-reveal>

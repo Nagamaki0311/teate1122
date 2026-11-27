@@ -48,6 +48,11 @@
     "auto": true,
     "items": [
       {
+        "href": "/#events",
+        "label": "出店予定",
+        "visible": true
+      },
+      {
         "href": "/#philosophy",
         "label": "ものづくり",
         "visible": true
@@ -63,13 +68,8 @@
         "visible": true
       },
       {
-        "href": "/#events",
-        "label": "出店・教室",
-        "visible": true
-      },
-      {
         "href": "/#gallery",
-        "label": "ギャラリー",
+        "label": "出店の記録",
         "visible": true
       },
       {
