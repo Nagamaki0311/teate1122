@@ -6,6 +6,37 @@
   font-display: swap;
 }
 
+/* The common glyphs use a small download. New text can still use the full face. */
+@font-face {
+  font-family: 'Hannari';
+  src: url('assets/fonts/HannariMincho-Common.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0020-007E, U+00A9, U+00D7, U+2013-2014, U+3000-303F, U+3041-3096, U+3099-30FF, U+4E00, U+4E09,
+    U+4E0B, U+4E2D, U+4E88, U+4EAC, U+4EBA, U+4ED6, U+4EE4-4EE5,
+    U+4EEE, U+4EF6, U+4F1A, U+4F5C, U+4F7F, U+4F9B, U+4F9D,
+    U+4FE1, U+500B, U+5099, U+50AC, U+50CF, U+5165, U+5185,
+    U+5199, U+51FA, U+5206, U+5229, U+5236, U+524D, U+529B,
+    U+52D5, U+5305, U+53BB, U+53CE, U+53D6, U+53E3, U+5408,
+    U+540C-540D, U+54C1, U+54E1, U+554F, U+56DE, U+5728, U+57FA,
+    U+5831, U+5834, U+58F0, U+590F, U+5916, U+591C, U+5B50,
+    U+5B9A, U+5BB9, U+5BC4, U+5C4A, U+5E02, U+5E30, U+5E97,
+    U+5F53, U+5F92, U+60C5, U+610F, U+624B, U+6271, U+627F,
+    U+6301, U+63D0, U+6587, U+65B9, U+65E5, U+6625, U+666F,
+    U+66AE, U+6700, U+6728, U+672C, U+6771, U+67D1, U+67DA,
+    U+6A2A, U+6A58, U+6B21, U+6B69, U+6CB9, U+6CD5, U+6D5C,
+    U+6DFB, U+6E21, U+6E96, U+706F-7070, U+70B9, U+73FE, U+7528,
+    U+753B, U+767D, U+7684, U+76EE, U+771F, U+77E5, U+79CB,
+    U+79FB, U+7A2E, U+7A93, U+7B2C, U+7B54, U+7CBE, U+7D42,
+    U+7D5E, U+7D61, U+8005, U+81EA, U+82D4, U+84EE, U+871C,
+    U+874B, U+88C5, U+89A7, U+8A18, U+8FBC, U+9001, U+901A,
+    U+9023, U+904E, U+9078, U+90FD, U+9332, U+9589, U+958B,
+    U+95A2, U+9650, U+9664, U+967D, U+96C6, U+96E8, U+9810,
+    U+983C, U+98A8, U+9999, U+99C5, U+9EBB, U+FF08-FF09, U+FF3B,
+    U+FF3D;
+}
+
 :root {
   --color-bg: #f9f4ed;
   --color-surface: #f2ece1;
@@ -395,6 +426,7 @@ input, textarea, select { caret-color: var(--color-accent); accent-color: var(--
 @media (prefers-reduced-motion: no-preference) {
   html.js:not(.is-embedded) .gallery__item img { clip-path: inset(100% 0 0 0); scale: 1.08; transition: clip-path 1.4s var(--ease-out), scale 1.4s var(--ease-out); }
   html.js:not(.is-embedded) .gallery__item[data-in] img { clip-path: inset(0); scale: 1; }
+  :root { view-transition-name: none; }
   ::view-transition-group(*) { animation-duration: .6s; animation-timing-function: var(--ease-out); }
 }
 @media (prefers-reduced-motion: no-preference) and (hover: hover) and (pointer: fine) {

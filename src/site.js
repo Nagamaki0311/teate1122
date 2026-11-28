@@ -12,7 +12,7 @@
           }
         });
       },
-      { rootMargin: "0px 0px -8% 0px", threshold: 0.08 }
+      { rootMargin: "0px 0px -8% 0px", threshold: 0 }
     );
     document.querySelectorAll("[data-reveal]").forEach(function (el) {
       // Stagger siblings that reveal together: 0/90/180/270ms by position among [data-reveal] siblings.
@@ -35,10 +35,16 @@
   var header = document.querySelector(".site-header");
   if (hero && "IntersectionObserver" in window) {
     var first = hero.parentElement.firstElementChild === hero;
+    var heroVisible = false;
+    function syncHeroMotion() {
+      hero.toggleAttribute("data-embers-paused", document.hidden || !heroVisible);
+    }
+    document.addEventListener("visibilitychange", syncHeroMotion);
     new IntersectionObserver(
       function (entries) {
         var on = entries[0].isIntersecting;
-        hero.toggleAttribute("data-embers-paused", !on);
+        heroVisible = on;
+        syncHeroMotion();
         if (first && header) header.toggleAttribute("data-solid", !on);
       },
       { rootMargin: "-" + (header ? header.offsetHeight : 0) + "px 0px 0px 0px" }
@@ -53,7 +59,8 @@
       else candleList.removeAttribute("tabindex");
     };
     syncScroll();
-    window.addEventListener("resize", syncScroll);
+    if ("ResizeObserver" in window) new ResizeObserver(syncScroll).observe(candleList);
+    else window.addEventListener("resize", syncScroll);
   }
 
   // Events: the build sorts upcoming/past by build date, so re-sort by the
@@ -88,13 +95,26 @@
       item.hidden = filter !== "all" && item.getAttribute("data-category") !== filter;
     });
   }
+  var activeTransition;
+  var selectedFilter = "all";
   tabs.forEach(function (tab) {
     tab.addEventListener("click", function () {
       var filter = tab.getAttribute("data-gallery-filter");
-      if (document.startViewTransition && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-        document.startViewTransition(function () {
-          apply(filter);
+      if (filter === selectedFilter) return;
+      selectedFilter = filter;
+      if (activeTransition) {
+        // Rapid taps should show the latest selection without queuing animations.
+        activeTransition.skipTransition();
+        apply(filter);
+      } else if (document.startViewTransition && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        var transition = document.startViewTransition(function () {
+          apply(selectedFilter);
         });
+        activeTransition = transition;
+        function finish() {
+          activeTransition = null;
+        }
+        transition.finished.then(finish, finish);
       } else {
         apply(filter);
       }

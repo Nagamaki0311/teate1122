@@ -3,7 +3,7 @@
     <div class="image-text" data-image-position="{{ section.props.imagePosition }}" data-reveal>
     {% set photo = site.assets | findAsset(section.props.image.assetId) %}
     <div class="image-text__media" style="--photo-ratio:{{ photo.w }} / {{ photo.h }}">
-      <img class="image-text__img" style="--focal-x:{{ section.props.image.focal[0] | pct }}%;--focal-y:{{ section.props.image.focal[1] | pct }}%;--zoom:{{ section.props.image.zoom }}" src="assets/{{ (site.assets | findAsset(section.props.image.assetId)).file }}" alt="{{ section.props.image.alt }}" loading="lazy">
+      <img class="image-text__img" style="--focal-x:{{ section.props.image.focal[0] | pct }}%;--focal-y:{{ section.props.image.focal[1] | pct }}%;--zoom:{{ section.props.image.zoom }}" src="assets/{{ (site.assets | findAsset(section.props.image.assetId)).file }}" alt="{{ section.props.image.alt }}" loading="lazy" decoding="async">
     </div>
     <div class="image-text__content">
       {% if section.props.kicker %}<p class="kicker">{{ section.props.kicker }}</p>{% endif %}
